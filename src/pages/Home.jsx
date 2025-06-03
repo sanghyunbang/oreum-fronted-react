@@ -6,14 +6,6 @@ const Home = () => {
     const navigate = useNavigate();
     return(
         <div className='home-container'>
-            <section className='curation-section'>
-                <h2>테마별 코스 큐레이션</h2>
-                <div className='curation-boxes'>
-                    <div className='curation-card'>도심 속 가까운 등산 BEST 5</div>
-                    <div className='curation-card'>초보자도 쉽게 도전할 수 있는 코스 BEST 7</div>
-                </div>
-            </section>
-
             <section className="feed-section">
                 <h2>피드</h2>
                 <div className="feed-post">게시글 1 (예시)</div>
@@ -23,9 +15,9 @@ const Home = () => {
             <section className="ranking-section">
                 <h2>지금 인기있는 산</h2>
                 <ul>
-                <li>대둔산</li>
-                <li>백운대</li>
-                <li>불암산</li>
+                    <li>대둔산</li>
+                    <li>백운대</li>
+                    <li>불암산</li>
                 </ul>
             </section>
 

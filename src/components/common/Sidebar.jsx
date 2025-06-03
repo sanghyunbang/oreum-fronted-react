@@ -1,8 +1,10 @@
 import React from 'react';
+import CurationAd from './CurationAd';
 
 const Sidebar = () => {
   return (
-    <aside style={{ width: '250px', backgroundColor: '#f5f5f5', padding: '1rem' }}>
+    <aside style={{ width: '250px', backgroundColor: '#f5f5f5', padding: '1rem' }}>    
+      <CurationAd />
       <div>
         <h4>CUSTOM FEEDS</h4>
         <p>➕ Create a custom feed</p>
