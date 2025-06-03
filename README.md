@@ -2,6 +2,7 @@
 npm install @reduxjs/toolkit react-redux
 npm install react-router-dom
 npm install styled-components
+npm install http-proxy-middleware --save
 
 
 # commit convention(커밋 메시지 규칙)
