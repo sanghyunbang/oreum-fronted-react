@@ -1,9 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import MapFromKakao from '../components/map/MapFromKakao';
 
 const MapPage = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  //외부 관련
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const styles = getStyles(isSidebarOpen);
+  
+  // VM 관련
+  const [trails, setTrails] = useState([]);
+  const VWORLD_KEY = process.env.REACT_APP_VWORLD_API_KEY;
+  const emdCode = '11110101'; // 청운효자동 (서울 종로구)
+
+  useEffect(() => {
+    const fetchTrails = async () => {
+      try {
+        const url = `/vworld/req/data?service=data&version=2.0&request=GetFeature&format=json&data=LT_L_FRSTCLIMB&key=${VWORLD_KEY}&attrFilter=emdCd:=:${emdCode}&domain=http://localhost:3000`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (
+          data?.response?.status === 'OK' &&
+          data?.response?.result?.featureCollection?.features
+        ) {
+          const items = data.response.result.featureCollection.features.map((f) => {
+            const properties = f.properties;
+            const geometry = f.geometry;
+
+            const ag_geom = (() => {
+              if (!geometry) return null;
+
+              if (geometry.type === 'LineString') {
+                return `LINESTRING(${geometry.coordinates.map((c) => c.join(' ')).join(',')})`;
+              }
+
+              if (geometry.type === 'MultiLineString') {
+                const firstLine = geometry.coordinates[0];
+                return `LINESTRING(${firstLine.map((c) => c.join(' ')).join(',')})`;
+              }
+
+              return null;
+            })();
+
+            return {
+              ...properties,
+              ag_geom,
+            };
+          });
+
+          setTrails(items);
+        } else {
+          console.error('❌ API 응답 실패:', data);
+        }
+      } catch (error) {
+        console.error('❗ fetch 실패:', error);
+      }
+    };
+    fetchTrails();
+  }, [VWORLD_KEY]);
+
   return (
     <div style={styles.containerStyle}>
       {/* ✅ 토글 버튼은 사이드바 바깥쪽에 배치 */}
@@ -25,7 +81,7 @@ const MapPage = () => {
       </div>
   
       <div style={styles.mapStyle}>
-        <div style={styles.mapPlaceholderStyle}>[지도 미리보기]</div>
+        <div style={styles.mapPlaceholderStyle}><MapFromKakao /></div>
       </div>
     </div>
   );
@@ -60,7 +116,7 @@ const getStyles = (isSidebarOpen) => ({
       backgroundColor: 'white',
       border: '1px solid #ccc',
     },
-    // ✅ 토글 버튼은 sidebar 안이 아니라 절대 위치
+    // 토글 버튼은 sidebar 안이 아니라 절대 위치
     toggleBtnStyle: (isSidebarOpen) => ({
       position: 'absolute',
       top: '10px',
