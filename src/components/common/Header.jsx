@@ -13,7 +13,7 @@ const Header = () => {
       justifyContent: 'space-between',
       alignItems: 'center'
     }}>
-      {/* ✅ 홈으로 이동하는 링크 */}
+      {/* 홈으로 이동하는 링크 */}
       <Link to="/" style={{ color: 'white', textDecoration: 'none' }}>
         오름 | OREUM ⛰
       </Link>
