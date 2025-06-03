@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 const LoginPage = ()=>{
-    const [formData, setFormData] = useState({userid:"",pw:""});
+    const [formData, setFormData] = useState({nickname:"",pw:""});
     const [errors, setErrors] = useState({});
     const people = {nickname:"안녕",pw:"123"};
     const doChange = (e)=>{
@@ -36,8 +36,8 @@ const LoginPage = ()=>{
                     비밀번호<input type='text' name='pw' value={formData.pw||""} onChange={doChange} />
                     {errors.pw && <div style={{ color: 'red' }}>{errors.pw}</div>}<br/><br/>
                     <button type='submit'>로그인</button> <br/>
-                    아이디 찾기 
-                    비밀번호찾기 
+                    <Link to="/fuid" style={{ color: 'black', textDecoration: 'none' }}>아이디 찾기</Link>
+                    <Link to="/fpw" style={{ color: 'black', textDecoration: 'none' }}>비밀번호 찾기</Link>
                     <Link to="/join" style={{ color: 'black', textDecoration: 'none' }}> 회원가입</Link>
                 </form>
             </div>

@@ -41,7 +41,7 @@ const JoinPage = () => {
   };
 
   return (
-    <div>
+    <div style={{textAlign:'center'}}>
       <h1>회원가입</h1>
       <div>프로필이미지</div>
       <form onSubmit={doSubmit}>
