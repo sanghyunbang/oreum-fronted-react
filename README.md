@@ -1,6 +1,6 @@
 # 설치 라이브러리
-npm install redux
-npm install react-redux
+npm install @reduxjs/toolkit react-redux
+npm install react-router-dom
 
 # commit convention(커밋 메시지 규칙)
 
