@@ -4,6 +4,7 @@ import Home from '../pages/Home';
 import MapPage from '../pages/MapPage';
 import BoardPage from '../pages/BoardPage';
 import LoginPage from '../pages/LoginPage';
+import JoinPage from '../pages/Join_Page';
 
 const AppRoutes = () => (
   <Router>
@@ -13,6 +14,7 @@ const AppRoutes = () => (
         <Route path="board" element={<BoardPage />} />
         <Route path="map" element={<MapPage />} /> {/* 지도 페이지 */}
         <Route path="login" element={<LoginPage />} />
+        <Route path="join" element={<JoinPage />}  />
       </Route>
     </Routes>
   </Router>
