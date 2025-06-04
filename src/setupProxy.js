@@ -6,9 +6,17 @@ module.exports = function(app) {
     createProxyMiddleware({
       target: 'https://api.vworld.kr',
       changeOrigin: true,
-      pathRewrite: {
-        '^/vworld': '', // /vworld를 제거
-      },
+      pathRewrite: { '^/vworld': '' }, //vword제거
+    })
+  );
+
+  // ✅ 기상청 프록시 추가
+  app.use(
+    '/weatherapi',
+    createProxyMiddleware({
+      target: 'https://apis.data.go.kr',
+      changeOrigin: true,
+      pathRewrite: { '^/weatherapi': '' },
     })
   );
 };
