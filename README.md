@@ -4,9 +4,8 @@ npm install react-router-dom
 npm install styled-components
 npm install http-proxy-middleware --save
 
-npm install -D tailwindcss postcss autoprefixer
-npm install -D tailwindcss
-npx tailwindcss init -p
+npm install -D tailwindcss@3 postcss autoprefixer
+npx tailwindcss init
 
 
 
