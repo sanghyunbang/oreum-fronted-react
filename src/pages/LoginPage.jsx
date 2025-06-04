@@ -1,14 +1,23 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const LoginPage = ()=>{
     const [formData, setFormData] = useState({nickname:"",pw:""});
     const [errors, setErrors] = useState({});
+    const [logged, doLogged] = useState(false);
+    const navigate = useNavigate();
+    
     const people = {nickname:"안녕",pw:"123"};
+    
     const doChange = (e)=>{
         setFormData(prev=>({...prev,[e.target.name]:e.target.value}));
         setErrors(prev => ({ ...prev, [e.target.name]: "" }));
     }
+
+    const handleAree = (e)=>{
+        doLogged(e.target.checked);
+    }
+
     const doSubmit=async(e)=>{
          e.preventDefault();
         const newErrors = {};
@@ -25,7 +34,30 @@ const LoginPage = ()=>{
         }else{
             alert("로그인 성공!!!");
         }
+        if (logged) {
+            localStorage.setItem("loggedIn", "true");
+            localStorage.setItem("nickname", formData.nickname);
+        }
     }
+
+    //로그인 시작시 자동 로그인확인 ex) 자동로그인 체크시 그냥 넘어가짐
+    useEffect(() => {
+        const isLoggedIn = localStorage.getItem("loggedIn");
+        const savedNickname = localStorage.getItem("nickname");
+        if (isLoggedIn === "true" && savedNickname) {
+            alert(`${savedNickname}님 자동 로그인되었습니다.`);
+            // navigate("/");
+            // 여기서 원하는 동작 추가 가능 (예: 리디렉션 등)
+        }
+    }, []);
+
+    //로그아웃
+    const doLogout = () => {
+        localStorage.removeItem("loggedIn");
+        localStorage.removeItem("nickname");
+        alert("로그아웃 되었습니다.");
+    };
+
     return (
         <div style={{textAlign:'center'}}>
             <h1>로그인</h1>
@@ -34,7 +66,10 @@ const LoginPage = ()=>{
                     아이디<input type='text' name='nickname' value={formData.nickname||""} onChange={doChange} />
                     {errors.nickname && <div style={{ color: 'red' }}>{errors.nickname}</div>}<br/><br/>
                     비밀번호<input type='text' name='pw' value={formData.pw||""} onChange={doChange} />
-                    {errors.pw && <div style={{ color: 'red' }}>{errors.pw}</div>}<br/><br/>
+                    {errors.pw && <div style={{ color: 'red' }}>{errors.pw}</div>}<br/>
+                    
+                    <input type="checkbox" name="logged" checked={logged} onChange={handleAree}/>
+                    <label>로그인 상태 유지</label><br/>
                     <button type='submit'>로그인</button> <br/>
                     <Link to="/fuid" style={{ color: 'black', textDecoration: 'none' }}>아이디 찾기</Link>
                     <Link to="/fpw" style={{ color: 'black', textDecoration: 'none' }}>비밀번호 찾기</Link>
