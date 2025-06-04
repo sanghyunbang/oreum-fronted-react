@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import MainBoard from '../components/board/MainBoard';
+import MiniDisplay from '../components/board/MiniDisplay';
 
 
 const Home = () => {
@@ -7,9 +9,7 @@ const Home = () => {
     return(
         <div className='home-container'>
             <section className="feed-section">
-                <h2>피드</h2>
-                <div className="feed-post">게시글 1 (예시)</div>
-                <div className="feed-post">게시글 2 (예시)</div>
+                <MainBoard />
             </section>
 
             <section className="ranking-section">
@@ -22,7 +22,7 @@ const Home = () => {
             </section>
 
             <section className="map-preview">
-                <h2>이번번 주엔 어떤 산으로 갈까요?</h2>
+                <MiniDisplay />
                 <input type="text" placeholder="어느 산을 찾으시나요?" />
                 <div className="map-placeholder">[지도 미리보기]</div>
 
