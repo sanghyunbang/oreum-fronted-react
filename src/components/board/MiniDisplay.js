@@ -5,6 +5,7 @@ import "slick-carousel/slick/slick-theme.css";
 
 function MiniDisplay() {
   const [search, setSearch] = useState("");
+  const [desti, setDesti] = useState([]);
 
   const destinations = [
     { id: 1, name: "설악산", image: "/images/seorak.jpg" },

@@ -14,6 +14,7 @@ npx tailwindcss init
 
 npm install axios
 
+npm install react-slick slick-carousel
 
 # commit convention(커밋 메시지 규칙)
 
