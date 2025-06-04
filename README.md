@@ -12,6 +12,8 @@ npx tailwindcss init
 @tailwind components;
 @tailwind utilities;
 
+npm install axios
+
 
 # commit convention(커밋 메시지 규칙)
 
