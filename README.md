@@ -7,6 +7,10 @@ npm install http-proxy-middleware --save
 npm install -D tailwindcss@3 postcss autoprefixer
 npx tailwindcss init
 
+// index.css에 다음 3개의 annotation 쓰기
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 
 # commit convention(커밋 메시지 규칙)
