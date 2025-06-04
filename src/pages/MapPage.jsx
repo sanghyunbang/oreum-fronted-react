@@ -80,7 +80,7 @@ const MapPage = () => {
         )}
       </div>
   
-      <div style={styles.mapStyle}>
+      <div className="mapArea" style={styles.mapStyle}>
         <div style={styles.mapPlaceholderStyle}><MapFromKakao /></div>
       </div>
     </div>

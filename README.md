@@ -5,6 +5,7 @@ npm install styled-components
 npm install http-proxy-middleware --save
 
 npm install -D tailwindcss postcss autoprefixer
+npm install -D tailwindcss
 npx tailwindcss init -p
 
 
