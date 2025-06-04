@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MapFromKakao from '../components/map/MapFromKakao';
+import Search from '../components/map/sidebar/Search';
 
 const MapPage = () => {
 
@@ -71,12 +72,12 @@ const MapPage = () => {
       </button>
   
       <div style={styles.sidebarStyle}>
-        {isSidebarOpen && (
-          <div style={{ padding: '20px' }}>
-            <h2>이번 주엔 어느 산으로 갈까요?</h2>
-            <input type="text" placeholder="어느 산을 찾으시나요?" />
-            <p>산 목록, 추천 코스 등 사이드바 내용이 여기에 들어갑니다.</p>
-          </div>
+        {isSidebarOpen && ( <Search />
+          // <div style={{ padding: '20px' }}>
+          //   <h2>이번 주엔 어느 산으로 갈까요?</h2>
+          //   <input type="text" placeholder="어느 산을 찾으시나요?" />
+          //   <p>산 목록, 추천 코스 등 사이드바 내용이 여기에 들어갑니다.</p>
+          // </div>
         )}
       </div>
   
