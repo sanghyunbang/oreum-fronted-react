@@ -7,6 +7,7 @@ import LoginPage from '../pages/LoginPage';
 import JoinPage from '../pages/Join_Page';
 import FindPw from '../pages/Find_Pw';
 import FindUserid from '../pages/Find_Userid';
+import WritePost from '../components/board/WritePost';
 
 const AppRoutes = () => (
   <Router>
@@ -19,6 +20,7 @@ const AppRoutes = () => (
         <Route path="join" element={<JoinPage />}  />
         <Route path="fpw" element={<FindPw />} />
         <Route path="fuid" element={<FindUserid />} />
+        <Route path="Write" element={<WritePost />} />
       </Route>
     </Routes>
   </Router>

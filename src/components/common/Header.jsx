@@ -21,7 +21,7 @@ const Header = () => {
       🔍 검색창 자리
 
       <Link to="/login" style={{ color: 'white', textDecoration: 'none' }}>👤 로그인</Link> 
-      / 유저 메뉴
+      <Link to="/Write" style={{ color: 'white', textDecoration: 'none' }}> + 글쓰기 </Link>
     </header>
   );
 };

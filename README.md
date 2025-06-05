@@ -14,7 +14,14 @@ npx tailwindcss init
 
 npm install axios
 
+//사진 슬라이드 캐러셀 기능
 npm install react-slick slick-carousel
+
+//글쓰기 에디터 기능 설치 필요
+npm list react-quill
+    //에디터 기능 실행을 위한 버전 다운
+    npm install react@18.2.0 react-dom@18.2.0
+
 
 # commit convention(커밋 메시지 규칙)
 
