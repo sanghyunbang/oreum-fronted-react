@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPosts } from '../../redux/boardSlice';
 
@@ -9,36 +9,42 @@ const PostFeed = () => {
   const [page, setPage] = useState(1);
   const observer = useRef();
 
+  const lastPostRef = useCallback(
+    (node) => {
+      if (status === 'loading') return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          setPage((prev) => prev + 1);
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [status]
+  );
+
   useEffect(() => {
     dispatch(fetchPosts(page));
   }, [dispatch, page]);
 
-  const lastPostRef = useCallback((node) => {
-    if (status === 'loading') return;
-    if (observer.current) observer.current.disconnect();
-
-    observer.current = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting) {
-        setPage((prev) => prev + 1);
-      }
-    });
-
-    if (node) observer.current.observe(node);
-  }, [status]);
-
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+    <div className="flex flex-col items-center gap-6 px-4">
       {posts.map((post, index) => (
         <div
           key={post.id}
           ref={index === posts.length - 1 ? lastPostRef : null}
-          className="bg-white rounded shadow"
+          className="w-full max-w-2xl bg-white shadow-md rounded-lg overflow-hidden"
         >
-          <img src={post.download_url} alt={post.author} className="w-full h-60 object-cover" />
-          <p className="text-sm text-center p-2">{post.author}</p>
+          <img
+            src={post.download_url}
+            alt={post.author}
+            className="w-full h-auto max-h-[500px] object-cover"
+          />
+          <div className="p-4 text-sm text-gray-800">
+            <p className="font-semibold">{post.author}</p>
+          </div>
         </div>
       ))}
-      {status === 'loading' && <p className="col-span-full text-center">로딩 중...</p>}
     </div>
   );
 };
