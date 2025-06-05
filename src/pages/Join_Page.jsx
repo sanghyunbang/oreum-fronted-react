@@ -11,18 +11,41 @@ const JoinPage = () => {
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showmarketing,setShowMarketing] = useState(false);
+  const [showPassword,setShowPassword] = useState(); //비밀번호 보기, 숨기기
 
   const refs = {userid: useRef(), nickname: useRef(), pw: useRef(), pwCheck: useRef(), email: useRef()};
 
+  //
   const doChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     setErrors((prev) => ({ ...prev, [e.target.name]: "" }));
   };
 
-  const emailCheck = () => {
-    setDoShow(true);
+  //이메일 형식 체크
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
+  //이메일 인증번호
+  const emailCheck = () => {
+  if (!formData.email.trim()) {
+    setErrors(prev => ({ ...prev, email: "이메일(을)를 입력하세요." }));
+    return;
+  }else if (!isValidEmail(formData.email)) {
+    setErrors(prev => ({ ...prev, email: "올바른 이메일 형식이 아닙니다." }));
+    refs.email.current.focus();
+    return;
+  }
+  alert("인증번호가 발송되었습니다.")
+  setDoShow(true);
+  };
+
+  const doECheck = ()=>{
+    alert("인증완료");
+  }
+
+  //약관 전체 동의
   const handleAgreeAll = (e) => {
     const checked = e.target.checked;
     setAgreeAll(checked);
@@ -33,6 +56,7 @@ const JoinPage = () => {
     });
   };
 
+  //약관 개별 동의
   const handleAgree = (e)=>{
     setAgree(prev => {
       const newState = { ...prev, [e.target.name]: e.target.checked };
@@ -41,14 +65,19 @@ const JoinPage = () => {
     });
   }
 
+  //폼 제출
   const doSubmit = (e) => {
     e.preventDefault();
     const newErrors = {};
     if (!formData.nickname.trim()) newErrors.nickname = "아이디(을)를 입력하세요.";
+    else if (formData.nickname.length < 4 || formData.nickname.length > 20) newErrors.nickname = "아이디는 4자 이상 20자 이하로 입력해주세요.";
     if (!formData.pw.trim()) newErrors.pw = "비밀번호(을)를 입력하세요.";
+    else if (formData.pw.length < 8 || formData.pw.length > 20) newErrors.pw = "비밀번호는 8자 이상 20자 이하로 입력해주세요.";
     if (!formData.pwCheck.trim()) newErrors.pwCheck = "비밀번호 확인(을)를 입력하세요.";
     if (formData.pw !== formData.pwCheck) newErrors.pwCheck = "비밀번호가 일치하지 않습니다.";
     if (!formData.email.trim()) newErrors.email = "이메일(을)를 입력하세요.";
+
+    //에러가 있을시 에러표시 및 포커스
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       const firstErrorField = Object.keys(newErrors)[0];
@@ -93,15 +122,16 @@ const JoinPage = () => {
 
       <form onSubmit={doSubmit} className="space-y-5">
         <div>
-          <label className="block mb-1 font-medium">아이디</label>
+          <label className="block mb-1 font-medium">아이디 <span className="text-red-500">*</span></label>
           <input
             type="text"
             name="nickname"
             value={formData.nickname}
             onChange={doChange}
             ref={refs.nickname}
-            onBlur={() => {
+            onBlur={() => { //아이디 입력칸에서 벗어났을 때 조건문에 걸리면 에러 표시 (나머지도 동일)
               if (!formData.nickname.trim()) setErrors(prev => ({ ...prev, nickname: "아이디(을)를 입력하세요." }));
+              else if (formData.nickname.length < 4||formData.nickname.length > 20) setErrors(prev => ({...prev, nickname: "아이디는 4자 이상 20자 이하로 입력해주세요." }));
               else setErrors(prev => ({ ...prev, nickname: "" }));
             }}
             className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring ${errors.nickname ? 'border-red-500' : 'border-gray-300'}`}
@@ -110,24 +140,29 @@ const JoinPage = () => {
         </div>
 
         <div>
-          <label className="block mb-1 font-medium">비밀번호</label>
+          <label className="block mb-1 font-medium">비밀번호 <span className="text-red-500">*</span></label>
           <input
-            type="password"
+            type={showPassword?"text":"password"}
             name="pw"
             value={formData.pw}
             onChange={doChange}
             ref={refs.pw}
             onBlur={() => {
               if (!formData.pw.trim()) setErrors(prev => ({ ...prev, pw: "비밀번호(을)를 입력하세요." }));
+              else if(formData.pw.length < 8||formData.pw.length > 20) setErrors(prev =>({...prev, pw:"비밀번호는 8자 이상 20자 이하로 입력해주세요."}))
+              else if(formData.pwCheck!==formData.pw) setErrors(prev=> ({...prev, pwCheck:"비밀번호가 일치 하지않습니다."}))
               else setErrors(prev => ({ ...prev, pw: "" }));
             }}
             className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring ${errors.pw ? 'border-red-500' : 'border-gray-300'}`}
           />
+          <button type="button" onClick={() => setShowPassword(prev => !prev)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-600 text-sm">
+            {showPassword ? "숨기기" : "보기"}
+          </button>
           {errors.pw && <p className="text-red-500 text-sm mt-1">{errors.pw}</p>}
         </div>
 
         <div>
-          <label className="block mb-1 font-medium">비밀번호 확인</label>
+          <label className="block mb-1 font-medium">비밀번호 확인 <span className="text-red-500">*</span></label>
           <input
             type="password"
             name="pwCheck"
@@ -135,7 +170,8 @@ const JoinPage = () => {
             onChange={doChange}
             ref={refs.pwCheck}
             onBlur={() => {
-              if (!formData.pwCheck.trim()) setErrors(prev => ({ ...prev, pwCheck: "비밀번호(을)를 입력하세요." }));
+              if (!formData.pwCheck.trim()) setErrors(prev => ({ ...prev, pwCheck: "비밀번호 확인(을)를 입력하세요." }));
+              else if(formData.pwCheck!==formData.pw) setErrors(prev=> ({...prev, pwCheck:"비밀번호가 일치 하지않습니다."}))
               else setErrors(prev => ({ ...prev, pwCheck: "" }));
             }}
             className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring ${errors.pwCheck ? 'border-red-500' : 'border-gray-300'}`}
@@ -144,7 +180,7 @@ const JoinPage = () => {
         </div>
 
         <div>
-          <label className="block mb-1 font-medium">이메일</label>
+          <label className="block mb-1 font-medium">이메일 <span className="text-red-500">*</span></label>
           <div className="flex space-x-2">
             <input
               type="email"
@@ -152,8 +188,10 @@ const JoinPage = () => {
               value={formData.email}
               onChange={doChange}
               ref={refs.email}
+              readOnly={doShow}
               onBlur={() => {
                 if (!formData.email.trim()) setErrors(prev => ({ ...prev, email: "이메일(을)를 입력하세요." }));
+                else if (!isValidEmail(formData.email)) setErrors(prev => ({ ...prev, email: "올바른 이메일 형식이 아닙니다." }));
                 else setErrors(prev => ({ ...prev, email: "" }));
               }}
               className={`flex-grow border rounded px-3 py-2 focus:outline-none focus:ring ${errors.email ? 'border-red-500' : 'border-gray-300'}`}
@@ -165,13 +203,13 @@ const JoinPage = () => {
           {doShow && (
             <div className="mt-2 flex space-x-2">
               <input type="number" name="certification" className="flex-grow border rounded px-3 py-2 focus:outline-none focus:ring" />
-              <button type="button" className="bg-green-500 text-white px-4 rounded hover:bg-green-600">인증 확인</button>
+              <button type="button" className="bg-green-500 text-white px-4 rounded hover:bg-green-600" onClick={doECheck}>인증 확인</button>
             </div>
           )}
         </div>
 
         <div>
-          <label className="block mb-1 font-medium">주소</label>
+          <label className="block mb-1 font-medium">주소(선택)</label>
           <input
             type="text"
             name="address"
@@ -186,6 +224,7 @@ const JoinPage = () => {
             <input type="checkbox" checked={agreeAll} onChange={handleAgreeAll} className="form-checkbox" />
             <span className="font-semibold">모두 동의합니다</span>
           </label>
+          <hr />
 
           <label className="block">
             <input type="checkbox" name="terms" checked={agree.terms} onChange={handleAgree} className="form-checkbox" />
