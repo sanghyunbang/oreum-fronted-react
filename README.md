@@ -22,6 +22,9 @@ npm list react-quill
     //에디터 기능 실행을 위한 버전 다운
     npm install react@18.2.0 react-dom@18.2.0
 
+// 사용된 아이콘 라이브러리
+npm install react-icons
+
 
 # commit convention(커밋 메시지 규칙)
 

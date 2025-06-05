@@ -7,7 +7,11 @@ import LoginPage from '../pages/LoginPage';
 import JoinPage from '../pages/Join_Page';
 import FindPw from '../pages/Find_Pw';
 import FindUserid from '../pages/Find_Userid';
-import WritePost from '../components/board/WritePost';
+
+// 새로 만든 페이지 import
+import MainFeedPage from '../pages/BoardPages/MainFeedPage';
+import PostDetailPage from '../pages/BoardPages/PostDetailPage';
+import WritePostPage from '../pages/BoardPages/WritePostPage';
 
 const AppRoutes = () => (
   <Router>
@@ -15,12 +19,16 @@ const AppRoutes = () => (
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
         <Route path="board" element={<BoardPage />} />
-        <Route path="map" element={<MapPage />} /> {/* 지도 페이지 */}
+        <Route path="map" element={<MapPage />} />
         <Route path="login" element={<LoginPage />} />
-        <Route path="join" element={<JoinPage />}  />
+        <Route path="join" element={<JoinPage />} />
         <Route path="fpw" element={<FindPw />} />
         <Route path="fuid" element={<FindUserid />} />
-        <Route path="Write" element={<WritePost />} />
+
+        {/* 새로 추가된 라우트들 */}
+        <Route path="feed" element={<MainFeedPage />} />
+        <Route path="feed/:id" element={<PostDetailPage />} />
+        <Route path="feed/write" element={<WritePostPage />} />
       </Route>
     </Routes>
   </Router>
