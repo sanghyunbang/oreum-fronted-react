@@ -1,63 +1,29 @@
 import { useState } from "react";
 import axios from "axios";
+import UseMountainWeather from "../../../hooks/map/UseMoutainWeather";
 
 const mountainList = ['북한산', '도봉산', '한라산', '설악산', '치악산'];
 
-//인코딩 키
-const API_KEY = "Rx9Ez4voG7r9hAZRsYbX7gOcZ3rNA678Jw2Pg4weTBf5HonR6GNR6vqhCaIjy5HPXceLoHxw6KuZrzg0yAjmhw%3D%3D";
 
 const Search = () => {
+
+  // 산정보 관련 훅 셋팅
+  const {
+    weather: mountainWeather, 
+    error: weatherError, fetchWeatherByMountain } = UseMountainWeather(); 
+
   const [inputText, setInputText] = useState("");
-  const [weather, setWeather] = useState(null);
-  const [error, setError] = useState("");
 
   const handleSearch = async () => {
-    setError("");
-    setWeather(null);
-
     const trimmed = inputText.trim();
     if (!trimmed) return;
 
     if (mountainList.includes(trimmed)) {
-      await fetchMountainWeather(trimmed);
+      await fetchWeatherByMountain(trimmed); // hook에서 가져온 메서드만 실행
     } else {
-      setError("현재는 산 이름만 지원됩니다.");
+      alert("현재는 산 이름만 지원합니다.");
     }
-  };
-
-  const fetchMountainWeather = async (mtNm) => {
-    try {
-      const now = new Date();
-      const tmFc = getForecastTime(now);
-
-      const url = `/weatherapi/1360000/MtWeatherInfoService/getMtWeatherInfo?serviceKey=${API_KEY}&pageNo=1&numOfRows=10&dataType=JSON&mtNm=${encodeURIComponent(mtNm)}&tmFc=${tmFc}`;
-
-      const res = await axios.get(url);
-      const items = res.data.response?.body?.items?.item;
-
-      if (!items || items.length === 0) {
-        setError("해당 산의 기상 정보를 찾을 수 없습니다.");
-        return;
-      }
-
-      const item = items[0];
-
-      setWeather({
-        type: "mountain",
-        name: item.mountain,
-        sky: item.sky,
-        pty: item.pty,
-        temp: item.ta,
-        wind: item.ws,
-        rnSt: item.rnSt,
-        icon: getWeatherIcon(item.sky, item.pty),
-      });
-    } catch (err) {
-      console.error(err);
-      setError("산악예보를 불러오지 못했습니다.");
-    }
-  };
-
+  }
   const getForecastTime = (date) => {
     const yyyy = date.getFullYear();
     const mm = String(date.getMonth() + 1).padStart(2, "0");
@@ -102,7 +68,7 @@ const Search = () => {
             key={i}
             onClick={() => {
               setInputText(name);
-              fetchMountainWeather(name);
+              fetchWeatherByMountain(name); // ✅ 수정
             }}
             className="bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded-full"
           >
@@ -111,6 +77,7 @@ const Search = () => {
         ))}
       </div>
 
+      {/* 검색창 */}
       <div className="flex gap-2 mb-4">
         <input
           type="text"
@@ -127,24 +94,30 @@ const Search = () => {
         </button>
       </div>
 
-      {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
+      {/* 에러 메시지 */}
+      {weatherError && (
+        <p className="text-red-600 text-sm mb-3">{weatherError}</p>
+      )}
 
-      {weather && (
+      {/* 날씨 결과 */}
+      {mountainWeather && (
         <div className="bg-white p-4 rounded-lg shadow text-sm flex items-center gap-4">
-          <i className={`wi ${weather.icon} text-4xl text-blue-500`} />
+          <i className={`wi ${getWeatherIcon(mountainWeather.sky, mountainWeather.pty)} text-4xl text-blue-500`} />
           <div>
-            <p className="font-bold mb-2">{weather.name} 정상의 오늘 날씨</p>
+            <p className="font-bold mb-2">{mountainWeather.name} 정상의 오늘 날씨</p>
             <ul className="list-disc ml-5">
-              <li>하늘 상태: {mapSkyToText(weather.sky)}</li>
-              <li>기온: {weather.temp}℃</li>
-              <li>풍속: {weather.wind} m/s</li>
-              <li>강수 확률: {weather.rnSt}%</li>
+              <li>하늘 상태: {mapSkyToText(mountainWeather.sky)}</li>
+              <li>기온: {mountainWeather.temp}℃</li>
+              <li>풍속: {mountainWeather.wind} m/s</li>
+              <li>강수 확률: {mountainWeather.rnSt}%</li>
             </ul>
           </div>
         </div>
       )}
     </div>
   );
+
+
 };
 
 export default Search;

@@ -19,4 +19,15 @@ module.exports = function(app) {
       pathRewrite: { '^/weatherapi': '' },
     })
   );
+
+  app.use(
+    '/kakaoapi',
+    createProxyMiddleware({
+      target: 'https://dapi.kakao.com',
+      changeOrigin: true,
+      pathRewrite: { '^/kakaoapi': '' },
+    })
+  );
 };
+
+

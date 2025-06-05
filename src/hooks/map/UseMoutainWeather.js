@@ -1,42 +1,41 @@
-// hooks/useMountainWeather.js
 import { useState } from 'react';
-import { convertLatLonToGrid } from '../utils/geo';
 
 export default function useMountainWeather() {
   const [weather, setWeather] = useState(null);
   const [error, setError] = useState(null);
 
-  const kakaoKey = process.env.REACT_APP_KAKAO_API_KEY;
-  const kmaKey = process.env.REACT_APP_KMA_API_KEY;
-
   const fetchWeatherByMountain = async (mountainName) => {
+    const backendUrl = "http://localhost:8080/weather/summit";
     try {
-      // 1. Kakao 키워드 검색으로 좌표 얻기
-      const res = await fetch(
-        `https://dapi.kakao.com/v2/local/search/keyword.json?query=${mountainName}`,
-        {
-          headers: { Authorization: `KakaoAK ${kakaoKey}` },
-        }
-      );
-      const data = await res.json();
-      const { x, y } = data.documents[0]; // x: 경도, y: 위도
+      console.clear();
+      console.log("🟢 산 이름으로 날씨 요청:", mountainName);
 
-      // 2. 위경도 → nx, ny 변환
-      const { nx, ny } = convertLatLonToGrid(Number(y), Number(x));
+      setError(null);
+      setWeather(null);
 
-      // 3. 기상청 날씨 API 호출
-      const today = new Date();
-      const base_date = today.toISOString().slice(0, 10).replace(/-/g, '');
-      const base_time = '0600';
+      const response = await fetch(backendUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: 'include', // 이거 꼭 있어야 세션/쿠키 공유 가능
+        body: JSON.stringify({ mountainName }),
+      });
 
-      const weatherRes = await fetch(
-        `https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?serviceKey=${kmaKey}&pageNo=1&numOfRows=1000&dataType=JSON&base_date=${base_date}&base_time=${base_time}&nx=${nx}&ny=${ny}`
-      );
-      const weatherData = await weatherRes.json();
+      console.log("✅ 백엔드 응답 상태:", response.status);
 
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("❌ 백엔드 응답 본문:", text);
+        throw new Error("서버에서 날씨 정보를 받아오지 못했습니다.");
+      }
+
+      const weatherData = await response.json();
+      console.log("🌤 날씨 데이터:", weatherData);
       setWeather(weatherData);
     } catch (err) {
-      setError(err.message);
+      console.error("🔥 에러 발생:", err);
+      setError(err.message || "알 수 없는 에러가 발생했습니다.");
     }
   };
 
