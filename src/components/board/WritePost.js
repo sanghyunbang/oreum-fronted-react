@@ -1,92 +1,121 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css"; 
 
 function WritePost() {
   const [category, setCategory] = useState("등산큐레이팅");
+
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [image, setImage] = useState(null);
+  const [files, setFiles] = useState([]);
+  const dropRef = useRef();
 
-  const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
+  // 드래그 앤 드롭 핸들링
+  const handleDrop = (e) => {
+    e.preventDefault();
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    addFiles(droppedFiles);
+  };
+
+  const handleFileSelect = (e) => {
+    const selectedFiles = Array.from(e.target.files);
+    addFiles(selectedFiles);
+  };
+
+  const addFiles = (newFiles) => {
+    const validFiles = newFiles.filter(file => 
+      file.type.startsWith("image/") || file.type === "video/mp4"
+    );
+    setFiles((prev) => [...prev, ...validFiles]);
+  };
+
+  const removeFile = (index) => {
+    setFiles((prev) => prev.filter((_,i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const postData = {
-    category,
-    title,
-    content,
-    // 이미지 파일은 보통 별도 처리 필요
-  };
-  try {
-    const response = await fetch("http://localhost:8030/wpost", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include",  // 쿠키 보낼 때 필요하면 추가
-      body: JSON.stringify(postData),
-    });
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("content", content);
+    formData.append("category", category);
+    files.forEach(file => formData.append("mediaFiles",file));
 
-    const result = await response.text();
-    alert(`서버 응답: ${result}`);
-  } catch (error) {
-    console.error("에러 발생:", error);
-  }
+    try {
+      const res = await fetch("http://localhost:8080/api/posts", {
+        method: "POST",
+        body: formData,
+        credentials: "include"
+      });      
+
+      const result = await res.text();
+      alert(`응답: ${result}`);
+
+    } catch (err) {
+      console.log(err);
+    }
   };
+
 
   return (
     <div style={{ maxWidth: 700, margin: "0 auto" }}>
       <h2>Create Post</h2>
-
       <form onSubmit={handleSubmit}>
-        <label>
-          카테고리:
-          <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ marginLeft: 8 }}>
-            <option value="등산큐레이팅">등산큐레이팅</option>
-            <option value="등산모집">등산모집</option>
-          </select>
-        </label>
+        <input
+          type="text"
+          placeholder="제목"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+        />
+        <ReactQuill value={content} onChange={setContent} />
 
-        <br /><br />
-
-        <label>
-          제목:
+        <div
+          ref={dropRef}
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
+          onClick={() => dropRef.current.querySelector("input").click()}
+          style={{
+            border: "2px dashed #aaa",
+            padding: 20,
+            marginTop: 20,
+            textAlign: "center",
+          }}
+        >
+          <p>이미지 또는 영상(mp4)을 드래그 하세요</p>
           <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="제목을 입력하세요"
-            style={{ display: "block", width: "100%", padding: 8, marginTop: 4 }}
-            required
+            type="file"
+            accept="image/*,video/mp4"
+            multiple
+            onChange={handleFileSelect}
+            style={{ display: "none" }}
           />
-        </label>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10 }}>
+          {files.map((file, index) => {
+            const url = URL.createObjectURL(file);
+            return (
+              <div key={index} style={{ position: "relative" }}>
+                {file.type.startsWith("image/") ? (
+                  <img src={url} alt="preview" style={{ width: 100, height: 100, objectFit: "cover" }} />
+                ) : (
+                  <video src={url} controls style={{ width: 100, height: 100 }} />
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeFile(index)}
+                  style={{ position: "absolute", top: 0, right: 0 }}
+                >
+                  ❌
+                </button>
+              </div>
+            );
+          })}
+        </div>
 
         <br />
-
-        <label>
-          내용:
-          <ReactQuill
-            theme="snow"
-            value={content}
-            onChange={setContent}
-            style={{ height: 250, marginTop: 4, marginBottom: 20 }}
-            placeholder="내용을 입력하세요"
-          />
-        </label>
-
-        <label>
-          이미지 업로드:
-          <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: "block", marginTop: 4 }} />
-        </label>
-
-        <br />
-
-        <button type="submit" style={{ padding: "8px 16px", fontSize: 16 }}>
-          등록
-        </button>
+        <button type="submit">등록</button>
       </form>
     </div>
   );
