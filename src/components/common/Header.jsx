@@ -1,7 +1,20 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { login, logout } from '../../redux/userSlice';
 
 const Header = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userInfo = useSelector((state) => state.user.userInfo);
+  const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    dispatch(logout());
+    navigate("/login");
+  };
+
   return (
     <header className="bg-blue-400 text-white px-6 py-3 flex justify-between items-center shadow">
       <Link to="/" className="flex items-center text-xl font-bold gap-2">
@@ -12,15 +25,21 @@ const Header = () => {
         />
         오름 | OREUM
       </Link>
-
       <div className="flex items-center gap-4">
         <input
           type="text"
           placeholder="검색..."
           className="px-3 py-1 rounded text-black text-sm"
         />
-        <Link to="/login" className="hover:underline">👤 로그인</Link>
-        <Link to="/write" className="bg-white text-green-700 px-3 py-1 rounded hover:bg-gray-100">+ 글쓰기</Link>
+        {isLoggedIn ? (
+          <>
+            <span>{userInfo?.nickname}님</span>
+            <button onClick={handleLogout} className="hover:underline">🚪 로그아웃</button>
+          </>
+        ) : (
+          <Link to="/login" className="hover:underline">👤 로그인</Link>
+        )}
+        <Link to="/feed/write" className="bg-white text-green-700 px-3 py-1 rounded hover:bg-gray-100">+ 글쓰기</Link>
       </div>
     </header>
   );
