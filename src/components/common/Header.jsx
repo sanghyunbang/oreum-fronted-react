@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const Header = () => {
   return (
-    <header className="bg-green-700 text-white px-6 py-3 flex justify-between items-center shadow">
+    <header className="bg-blue-400 text-white px-6 py-3 flex justify-between items-center shadow">
       <Link to="/" className="flex items-center text-xl font-bold gap-2">
         <img
           src={`${process.env.PUBLIC_URL}/favicon.png`}

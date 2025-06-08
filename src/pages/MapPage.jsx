@@ -3,13 +3,9 @@ import MapFromKakao from '../components/map/MapFromKakao';
 import Search from '../components/map/sidebar/Search';
 
 const MapPage = () => {
-
-  //외부 관련
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const styles = getStyles(isSidebarOpen);
-  
-  // VM 관련
   const [trails, setTrails] = useState([]);
+
   const VWORLD_KEY = process.env.REACT_APP_VWORLD_API_KEY;
   const emdCode = '11110101'; // 청운효자동 (서울 종로구)
 
@@ -62,73 +58,32 @@ const MapPage = () => {
   }, [VWORLD_KEY]);
 
   return (
-    <div style={styles.containerStyle}>
-      {/* ✅ 토글 버튼은 사이드바 바깥쪽에 배치 */}
+    <div className="flex h-screen relative">
+      {/* ✅ 토글 버튼 */}
       <button
-        style={styles.toggleBtnStyle(isSidebarOpen)}
+        className={`absolute top-4 z-50 bg-gray-300 px-2 py-1 rounded-r text-sm transition-all duration-300
+          ${isSidebarOpen ? 'left-[300px]' : 'left-0'}`}
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
       >
         {isSidebarOpen ? '◀' : '▶'}
       </button>
-  
-      <div style={styles.sidebarStyle}>
-        {isSidebarOpen && ( <Search />
-          // <div style={{ padding: '20px' }}>
-          //   <h2>이번 주엔 어느 산으로 갈까요?</h2>
-          //   <input type="text" placeholder="어느 산을 찾으시나요?" />
-          //   <p>산 목록, 추천 코스 등 사이드바 내용이 여기에 들어갑니다.</p>
-          // </div>
-        )}
+
+      {/* ✅ 사이드바 */}
+      <div
+        className={`bg-gray-100 h-full overflow-hidden transition-all duration-300
+          ${isSidebarOpen ? 'w-[300px]' : 'w-0'}`}
+      >
+        <div className="w-[300px] h-full">{isSidebarOpen && <Search />}</div>
       </div>
-  
-      <div className="mapArea" style={styles.mapStyle}>
-        <div style={styles.mapPlaceholderStyle}><MapFromKakao /></div>
+
+      {/* ✅ 지도 영역 */}
+      <div className="flex-1 h-full">
+        <div className="w-full h-full">
+          <MapFromKakao />
+        </div>
       </div>
     </div>
   );
-  
 };
 
 export default MapPage;
-
-const getStyles = (isSidebarOpen) => ({
-    containerStyle: {
-      display: 'flex',
-      height: '100vh',
-      overflow: 'hidden',
-      position: 'relative', // 버튼 절대 위치용
-    },
-    sidebarStyle: {
-      backgroundColor: '#f1f1f1',
-      width: isSidebarOpen ? '300px' : '0',
-      transition: 'width 0.3s ease',
-      overflow: 'hidden',
-    },
-    mapStyle: {
-      flex: 1,
-      backgroundColor: '#eaeaea',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    mapPlaceholderStyle: {
-      width: '90%',
-      height: '90%',
-      backgroundColor: 'white',
-      border: '1px solid #ccc',
-    },
-    // 토글 버튼은 sidebar 안이 아니라 절대 위치
-    toggleBtnStyle: (isSidebarOpen) => ({
-      position: 'absolute',
-      top: '10px',
-      left: isSidebarOpen ? '300px' : '0',
-      backgroundColor: '#ccc',
-      border: 'none',
-      borderRadius: '0 5px 5px 0',
-      padding: '5px 10px',
-      cursor: 'pointer',
-      zIndex: 100,
-      transition: 'left 0.3s ease',
-    }),
-  });
-  

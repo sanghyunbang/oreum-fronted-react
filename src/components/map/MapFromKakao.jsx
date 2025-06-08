@@ -56,6 +56,6 @@ export default function({trails = []}) {
         };
     }, [trails, kakaoKey]);
 
-    return <div ref={mapRef} style={{width: '100%', height: '500px'}} />;
+    return <div ref={mapRef} style={{width: '100%', height: '100%'}} />;
 
 };
