@@ -8,6 +8,8 @@ function WritePost() {
   const navigate = useNavigate();
 
   const [title, setTitle] = useState("");
+  const [mountainName, setMountainName] = useState("");  // 산 이름 상태 추가
+  const [hikingCourse, setHikingCourse] = useState("");  // 등산코스 상태 추가
   const [content, setContent] = useState("");
   const [files, setFiles] = useState([]);
   const dropRef = useRef();
@@ -41,6 +43,12 @@ function WritePost() {
     formData.append("title", title);
     formData.append("content", content);
     formData.append("category", category);
+
+    if (category === "큐레이션게시글") {
+      formData.append("mountainName", mountainName);
+      formData.append("hikingCourse", hikingCourse);
+    }
+
     files.forEach(file => formData.append("mediaFiles",file));
 
     try {
@@ -87,6 +95,33 @@ function WritePost() {
           required
         />
       </div>
+
+      {/* 큐레이션 게시글일 때만 노출되는 추가 입력란 */}
+      {category === "큐레이션게시글" && (
+        <>
+          <div className="mb-4">
+            <label className="block mb-1 font-medium text-gray-700">산 이름</label>
+            <input
+              type="text"
+              value={mountainName}
+              onChange={(e) => setMountainName(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              required={category === "큐레이션게시글"}
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="block mb-1 font-medium text-gray-700">등산 코스</label>
+            <input
+              type="text"
+              value={hikingCourse}
+              onChange={(e) => setHikingCourse(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              required={category === "큐레이션게시글"}
+            />
+          </div>
+        </>
+      )}
 
       {/* 에디터 */}
       <div className="mb-12">
