@@ -59,16 +59,17 @@ function WritePost() {
 
   return (
     <div style={{ maxWidth: 700, margin: "0 auto" }}>
-      <h2>Create Post</h2>
+      <h2>Create Post</h2><br />
       <form onSubmit={handleSubmit}>
+        제목 : 
         <input
           type="text"
-          placeholder="제목"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
         />
-        <ReactQuill value={content} onChange={setContent} />
+        <ReactQuill value={content} onChange={setContent} 
+        style={{ minHeight: '300px', marginBottom: '1rem' }} />
 
         <div
           ref={dropRef}

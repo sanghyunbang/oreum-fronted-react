@@ -13,8 +13,13 @@ import PostDetailPage from '../pages/BoardPages/PostDetailPage';
 import WritePostPage from '../pages/BoardPages/WritePostPage';
 import OAuth2RedirectPage from '../pages/Auth/OAuth2RedirectPage';
 
+
 // 💡 (선택) 로그인 상태 초기화용 컴포넌트
 import AuthInit from './AuthInit'; // useEffect로 localStorage 확인하는 컴포넌트
+import BoardDetail from '../components/board/BoardDetail';
+import MiniDisplay from '../components/board/MiniDisplay';
+import WritePost from '../components/board/WritePost';
+import MainBoard from '../components/board/MainBoard';
 
 const AppRoutes = () => (
   <Router>
@@ -33,6 +38,15 @@ const AppRoutes = () => (
         <Route path="feed" element={<MainFeedPage />} />
         <Route path="feed/:id" element={<PostDetailPage />} />
         <Route path="feed/write" element={<WritePostPage />} />
+        
+        <Route path="boarddetail" element={<BoardDetail />} />
+        <Route path="minidisplay" element={<MiniDisplay />} />
+        <Route path="mainboard" element={<MainBoard />} />
+        <Route path="writepost" element={<WritePost />} />
+        
+        
+        
+
       </Route>
 
       {/* 소셜 로그인 후 리다이렉션 경로 (Layout 없이 따로 렌더링) */}

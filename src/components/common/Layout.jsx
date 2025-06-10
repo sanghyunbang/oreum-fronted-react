@@ -4,6 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import Sidebar from './Sidebar';
 import RightAside from './RightAside';
+import MiniDisplay from '../board/MiniDisplay';
 
 const Layout = () => {
   const location = useLocation();
@@ -36,7 +37,7 @@ const Layout = () => {
       {!isMapPage && (
         <aside className="fixed top-16 bottom-16 right-4 w-[300px] z-40 pointer-events-none">
           <div className="pointer-events-auto">
-            <RightAside />
+            <MiniDisplay />
           </div>
         </aside>
       )}

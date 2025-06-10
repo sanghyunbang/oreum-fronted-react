@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
 
 const Container = styled.div`
     width: 100%;
@@ -61,6 +62,9 @@ const CurationCard = styled.div`
 
 
 const CurationAd = () => {
+
+    const navigate = useNavigate();
+
     return (
         <Container>
             <HeaderArea>
@@ -68,7 +72,7 @@ const CurationAd = () => {
                     <h3>오름의 테마별 큐레이션</h3>
                     <h4>오름이 제안하는 추천코스를 살펴보세요!</h4>
                 </TitleText>
-                <ViewAll>
+                <ViewAll onClick={() => navigate('/map')}>
                     <h2>전체보기</h2>
                 </ViewAll>
             </HeaderArea>

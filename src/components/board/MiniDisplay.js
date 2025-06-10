@@ -2,10 +2,13 @@ import { useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
+import { useNavigate } from "react-router-dom";
+
 
 function MiniDisplay() {
   const [search, setSearch] = useState("");
   const [desti, setDesti] = useState([]);
+  const navigate = useNavigate();
 
   const destinations = [
     { id: 1, name: "설악산", image: "/images/seorak.jpg" },
@@ -40,7 +43,9 @@ function MiniDisplay() {
     <div className="w-full max-w-xs p-4 bg-gray-100 rounded-lg shadow">
       <div className="flex justify-between items-center mb-4">
         <h4 className="text-lg font-semibold">이번주엔 어디로 갈까요?</h4>
-        <button className="text-blue-600 hover:underline text-sm">전체보기 &gt;</button>
+        <button 
+        onClick={() => navigate("/map")}
+        className="text-blue-600 hover:underline text-sm"  >전체보기 &gt;</button>
       </div>
 
       <input
