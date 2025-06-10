@@ -34,13 +34,13 @@ const Layout = () => {
       )}
 
       {/* 오른쪽 사이드바 (고정) */}
-      {!isMapPage && (
+      {/* {!isMapPage && (
         <aside className="fixed top-16 bottom-16 right-4 w-[300px] z-40 pointer-events-none">
           <div className="pointer-events-auto">
             <RightAside />
           </div>
         </aside>
-      )}
+      )} */}
 
 
       {/* 메인 콘텐츠 */}
