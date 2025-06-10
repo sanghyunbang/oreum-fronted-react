@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 
 const FindPw = ({ openLogin, openFindUserid }) => {
   const [formData, setFormData] = useState({ email: "", number: "", nickname: "" });

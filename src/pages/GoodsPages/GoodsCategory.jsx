@@ -1,0 +1,117 @@
+"use client"
+
+import { useState } from "react"
+
+const GoodsCategory = () => {
+  const products = [
+    { id: 1, img: "/Goods_img/캠핑가방.jpeg", name: "캠핑가방", category: "기타", price: 15000 },
+    { id: 2, img: "/Goods_img/이벤트.jpeg", name: "청바지", category: "하의", price: 35000 },
+    { id: 3, img: "", name: "운동화", category: "신발", price: 65000 },
+    { id: 4, img: "/Goods_img/등산스틱.jpeg", name: "등산스틱", category: "기타", price: 12000 },
+    { id: 5, img: "", name: "후드티", category: "상의", price: 28000 },
+  ]
+
+  const filters = ["전체", "상의", "하의", "신발", "기타"]
+  const [activeFilter, setActiveFilter] = useState("전체")
+
+  const filteredProducts = activeFilter === "전체" ? products : products.filter((p) => p.category === activeFilter)
+
+  return (
+    <div className="max-w-6xl mx-auto p-4 space-y-6">
+      {/* 필터 버튼들 */}
+      <div className="flex flex-wrap gap-3">
+        {filters.map((filter) => (
+          <button
+            key={filter}
+            onClick={() => setActiveFilter(filter)}
+            //버튼 상태디자인 활성화/비활성화
+            className={activeFilter === filter
+                ? "px-6 py-2 rounded-full border-2 font-medium bg-blue-600 text-white border-blue-600 shadow-md transition-all duration-200"
+                : "px-6 py-2 rounded-full border-2 font-medium bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+            }
+          >
+            {filter}
+          </button>
+        ))}
+      </div>
+
+      {/* 상품 표시 */}
+      {filteredProducts.length > 0 ? (
+        // 해당 카테고리에 상품 있을때
+        // 창 크기 순서대로 상품 개수(1,2,3) 표시 ↓
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+          {filteredProducts.map((product) => (
+            <div 
+              key={product.id} 
+              className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
+            >
+              {/* 상품 이미지 */}
+              <div className="aspect-square bg-gray-100 relative overflow-hidden">
+                {product.img ? (
+                  //상품이미지 있을때 O
+                  <img
+                    src={product.img || "/placeholder.svg"}
+                    alt={product.name}
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+                    onError={(e) => {
+                      e.currentTarget.src = "/placeholder.svg?height=300&width=300"
+                    }}
+                  />
+                ) : (
+                  //상품이미지 없을때 X
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <div className="text-center">
+                      <div className="w-16 h-16 mx-auto mb-2 bg-gray-200 rounded-full flex items-center justify-center">
+                        <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            //없을때 이미지↓
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                          />
+                        </svg>
+                      </div>
+                      <span className="text-sm">이미지 없음</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 상품 정보 */}
+              <div className="p-4">
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-semibold text-lg text-gray-900">{product.name}</h3>
+                  <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                    {product.category}
+                  </span>
+                </div>
+                <p className="text-xl font-bold text-gray-900">
+                  {product.price.toLocaleString()}
+                  <span className="text-sm font-normal text-gray-600 ml-1">원</span>
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        //해당 카테고리에 상품 없을때
+        <div className="text-center py-12">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8l-4 4m0 0l-4-4m4 4V3"
+              />
+            </svg>
+          </div>
+          <p className="text-gray-500 text-lg">해당 카테고리에 상품이 없습니다.</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default GoodsCategory
