@@ -11,21 +11,23 @@ function MiniDisplay() {
   const navigate = useNavigate();
 
   const destinations = [
-    { id: 1, name: "설악산", image: "/images/seorak.jpg" },
-    { id: 2, name: "지리산", image: "/images/jiri.jpg" },
-    { id: 3, name: "북한산", image: "/images/bukhan.jpg" },
-    { id: 4, name: "한라산", image: "/images/halla.jpg" },
-    { id: 5, name: "덕유산", image: "/images/deogyu.jpg" },
-    { id: 6, name: "속리산", image: "/images/sokri.jpg" },
+    { id: 1, name: "설악산", image: "/images/seorak.jfif" },
+    { id: 2, name: "지리산", image: "/images/jiri.jfif" },
+    { id: 3, name: "북한산", image: "/images/bukhan.jfif" },
+    { id: 4, name: "한라산", image: "/images/halla.jfif" },
+    { id: 5, name: "덕유산", image: "/images/deogyu.jfif" },
+    { id: 6, name: "속리산", image: "/images/sokri.jfif" },
   ];
+
+  const filtered = destinations.filter((d) => d.name.includes(search));
 
   const settings = {
     dots: true,
-    infinite: true,
+    infinite: filtered.length > 3,
     speed: 500,
     autoplay: true,
     autoplaySpeed: 3000,
-    slidesToShow: 3,
+    slidesToShow: Math.min(filtered.length, 3),
     slidesToScroll: 1,
     responsive: [
       {
@@ -37,7 +39,7 @@ function MiniDisplay() {
     ],
   };
 
-  const filtered = destinations.filter((d) => d.name.includes(search));
+  
 
   return (
     <div className="w-full max-w-xs p-4 bg-gray-100 rounded-lg shadow">
@@ -58,7 +60,10 @@ function MiniDisplay() {
 
       <Slider {...settings}>
         {filtered.map((dest) => (
-          <div key={dest.id} className="px-2">
+          <div key={dest.id} 
+          className="px-2 cursor-pointer"
+          onClick={() => navigate(`/mountain/${dest.name}`)}
+          >
             <img
               src={dest.image}
               alt={dest.name}

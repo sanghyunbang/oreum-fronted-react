@@ -20,6 +20,7 @@ import BoardDetail from '../components/board/BoardDetail';
 import MiniDisplay from '../components/board/MiniDisplay';
 import WritePost from '../components/board/WritePost';
 import MainBoard from '../components/board/MainBoard';
+import MountainDetailPage from '../components/board/MountainDetailPage';
 
 const AppRoutes = () => (
   <Router>
@@ -38,12 +39,13 @@ const AppRoutes = () => (
         <Route path="feed" element={<MainFeedPage />} />
         <Route path="feed/:id" element={<PostDetailPage />} />
         <Route path="feed/write" element={<WritePostPage />} />
-        
+
         <Route path="boarddetail" element={<BoardDetail />} />
         <Route path="minidisplay" element={<MiniDisplay />} />
         <Route path="mainboard" element={<MainBoard />} />
         <Route path="writepost" element={<WritePost />} />
-        
+        <Route path="mountain/:name" element={<MountainDetailPage />} />
+                
         
         
 

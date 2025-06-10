@@ -41,7 +41,8 @@ const Sidebar = () => {
         <div className="flex items-center gap-2 cursor-pointer hover:text-green-600">
           <FaChartLine /> <span>인기 게시글</span>
         </div>
-        <div className="flex items-center gap-2 cursor-pointer hover:text-green-600">
+        <div className="flex items-center gap-2 cursor-pointer hover:text-green-600"
+        onClick={() => navigate("/map")}>
           <FaMapMarkedAlt /> <span>등산 지도</span>
         </div>
         <div className="flex items-center gap-2 cursor-pointer hover:text-green-600">
