@@ -20,7 +20,7 @@ const Sidebar = () => {
     { name: "북한산", icon: "🌄" },
     { name: "한라산", icon: "⛰️" },
     { name: "대둔산", icon: "🏔️" },
-    { name: "불암산", icon: "🌲" },
+    { name: "himedia", icon: "🌲" },
   ];
 
   return (
