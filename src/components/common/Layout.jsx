@@ -37,7 +37,7 @@ const Layout = () => {
       {!isMapPage && (
         <aside className="fixed top-16 bottom-16 right-4 w-[300px] z-40 pointer-events-none">
           <div className="pointer-events-auto">
-            <MiniDisplay />
+            <RightAside />
           </div>
         </aside>
       )}
