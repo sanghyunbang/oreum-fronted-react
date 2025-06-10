@@ -54,6 +54,8 @@ const LoginPage = ({ onClose }) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` // local 스토리지에서 빼서 전달
+
         },
         credentials: "include", // 쿠키 전송을 위해 필수
         body: JSON.stringify({
