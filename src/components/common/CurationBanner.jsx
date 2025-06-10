@@ -3,6 +3,7 @@ import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
+import { useNavigate } from "react-router-dom";
 
 const CurationBanner = () => {
   const slides = [
@@ -15,6 +16,8 @@ const CurationBanner = () => {
     { text: "🍁 단풍철 가을산 코스\nBEST 단풍길", bg: "bg-red-600", image: "/images/slides7.jpg" },
     { text: "❄️ 눈꽃 산행지\n겨울왕국 추천 코스", bg: "bg-gray-700", image: "/images/slides8.jpg" },
   ];
+
+  const navigate = useNavigate();
 
   const settings = {
     dots: false,
@@ -33,7 +36,8 @@ const CurationBanner = () => {
         <h3 className="text-xs font-semibold flex items-center gap-1">
           🧭 <span>오름의 테마별 큐레이션</span>
         </h3>
-        <button className="text-[10px] text-blue-600 hover:underline">전체보기 →</button>
+        <button className="text-[10px] text-blue-600 hover:underline"
+        onClick={() => navigate('/map')}>전체보기 →</button>
       </div>
 
       <p className="text-[10px] text-gray-500">오름이 제안하는 추천 코스를 살펴보세요!</p>

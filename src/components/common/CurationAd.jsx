@@ -72,8 +72,8 @@ const CurationAd = () => {
                     <h3>오름의 테마별 큐레이션</h3>
                     <h4>오름이 제안하는 추천코스를 살펴보세요!</h4>
                 </TitleText>
-                <ViewAll onClick={() => navigate('/map')}>
-                    <h2>전체보기</h2>
+                <ViewAll>
+                    <h2 onClick={() => navigate('/map')}>전체보기</h2>
                 </ViewAll>
             </HeaderArea>
 
