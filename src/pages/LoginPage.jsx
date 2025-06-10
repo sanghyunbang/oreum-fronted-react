@@ -143,7 +143,7 @@ const LoginPage = ({ onClose }) => {
 
             <button
                 type="button"
-                onClick={() => window.location.href = '/auth/naver'}
+                onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/naver'}
                 className="flex items-center justify-center gap-2 w-full max-w-[300px] h-10 my-1.5 px-5 
                             rounded-full border border-[#dadce0] bg-white text-[#3c4043] text-sm font-medium 
                             cursor-pointer font-arial shadow-sm">
