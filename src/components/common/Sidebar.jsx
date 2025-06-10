@@ -52,9 +52,9 @@ const Sidebar = () => {
 
       {/* 커스텀 큐레이션 */}
       <div>
-        <h4 className="text-gray-700 font-semibold mb-2">나만의 큐레이션</h4>
+        <h4 className="text-gray-700 font-semibold mb-2">나만의 피드</h4>
         <div className="flex items-center gap-2 text-blue-600 cursor-pointer hover:underline">
-          <FaPlus size={12} /> <span>큐레이션 만들기</span>
+          <FaPlus size={12} /> <span>맞춤 피드 만들기</span>
         </div>
       </div>
 
