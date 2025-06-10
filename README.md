@@ -25,6 +25,9 @@ npm list react-quill
 // 사용된 아이콘 라이브러리
 npm install react-icons
 
+// 호버링 효과
+npm install polished
+
 
 # commit convention(커밋 메시지 규칙)
 
