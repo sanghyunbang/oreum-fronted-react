@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { login, logout } from '../../redux/userSlice';
@@ -27,12 +27,20 @@ const Header = () => {
         />
         오름 | OREUM
       </Link>
-      <div className="flex items-center gap-4">
+      <div  className="bg-white w-2/3 py-1 rounded-[20px] flex justify-around">
         <input
-          type="text"
-          placeholder="검색..."
-          className="px-3 py-1 rounded text-black text-sm"
-        />
+            type="text"
+            placeholder="  내가 관심있는 산을 검색해보세요!"
+            className="w-[90%] py-2 rounded-[20px] text-black text-sm indent-4"
+          />
+        <button
+          className="bg-green-500 text-white px-4 py-2 rounded-full text-sm hover:bg-green-600"
+        >
+          🔍
+        </button>
+      </div>
+      <div className="flex items-center gap-4">
+ 
         {isLoggedIn ? (
           <>
             <span>{userInfo?.nickname}님</span>
