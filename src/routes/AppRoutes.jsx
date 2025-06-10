@@ -16,6 +16,7 @@ import GoodsPage from '../pages/GoodsPages/GoodsPage';
 
 // 💡 (선택) 로그인 상태 초기화용 컴포넌트
 import AuthInit from './AuthInit'; // useEffect로 localStorage 확인하는 컴포넌트
+import CommunityPage from '../pages/CommunityPages/CommunityPage';
 
 const AppRoutes = () => (
   <Router>
@@ -35,6 +36,8 @@ const AppRoutes = () => (
         <Route path="feed" element={<MainFeedPage />} />
         <Route path="feed/:id" element={<PostDetailPage />} />
         <Route path="feed/write" element={<WritePostPage />} />
+
+        <Route path="community/:communityName" element={<CommunityPage/>}/>
       </Route>
 
       {/* 소셜 로그인 후 리다이렉션 경로 (Layout 없이 따로 렌더링) */}
