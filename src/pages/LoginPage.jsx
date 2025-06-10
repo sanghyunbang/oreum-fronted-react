@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import Modal from "../components/auth/modal";
+import JoinPage from "./Join_Page";
+import FindPw from "./Find_Pw";
+import FindUserid from "./Find_Userid";
 
-const LoginPage = () => {
+
+const LoginPage = ({ onClose }) => {
   const [formData, setFormData] = useState({ nickname: "", pw: "" });
   const [errors, setErrors] = useState({});
   const [logged, setLogged] = useState(false);
+  const [showJoin, setShowJoin] = useState(false);
+  const [showFindPw, setShowFindPw] = useState(false);
+  const [showFindUserid, setShowFindUserid] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -21,6 +29,13 @@ const LoginPage = () => {
   // 체크박스 토글
   const handleAree = (e) => {
     setLogged(e.target.checked);
+  };
+  
+  const closeAllModals = () => {
+    setShowJoin(false);
+    setShowFindPw(false);
+    setShowFindUserid(false);
+    onClose();
   };
 
   // 로그인 요청
@@ -69,6 +84,23 @@ const LoginPage = () => {
   }, []);
 
   return (
+    <>
+    {showJoin ? (
+            <Modal show={true} onClose={closeAllModals} title="회원가입">
+                <JoinPage openLogin={() => {setShowJoin(false);}} />
+            </Modal> // < 뒤로가기 클릭시 회원가입 팝업 false
+        ) : showFindPw ? (
+            <Modal show={true} onClose={closeAllModals} title="비밀번호 찾기">
+                <FindPw openLogin={() => {setShowFindPw(false);}}
+                        openFindUserid={() => { setShowFindPw(false); setShowFindUserid(true);}} />
+            </Modal>
+        ) : showFindUserid ? (
+            <Modal show={true} onClose={closeAllModals} title="아이디 찾기">
+                <FindUserid openLogin={() => {setShowFindUserid(false);}}
+                            openFindPw={() => { setShowFindPw(true); setShowFindUserid(false);}} />
+            </Modal>
+         ) : (
+        <Modal show={true} onClose={onClose} title="로그인">
     <div className="text-center">
       <h1 className="text-2xl font-bold mb-4">로그인</h1>
 
@@ -79,70 +111,136 @@ const LoginPage = () => {
         </div>
       )}
 
-      <form onSubmit={doSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1">아이디</label>
-          <input
-            type="text"
-            name="nickname"
-            value={formData.nickname}
-            onChange={doChange}
-            className="border border-gray-300 rounded px-3 py-1 w-64"
-          />
-          {errors.nickname && (
-            <div className="text-red-500 text-sm mt-1">{errors.nickname}</div>
-          )}
-        </div>
+      <div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <button
+                type="button"
+                onClick={() => window.location.href = '/auth/google'}
+                className="flex items-center justify-center gap-2 w-full max-w-[300px] h-10 my-1.5 px-5 
+                            rounded-full border border-[#dadce0] bg-white text-[#3c4043] text-sm font-medium 
+                            cursor-pointer font-arial shadow-sm">
+                <img
+                src="/google-login.png"
+                alt="Google"
+                style={{ width: '20px', height: '20px' }}
+                />
+                Continue with Google
+            </button>
 
-        <div>
-          <label className="block mb-1">비밀번호</label>
-          <input
-            type="password"
-            name="pw"
-            value={formData.pw}
-            onChange={doChange}
-            className="border border-gray-300 rounded px-3 py-1 w-64"
-          />
-          {errors.pw && (
-            <div className="text-red-500 text-sm mt-1">{errors.pw}</div>
-          )}
-        </div>
+            <button
+                type="button"
+                onClick={() => window.location.href = '/auth/kakao'}
+                className="flex items-center justify-center gap-2 w-full max-w-[300px] h-10 my-1.5 px-5 
+                            rounded-full border border-[#dadce0] bg-white text-[#3c4043] text-sm font-medium 
+                            cursor-pointer font-arial shadow-sm">
+                <img
+                src="https://developers.kakao.com/assets/img/about/logos/kakaolink/kakaolink_btn_medium.png"
+                alt="Kakao"
+                style={{ width: '20px', height: '20px' }}
+                />
+                Continue with Kakao
+            </button>
 
-        <div className="flex items-center justify-center space-x-2">
-          <input
-            type="checkbox"
-            name="logged"
-            checked={logged}
-            onChange={handleAree}
-            className="w-4 h-4"
-          />
-          <label className="text-sm">로그인 상태 유지</label>
+            <button
+                type="button"
+                onClick={() => window.location.href = '/auth/naver'}
+                className="flex items-center justify-center gap-2 w-full max-w-[300px] h-10 my-1.5 px-5 
+                            rounded-full border border-[#dadce0] bg-white text-[#3c4043] text-sm font-medium 
+                            cursor-pointer font-arial shadow-sm">
+                <img
+                src="/naver-login.png"
+                alt="Naver"
+                style={{ width: '20px', height: '20px' }}
+                />
+                Continue with Naver
+            </button>
         </div>
-
-        <button
-          type="submit"
-          className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-4 rounded"
-        >
-          로그인
-        </button>
-
-        {/* ✅ 소셜 로그인 버튼 */}
-        <div className="flex justify-center gap-4 mt-4">
-          <a href="http://localhost:8080/oauth2/authorization/naver">
-            <img src="/images/naver-login.png" alt="네이버 로그인" className="w-32" />
-          </a>
-          <a href="http://localhost:8080/oauth2/authorization/google">
-            <img src="/images/google-login.png" alt="구글 로그인" className="w-32" />
-          </a>
+        <div className="flex items-center my-4 max-w-full max-w-sm">
+        <hr className="flex-grow border-gray-300" />
+        <span className="mx-3 text-gray-500 text-sm">or</span>
+        <hr className="flex-grow border-gray-300" />
         </div>
+        <form onSubmit={doSubmit} className="space-y-4 flex flex-col items-center">
+            <div className="relative w-64">
+                <input type="text" name="nickname" value={formData.nickname || ""} onChange={doChange} id="nickname" placeholder=" "
+                className={`peer border border-gray-300 rounded-[20px] px-3 pt-5 pb-1 w-full text-black placeholder-transparent focus:outline-none focus:border-blue-500 ${errors.nickname ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500`}
+                onBlur={()=>{
+                    if (!formData.nickname.trim()) setErrors(prev => ({ ...prev, nickname: "아이디를 입력하세요." }));
+                }}
+                />
+                <label
+                htmlFor="nickname"
+                className={`absolute left-3 top-1.5 text-gray-500 text-xs transition-all
+                            peer-placeholder-shown:top-[16px] peer-placeholder-shown:text-[13px] peer-placeholder-shown:text-gray-400
+                            peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-blue-500`}
+                >
+                아이디
+                </label>
+                {errors.nickname && (
+                <div className="text-red-500 text-sm mt-1">{errors.nickname}</div>
+                )}
+            </div>
 
-        <div className="mt-4 space-x-4 text-sm">
-          <Link to="/fuid" className="text-black hover:underline">오름ID 찾기</Link>
-          <Link to="/fpw" className="text-black hover:underline">비밀번호 찾기</Link>
-          <Link to="/join" className="text-black hover:underline">회원가입</Link>
+            <div className="relative w-64">
+                <input
+                type="password"
+                name="pw"
+                value={formData.pw || ""}
+                onChange={doChange}
+                id="pw"
+                placeholder=" "
+                className={`peer border border-gray-300 rounded-[20px] px-3 pt-5 pb-1 w-full text-black placeholder-transparent focus:outline-none focus:border-blue-500 ${errors.pw ? 'border-red-500' : 'border-gray-300'} focus:border-blue-500`}
+                onBlur={()=>{
+                    if (!formData.pw.trim()) setErrors(prev => ({ ...prev, pw: "비밀번호를 입력하세요." }));
+                }}
+                />
+                <label
+                htmlFor="pw"
+                className="absolute left-3 top-1.5 text-gray-500 text-xs transition-all
+                            peer-placeholder-shown:top-[16px] peer-placeholder-shown:text-[13px] peer-placeholder-shown:text-gray-400
+                            peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-blue-500"
+                >
+                비밀번호
+                </label>
+                {errors.pw && (
+                <div className="text-red-500 text-sm mt-1">{errors.pw}</div>
+                )}
+            </div>
+
+            <div className="flex items-center justify-center space-x-2">
+                <input
+                type="checkbox"
+                name="logged"
+                checked={logged}
+                onChange={handleAree}
+                className="w-4 h-4"
+                />
+                <label className="text-sm text-black">로그인 상태 유지</label>
+            </div>
+
+            <button
+                type="submit"
+                className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-4 rounded"
+            >
+                로그인
+            </button>
+
+            <div className="mt-4 space-x-4 text-sm">
+                <button type="button" onClick={() => setShowFindUserid(true)} className="text-black hover:underline">
+                오름ID 찾기
+                </button>
+                <button type="button" onClick={() => setShowFindPw(true)} className="text-black hover:underline">
+                비밀번호 찾기
+                </button>
+                <button type="button" onClick={() => setShowJoin(true)} className="text-black hover:underline">
+                회원가입
+                </button>
+            </div>
+          </form>
         </div>
-      </form>
     </div>
+    </Modal>)}
+    </>
   );
 };
 

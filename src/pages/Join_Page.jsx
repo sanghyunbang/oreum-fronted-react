@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-const JoinPage = () => {
+const JoinPage = ({ openLogin }) => {
   const [formData, setFormData] = useState({pw: "", pwCheck: "", email: "", nickname: "", address:""});
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
@@ -116,7 +116,7 @@ const JoinPage = () => {
   return (
     <div className="max-w-md mx-auto p-4">
       <header className="flex items-center space-x-4 mb-6">
-        <Link to="/login" className="text-black text-2xl font-bold">&lt;</Link>
+        <button type="button" onClick={openLogin} className="text-black text-2xl font-bold">&lt;</button>
         <h1 className="text-xl font-semibold">회원가입</h1>
       </header>
 

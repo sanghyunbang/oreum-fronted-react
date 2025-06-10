@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-const FindPw = () => {
+const FindPw = ({ openLogin, openFindUserid }) => {
   const [formData, setFormData] = useState({ email: "", number: "", nickname: "" });
   const [doShow, setDoShow] = useState(false);
   const people = { nickname: "안녕", email: "123@gmail.com", number: "12563" };
@@ -81,8 +81,8 @@ const FindPw = () => {
       </form>
 
       <div className="mt-6 flex justify-center space-x-12 text-blue-600 font-medium">
-        <Link to="/login" className="hover:underline">로그인</Link>
-        <Link to="/fuid" className="hover:underline">오름ID 찾기</Link>
+        <button onClick={openLogin} className="hover:underline">로그인</button>
+        <button onClick={openFindUserid} className="hover:underline">오름ID 찾기</button>
       </div>
     </div>
   );
