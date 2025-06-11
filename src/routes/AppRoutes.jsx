@@ -14,6 +14,13 @@ import WritePostPage from '../pages/BoardPages/WritePostPage';
 import OAuth2RedirectPage from '../pages/Auth/OAuth2RedirectPage';
 import GoodsPage from '../pages/GoodsPages/GoodsPage';
 
+import BoardDetail from '../components/board/BoardDetail';
+import MiniDisplay from '../components/board/MiniDisplay';
+import WritePost from '../components/board/WritePost';
+import MainBoard from '../components/board/MainBoard';
+import MountainDetailPage from '../components/board/MountainDetailPage';
+
+
 // 💡 (선택) 로그인 상태 초기화용 컴포넌트
 import AuthInit from './AuthInit'; // useEffect로 localStorage 확인하는 컴포넌트
 import CommunityPage from '../pages/CommunityPages/CommunityPage';
@@ -36,6 +43,12 @@ const AppRoutes = () => (
         <Route path="feed" element={<MainFeedPage />} />
         <Route path="feed/:id" element={<PostDetailPage />} />
         <Route path="feed/write" element={<WritePostPage />} />
+
+        <Route path="boarddetail" element={<BoardDetail />} />
+        <Route path="mainboard" element={<MainBoard />} />
+        <Route path="minidisplay" element={<MiniDisplay />} />
+        <Route path="writepost" element={<WritePost />} />
+        <Route path="mountaindetail" element={<MountainDetailPage />} />
 
         <Route path="community/:communityName" element={<CommunityPage/>}/>
       </Route>
