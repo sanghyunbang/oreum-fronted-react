@@ -59,7 +59,7 @@ const MapPage = () => {
 
   return (
     <div className="flex h-screen relative">
-      {/* ✅ 토글 버튼 */}
+      {/* 토글 버튼 */}
       <button
         className={`absolute top-4 z-50 bg-gray-300 px-2 py-1 rounded-r text-sm transition-all duration-300
           ${isSidebarOpen ? 'left-[300px]' : 'left-0'}`}
@@ -68,7 +68,7 @@ const MapPage = () => {
         {isSidebarOpen ? '◀' : '▶'}
       </button>
 
-      {/* ✅ 사이드바 */}
+      {/* 사이드바 */}
       <div
         className={`bg-gray-100 h-full overflow-hidden transition-all duration-300
           ${isSidebarOpen ? 'w-[300px]' : 'w-0'}`}
@@ -76,7 +76,7 @@ const MapPage = () => {
         <div className="w-[300px] h-full">{isSidebarOpen && <Search />}</div>
       </div>
 
-      {/* ✅ 지도 영역 */}
+      {/* 지도 영역 */}
       <div className="flex-1 h-full">
         <div className="w-full h-full">
           <MapFromKakao />
