@@ -1,14 +1,12 @@
-"use client"
-
 import { useState } from "react"
 
 const GoodsCategory = () => {
   const products = [
-    { id: 1, img: "/Goods_img/캠핑가방.jpeg", name: "캠핑가방", category: "기타", price: 15000 },
-    { id: 2, img: "/Goods_img/이벤트.jpeg", name: "청바지", category: "하의", price: 35000 },
-    { id: 3, img: "", name: "운동화", category: "신발", price: 65000 },
-    { id: 4, img: "/Goods_img/등산스틱.jpeg", name: "등산스틱", category: "기타", price: 12000 },
-    { id: 5, img: "", name: "후드티", category: "상의", price: 28000 },
+    { id: 1, img: "/Goods_img/캠핑가방.jpeg", name: "캠핑가방", category: "기타", price: 15000, salePercent: 20 },
+    { id: 2, img: "/Goods_img/청바지.jpeg", name: "청바지", category: "하의", price: 35000, salePercent: 10 },
+    { id: 3, img: "/Goods_img/운동화.jpeg", name: "운동화", category: "신발", price: 65000 }, // 할인 없음
+    { id: 4, img: "/Goods_img/등산스틱.jpeg", name: "등산스틱", category: "기타", price: 12000, salePercent: 15 },
+    { id: 5, img: "/Goods_img/후드티.jpeg", name: "후드티", category: "상의", price: 28000, salePercent: 30 },
   ]
 
   const filters = ["전체", "상의", "하의", "신발", "기타"]
@@ -17,7 +15,7 @@ const GoodsCategory = () => {
   const filteredProducts = activeFilter === "전체" ? products : products.filter((p) => p.category === activeFilter)
 
   return (
-    <div className="max-w-6xl mx-auto p-4 space-y-6">
+    <div className="flex flex-wrap gap-3 justify-center">
       {/* 필터 버튼들 */}
       <div className="flex flex-wrap gap-3">
         {filters.map((filter) => (
@@ -26,8 +24,8 @@ const GoodsCategory = () => {
             onClick={() => setActiveFilter(filter)}
             //버튼 상태디자인 활성화/비활성화
             className={activeFilter === filter
-                ? "px-6 py-2 rounded-full border-2 font-medium bg-blue-600 text-white border-blue-600 shadow-md transition-all duration-200"
-                : "px-6 py-2 rounded-full border-2 font-medium bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+                ? "px-[22px] py-[7px] rounded-full border-2 font-medium bg-blue-600 text-white border-blue-600 shadow-md transition-all duration-200"
+                : "px-[22px] py-[7px] rounded-full border-2 font-medium bg-white text-gray-700 border-gray-300 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
             }
           >
             {filter}
@@ -38,20 +36,17 @@ const GoodsCategory = () => {
       {/* 상품 표시 */}
       {filteredProducts.length > 0 ? (
         // 해당 카테고리에 상품 있을때
-        // 창 크기 순서대로 상품 개수(1,2,3) 표시 ↓
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-4 gap-0">
           {filteredProducts.map((product) => (
             <div 
               key={product.id} 
-              className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200"
+              className="bg-white border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 "
             >
               {/* 상품 이미지 */}
               <div className="aspect-square bg-gray-100 relative overflow-hidden">
                 {product.img ? (
                   //상품이미지 있을때 O
-                  <img
-                    src={product.img || "/placeholder.svg"}
-                    alt={product.name}
+                  <img src={product.img || "/placeholder.svg"} alt={product.name}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
                     onError={(e) => {
                       e.currentTarget.src = "/placeholder.svg?height=300&width=300"
@@ -80,15 +75,28 @@ const GoodsCategory = () => {
 
               {/* 상품 정보 */}
               <div className="p-4">
-                <div className="flex justify-between items-start mb-2">
+                <div className="flex justify-between items-start mb-1">
                   <h3 className="font-semibold text-lg text-gray-900">{product.name}</h3>
-                  <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-                    {product.category}
-                  </span>
                 </div>
-                <p className="text-xl font-bold text-gray-900">
-                  {product.price.toLocaleString()}
-                  <span className="text-sm font-normal text-gray-600 ml-1">원</span>
+                <p className="text-base font-bold text-gray-900">
+                  {product.salePercent ? (
+                    <>
+                      <span className="line-through text-gray-400 text-base mr-2">
+                        {product.price.toLocaleString()}원
+                      </span><br/>
+                      {product.salePercent && (
+                        <span className="py-1 pr-1 text-base font-bold text-red-600">
+                          {product.salePercent}%
+                        </span>
+                      )}
+                      {(product.price * (1 - product.salePercent / 100)).toLocaleString()}원
+                    </>
+                  ) : (
+                    <>
+                      {product.price.toLocaleString()}
+                      <span className="text-sm font-bold text-gray-600 ml-1">원</span>
+                    </>
+                  )}
                 </p>
               </div>
             </div>
