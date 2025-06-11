@@ -22,6 +22,7 @@ const Sidebar = () => {
     { name: "대둔산", icon: "🏔️" },
     { name: "himedia", icon: "🌲" },
   ];
+  
 
   return (
     <aside className="w-[250px] px-4 py-6 bg-white border-r border-gray-200 text-sm space-y-6 overflow-y-auto h-full">

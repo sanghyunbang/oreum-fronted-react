@@ -1,5 +1,5 @@
 import { type } from "@testing-library/user-event/dist/type";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom"; 
@@ -15,7 +15,8 @@ function WritePost() {
   const [formdata, setFormdata] = useState({title : "", 
     content : "", 
     type : "general", 
-    userId : localStorage.getItem("nickname")});
+    userId : ""
+  });
 
   // 드래그 앤 드롭 핸들링
   const handleDrop = (e) => {
@@ -42,22 +43,29 @@ function WritePost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const mdata = {
+    title: formdata.title,
+    content: formdata.content,
+    type: formdata.type,
+    userId: formdata.userId,
+  };
         
-    // if (category === "curation") {
+    // if (formdata.type === "curation") {
     //   formData.append("mountainName", mountainName);
     //   formData.append("hikingCourse", hikingCourse);
     // }
 
-    files.forEach(file => formdata.append("mediaFiles",file));
-
     try {
       const res = await fetch("http://localhost:8080/api/posts/insert", {
         method: "POST",
-        body: formdata,
+        body: JSON.stringify(mdata),
         credentials: "include",
-        headers:{"Content-Type" : "application/json", 'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` }
+        headers:{
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` }
       });      
-      console.log(formdata)
+      console.log(mdata)
       const result = await res.text();
       alert(`응답: ${result}`);
       navigate("/mainboard");
@@ -66,6 +74,44 @@ function WritePost() {
       console.log(err);
     }
   };
+
+  const fetchUserId = async (setFormdata) => {
+  const email = localStorage.getItem("nickname");
+  console.log("로컬 스토리지 값 =",localStorage.getItem("nickname"))
+  console.log("이메일 값 = ", email)
+  if (!email) return;
+  console.log("fetchUserId 이벤트 진입")
+
+  try {
+    const res = await fetch(`http://localhost:8080/api/user/idget?email=${encodeURIComponent(email)}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("jwtToken")}`,
+      },
+      credentials: "include",
+    });
+    console.log("res값 : ",res);
+
+    if (!res.ok) {
+      throw new Error("유저 정보를 가져오는 데 실패했습니다.");
+    }
+
+    const data = await res.json(); // { id, email, nickname, ... }
+    console.log("data : " ,data.id);
+    setFormdata(prev => ({
+      ...prev,
+      userId: data.id,
+    }));
+  } catch (err) {
+    console.error("유저 ID 조회 에러:", err);
+  }
+};
+
+useEffect(() => {
+  console.log("실행됨")
+  fetchUserId(setFormdata);
+}, []);
 
 
   return (
@@ -111,7 +157,7 @@ function WritePost() {
 
 
       {/* 큐레이션 게시글일 때만 노출되는 추가 입력란 */}
-      {formdata.type === "큐레이션게시글" && (
+      {formdata.type === "curation" && (
         <>
           <div className="mb-4">
             <label className="block mb-1 font-medium text-gray-700">산 이름</label>
