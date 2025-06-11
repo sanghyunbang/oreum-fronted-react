@@ -1,18 +1,21 @@
+import { type } from "@testing-library/user-event/dist/type";
 import React, { useState, useRef } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom"; 
 
 function WritePost() {
-  const [category, setCategory] = useState("일반게시글");
+  
   const navigate = useNavigate();
-
-  const [title, setTitle] = useState("");
+ 
   const [mountainName, setMountainName] = useState("");  // 산 이름 상태 추가
   const [hikingCourse, setHikingCourse] = useState("");  // 등산코스 상태 추가
-  const [content, setContent] = useState("");
   const [files, setFiles] = useState([]);
   const dropRef = useRef();
+  const [formdata, setFormdata] = useState({title : "", 
+    content : "", 
+    type : "general", 
+    userId : localStorage.getItem("nickname")});
 
   // 드래그 앤 드롭 핸들링
   const handleDrop = (e) => {
@@ -39,27 +42,25 @@ function WritePost() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("content", content);
-    formData.append("category", category);
+        
+    // if (category === "curation") {
+    //   formData.append("mountainName", mountainName);
+    //   formData.append("hikingCourse", hikingCourse);
+    // }
 
-    if (category === "큐레이션게시글") {
-      formData.append("mountainName", mountainName);
-      formData.append("hikingCourse", hikingCourse);
-    }
-
-    files.forEach(file => formData.append("mediaFiles",file));
+    files.forEach(file => formdata.append("mediaFiles",file));
 
     try {
-      const res = await fetch("http://localhost:8080/api/posts", {
+      const res = await fetch("http://localhost:8080/api/posts/insert", {
         method: "POST",
-        body: formData,
-        credentials: "include"
+        body: formdata,
+        credentials: "include",
+        headers:{"Content-Type" : "application/json", 'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` }
       });      
-
+      console.log(formdata)
       const result = await res.text();
       alert(`응답: ${result}`);
+      navigate("/mainboard");
 
     } catch (err) {
       console.log(err);
@@ -75,12 +76,12 @@ function WritePost() {
       <div className="mb-4">
         <label className="block mb-1 font-medium text-gray-700">게시글 유형</label>
         <select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          value={formdata.type}
+          onChange={(e) => setFormdata({ ...formdata, type: e.target.value })}
           className="w-full border border-gray-300 rounded px-3 py-2"
         >
-          <option value="일반게시글">일반게시글</option>
-          <option value="큐레이션게시글">큐레이션게시글</option>
+          <option value="general">일반게시글</option>
+          <option value="curation">큐레이션게시글</option>
         </select>
       </div>
 
@@ -89,15 +90,28 @@ function WritePost() {
         <label className="block mb-1 font-medium text-gray-700">제목</label>
         <input
           type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          value={formdata.title}
+          onChange={(e) => setFormdata({ ...formdata, title: e.target.value })}
           className="w-full border border-gray-300 rounded px-3 py-2"
           required
         />
       </div>
 
+      {/* 유저 아이디 */}
+      <div>
+        <p>작성자</p>
+        <input
+        type="text"
+        value={localStorage.getItem("nickname")}
+        readOnly
+        className="w-full border border-gray-300 rounded px-3 py-2"
+        />
+      </div>
+
+
+
       {/* 큐레이션 게시글일 때만 노출되는 추가 입력란 */}
-      {category === "큐레이션게시글" && (
+      {formdata.type === "큐레이션게시글" && (
         <>
           <div className="mb-4">
             <label className="block mb-1 font-medium text-gray-700">산 이름</label>
@@ -106,7 +120,7 @@ function WritePost() {
               value={mountainName}
               onChange={(e) => setMountainName(e.target.value)}
               className="w-full border border-gray-300 rounded px-3 py-2"
-              required={category === "큐레이션게시글"}
+              required={formdata.type === "큐레이션게시글"}
             />
           </div>
 
@@ -117,7 +131,7 @@ function WritePost() {
               value={hikingCourse}
               onChange={(e) => setHikingCourse(e.target.value)}
               className="w-full border border-gray-300 rounded px-3 py-2"
-              required={category === "큐레이션게시글"}
+              required={formdata.type === "큐레이션게시글"}
             />
           </div>
         </>
@@ -127,8 +141,8 @@ function WritePost() {
       <div className="mb-12">
         <label className="block mb-2 font-medium text-gray-700">내용</label>
         <ReactQuill
-          value={content}
-          onChange={setContent}
+          value={formdata.content}
+          onChange={(value) => setFormdata({ ...formdata, content: value })}
           className="bg-white"
           style={{ height: "300px", marginBottom: "1rem" }}
         />
@@ -186,7 +200,8 @@ function WritePost() {
       {/* 버튼 영역 */}
       <div className="flex justify-end gap-3">
         <button
-          type="submit"
+          type="button"
+          onClick={handleSubmit}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
         >
           등록

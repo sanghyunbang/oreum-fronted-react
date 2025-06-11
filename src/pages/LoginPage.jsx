@@ -5,7 +5,6 @@ import JoinPage from "./Join_Page";
 import FindPw from "./Find_Pw";
 import FindUserid from "./Find_Userid";
 
-
 const LoginPage = ({ onClose }) => {
   const [formData, setFormData] = useState({ nickname: "", pw: "" });
   const [errors, setErrors] = useState({});
@@ -68,6 +67,7 @@ const LoginPage = ({ onClose }) => {
       const data = await response.json();
       localStorage.setItem("jwtToken", data.token);
       localStorage.setItem("nickname", formData.nickname);
+
       alert("로그인 성공!");
       navigate("/");
     } catch (error) {
