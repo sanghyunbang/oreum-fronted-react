@@ -1,18 +1,17 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
-const GoodsCategory = () => {
-  const products = [
-    { id: 1, img: "/Goods_img/캠핑가방.jpeg", name: "캠핑가방", category: "기타", price: 15000, salePercent: 20 },
-    { id: 2, img: "/Goods_img/청바지.jpeg", name: "청바지", category: "하의", price: 35000, salePercent: 10 },
-    { id: 3, img: "/Goods_img/운동화.jpeg", name: "운동화", category: "신발", price: 65000 }, // 할인 없음
-    { id: 4, img: "/Goods_img/등산스틱.jpeg", name: "등산스틱", category: "기타", price: 12000, salePercent: 15 },
-    { id: 5, img: "/Goods_img/후드티.jpeg", name: "후드티", category: "상의", price: 28000, salePercent: 30 },
-  ]
-
+const GoodsCategory = ({product}) => {
+  console.log("product ",product);
+  const navigate = useNavigate();
   const filters = ["전체", "상의", "하의", "신발", "기타"]
   const [activeFilter, setActiveFilter] = useState("전체")
 
-  const filteredProducts = activeFilter === "전체" ? products : products.filter((p) => p.category === activeFilter)
+  const filteredProducts = activeFilter === "전체" ? product : product.filter((p) => p.category === activeFilter)
+
+  const productsClick = (p)=>{
+    navigate(`/Goods/GoodsDetail/${p.id}`);
+  }
 
   return (
     <div className="flex flex-wrap gap-3 justify-center">
@@ -43,7 +42,7 @@ const GoodsCategory = () => {
               className="bg-white border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 "
             >
               {/* 상품 이미지 */}
-              <div className="aspect-square bg-gray-100 relative overflow-hidden">
+              <div className="aspect-square bg-gray-100 relative overflow-hidden" onClick={()=>productsClick(product)}>
                 {product.img ? (
                   //상품이미지 있을때 O
                   <img src={product.img || "/placeholder.svg"} alt={product.name}
@@ -75,8 +74,9 @@ const GoodsCategory = () => {
 
               {/* 상품 정보 */}
               <div className="p-4">
+                <span className="text-xs text-gray-600">{product.brand}</span><br />
                 <div className="flex justify-between items-start mb-1">
-                  <h3 className="font-semibold text-lg text-gray-900">{product.name}</h3>
+                  <h3 className="font-semibold text-base text-gray-900">{product.name}</h3>
                 </div>
                 <p className="text-base font-bold text-gray-900">
                   {product.salePercent ? (

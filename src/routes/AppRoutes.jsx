@@ -13,6 +13,7 @@ import PostDetailPage from '../pages/BoardPages/PostDetailPage';
 import WritePostPage from '../pages/BoardPages/WritePostPage';
 import OAuth2RedirectPage from '../pages/Auth/OAuth2RedirectPage';
 import GoodsPage from '../pages/GoodsPages/GoodsPage';
+import GoodsDetail from '../pages/GoodsPages/GoodsDetail';
 
 import BoardDetail from '../components/board/BoardDetail';
 import MiniDisplay from '../components/board/MiniDisplay';
@@ -38,6 +39,7 @@ const AppRoutes = () => (
         <Route path="fpw" element={<FindPw />} />
         <Route path="fuid" element={<FindUserid />} />
         <Route path="Goods" element={<GoodsPage />} />
+        <Route path="Goods/GoodsDetail/:id" element={<GoodsDetail />} />
 
         {/* 게시판 기능 */}
         <Route path="feed" element={<MainFeedPage />} />
