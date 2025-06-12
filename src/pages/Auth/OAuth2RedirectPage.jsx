@@ -9,19 +9,16 @@ const OAuth2RedirectPage = () => {
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
-    const token = query.get("token");
+    const email = query.get("email");
     const nickname = query.get("nickname");
 
-    if (token && nickname) {
-      //  브라우저에 저장 (쿠키 or localStorage)
-      localStorage.setItem("jwtToken", token);
-      localStorage.setItem("nickname", nickname);
-
-      //  Redux에 로그인 상태 반영
-      dispatch(login({ nickname }));
+    if (email && nickname) {
+      // 쿠키는 자동 저장되었으니 굳이 localStorage에 토큰 저장 ❌
+      // Redux에 로그인 상태만 반영
+      dispatch(login({ email, nickname }));
 
       alert("소셜 로그인 완료!");
-      navigate("/"); // 홈으로 리다이렉트
+      navigate("/");
     } else {
       alert("로그인 실패");
       navigate("/login?error=oauth2");

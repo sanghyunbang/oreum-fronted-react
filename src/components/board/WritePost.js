@@ -1,24 +1,30 @@
-import { type } from "@testing-library/user-event/dist/type";
 import React, { useState, useRef, useEffect } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 
 function WritePost() {
-  
   const navigate = useNavigate();
- 
-  const [mountainName, setMountainName] = useState("");  // 산 이름 상태 추가
-  const [hikingCourse, setHikingCourse] = useState("");  // 등산코스 상태 추가
   const [files, setFiles] = useState([]);
   const dropRef = useRef();
-  const [formdata, setFormdata] = useState({title : "", 
-    content : "", 
-    type : "general", 
-    userId : ""
+
+  const [postdata, setPostdata] = useState({
+    userId: "",
+    nickname: "",
+    boardId: 1,
+    type: "general",
+    title: "",
+    content: "",
+    mountainName: "",
+    route: "",
+    caution: "",
+    nearByAttration: "",
   });
 
-  // 드래그 앤 드롭 핸들링
+  const [mountainName, setMountainName] = useState("");
+  const [hikingCourse, setHikingCourse] = useState("");
+
+  // 파일 핸들링
   const handleDrop = (e) => {
     e.preventDefault();
     const droppedFiles = Array.from(e.dataTransfer.files);
@@ -31,88 +37,71 @@ function WritePost() {
   };
 
   const addFiles = (newFiles) => {
-    const validFiles = newFiles.filter(file => 
+    const validFiles = newFiles.filter((file) =>
       file.type.startsWith("image/") || file.type === "video/mp4"
     );
     setFiles((prev) => [...prev, ...validFiles]);
   };
 
   const removeFile = (index) => {
-    setFiles((prev) => prev.filter((_,i) => i !== index));
+    setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // 유저 정보 가져오기 (쿠키 기반)
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const res = await fetch("http://localhost:8080/user/infoForPost", {
+          credentials: "include", // 쿠키 전달
+        });
+
+        if (!res.ok) throw new Error("유저 정보 조회 실패");
+
+        const data = await res.json(); // { userId, nickname, ... }
+
+        setPostdata((prev) => ({
+          ...prev,
+          userId: data.userId,
+          nickname: data.nickname,
+        }));
+      } catch (err) {
+        console.error("유저 정보 가져오기 실패:", err);
+      }
+    };
+
+    fetchUserInfo();
+  }, []);
+
+  // 글 등록
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const mdata = {
-    title: formdata.title,
-    content: formdata.content,
-    type: formdata.type,
-    userId: formdata.userId,
-  };
-        
-    // if (formdata.type === "curation") {
-    //   formData.append("mountainName", mountainName);
-    //   formData.append("hikingCourse", hikingCourse);
-    // }
+    const formData = new FormData();
+
+    files.forEach((file) => formData.append("media", file));
+
+    if (postdata.type === "curation") {
+      postdata.mountainName = mountainName;
+      postdata.route = hikingCourse;
+    }
+
+    formData.append("post", new Blob([JSON.stringify(postdata)], { type: "application/json" }));
 
     try {
-      const res = await fetch("http://localhost:8080/api/posts/insert", {
+      const res = await fetch("http://localhost:8080/posts/insert", {
         method: "POST",
-        body: JSON.stringify(mdata),
-        credentials: "include",
-        headers:{
-          "Content-Type": "application/json",
-          'Authorization': `Bearer ${localStorage.getItem('jwtToken')}` }
-      });      
-      console.log(mdata)
+        body: formData,
+        credentials: "include", // 쿠키로 JWT 전달됨
+      });
+
       const result = await res.text();
       alert(`응답: ${result}`);
       navigate("/mainboard");
-
     } catch (err) {
-      console.log(err);
+      console.error(err);
+      alert("글 등록 실패");
     }
   };
-
-  const fetchUserId = async (setFormdata) => {
-  const email = localStorage.getItem("nickname");
-  console.log("로컬 스토리지 값 =",localStorage.getItem("nickname"))
-  console.log("이메일 값 = ", email)
-  if (!email) return;
-  console.log("fetchUserId 이벤트 진입")
-
-  try {
-    const res = await fetch(`http://localhost:8080/api/user/idget?email=${encodeURIComponent(email)}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("jwtToken")}`,
-      },
-      credentials: "include",
-    });
-    console.log("res값 : ",res);
-
-    if (!res.ok) {
-      throw new Error("유저 정보를 가져오는 데 실패했습니다.");
-    }
-
-    const data = await res.json(); // { id, email, nickname, ... }
-    console.log("data : " ,data.id);
-    setFormdata(prev => ({
-      ...prev,
-      userId: data.id,
-    }));
-  } catch (err) {
-    console.error("유저 ID 조회 에러:", err);
-  }
-};
-
-useEffect(() => {
-  console.log("실행됨")
-  fetchUserId(setFormdata);
-}, []);
-
 
   return (
     <div className="max-w-2xl mx-auto p-4">
@@ -122,8 +111,8 @@ useEffect(() => {
       <div className="mb-4">
         <label className="block mb-1 font-medium text-gray-700">게시글 유형</label>
         <select
-          value={formdata.type}
-          onChange={(e) => setFormdata({ ...formdata, type: e.target.value })}
+          value={postdata.type}
+          onChange={(e) => setPostdata({ ...postdata, type: e.target.value })}
           className="w-full border border-gray-300 rounded px-3 py-2"
         >
           <option value="general">일반게시글</option>
@@ -131,33 +120,31 @@ useEffect(() => {
         </select>
       </div>
 
-      {/* 제목 입력 */}
+      {/* 제목 */}
       <div className="mb-4">
         <label className="block mb-1 font-medium text-gray-700">제목</label>
         <input
           type="text"
-          value={formdata.title}
-          onChange={(e) => setFormdata({ ...formdata, title: e.target.value })}
+          value={postdata.title}
+          onChange={(e) => setPostdata({ ...postdata, title: e.target.value })}
           className="w-full border border-gray-300 rounded px-3 py-2"
           required
         />
       </div>
 
-      {/* 유저 아이디 */}
-      <div>
-        <p>작성자</p>
+      {/* 작성자 */}
+      <div className="mb-4">
+        <label className="block mb-1 font-medium text-gray-700">작성자</label>
         <input
-        type="text"
-        value={localStorage.getItem("nickname")}
-        readOnly
-        className="w-full border border-gray-300 rounded px-3 py-2"
+          type="text"
+          value={postdata.nickname}
+          readOnly
+          className="w-full border border-gray-300 rounded px-3 py-2"
         />
       </div>
 
-
-
-      {/* 큐레이션 게시글일 때만 노출되는 추가 입력란 */}
-      {formdata.type === "curation" && (
+      {/* 큐레이션 필드 */}
+      {postdata.type === "curation" && (
         <>
           <div className="mb-4">
             <label className="block mb-1 font-medium text-gray-700">산 이름</label>
@@ -166,7 +153,7 @@ useEffect(() => {
               value={mountainName}
               onChange={(e) => setMountainName(e.target.value)}
               className="w-full border border-gray-300 rounded px-3 py-2"
-              required={formdata.type === "큐레이션게시글"}
+              required
             />
           </div>
 
@@ -177,7 +164,7 @@ useEffect(() => {
               value={hikingCourse}
               onChange={(e) => setHikingCourse(e.target.value)}
               className="w-full border border-gray-300 rounded px-3 py-2"
-              required={formdata.type === "큐레이션게시글"}
+              required
             />
           </div>
         </>
@@ -187,14 +174,14 @@ useEffect(() => {
       <div className="mb-12">
         <label className="block mb-2 font-medium text-gray-700">내용</label>
         <ReactQuill
-          value={formdata.content}
-          onChange={(value) => setFormdata({ ...formdata, content: value })}
+          value={postdata.content}
+          onChange={(value) => setPostdata({ ...postdata, content: value })}
           className="bg-white"
           style={{ height: "300px", marginBottom: "1rem" }}
         />
       </div>
 
-      {/* 드래그앤드롭 */}
+      {/* 업로드 */}
       <div
         ref={dropRef}
         onDrop={handleDrop}
@@ -219,17 +206,9 @@ useEffect(() => {
           return (
             <div key={index} className="relative">
               {file.type.startsWith("image/") ? (
-                <img
-                  src={url}
-                  alt="preview"
-                  className="w-24 h-24 object-cover rounded"
-                />
+                <img src={url} alt="preview" className="w-24 h-24 object-cover rounded" />
               ) : (
-                <video
-                  src={url}
-                  controls
-                  className="w-24 h-24 rounded object-cover"
-                />
+                <video src={url} controls className="w-24 h-24 rounded object-cover" />
               )}
               <button
                 type="button"
@@ -243,7 +222,7 @@ useEffect(() => {
         })}
       </div>
 
-      {/* 버튼 영역 */}
+      {/* 버튼 */}
       <div className="flex justify-end gap-3">
         <button
           type="button"
@@ -259,7 +238,6 @@ useEffect(() => {
         >
           취소
         </button>
-        
       </div>
     </div>
   );
