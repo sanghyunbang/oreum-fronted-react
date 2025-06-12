@@ -36,7 +36,7 @@ const Goods = () => {
     { id: 4, img: "/Goods_img/header3.jpeg"},
     { id: 5, img: "/Goods_img/header4.jpeg"},
   ]
-  const products2 = [
+  const Goods = [
     { id: 1, img: "/Goods_img/캠핑가방.jpeg", name: "캠핑가방", category: "기타", brand:"아디다스", price: 15000, salePercent: 20, }, //likes: 80,
     { id: 2, img: "/Goods_img/청바지.jpeg", name: "청바지", category: "하의", brand:"아디다스", price: 35000, salePercent: 10, },
     { id: 3, img: "/Goods_img/운동화.jpeg", name: "운동화", category: "신발", brand:"아디다스", price: 65000}, // 할인 없음
@@ -54,7 +54,15 @@ const Goods = () => {
 
   return (
     <div className="w-full max-w-4xl min-w-[600px] mx-auto px-4 border border-gray-200">
-      <header className="text-center text-3xl my-5 font-semibold">스토어</header>
+      <header className="text-center text-3xl my-5 font-semibold">스토어
+        <button className="mx-10" onClick={()=>navigate("/Goods/GoodsCart")}>
+          장바구니
+        </button>
+
+        <button className="" onClick={()=>navigate("/Goods/GoodsOrder")}>
+          구매하기
+        </button>
+      </header>
       <hr className="my-8" />
 
       <div className="w-full max-w-[700px] mx-auto bg-white mb-[50px] padding 0 5px">
@@ -68,14 +76,14 @@ const Goods = () => {
       </div>
       <header className="text-2xl font-semibold">OREUM 인기 상품</header>
         <Slider {...BestSettings}>
-          {products2.slice(0, 3).map((p, index) => (
+          {Goods.slice(0, 3).map((p, index) => (
             <div key={p.id} className="flex justify-center py-4" onClick={()=>productsClick(p)}>
               <GoodsBest product={p} rank={index + 1} />
             </div>
           ))}
         </Slider>
       <div className="w-full max-w-screen-xl mx-auto px-4 mb-[32px]">
-        <GoodsCategory product={products2}/>
+        <GoodsCategory product={Goods}/>
       </div>
     </div>
   );

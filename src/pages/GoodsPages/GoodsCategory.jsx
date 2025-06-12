@@ -84,11 +84,9 @@ const GoodsCategory = ({product}) => {
                       <span className="line-through text-gray-400 text-base mr-2">
                         {product.price.toLocaleString()}원
                       </span><br/>
-                      {product.salePercent && (
                         <span className="py-1 pr-1 text-base font-bold text-red-600">
                           {product.salePercent}%
                         </span>
-                      )}
                       {(product.price * (1 - product.salePercent / 100)).toLocaleString()}원
                     </>
                   ) : (
