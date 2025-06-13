@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react"
+import { useState } from "react" //useEffect
 import Slider from "react-slick"
-import { FaHeart, FaRegHeart, FaShare, FaStar } from "react-icons/fa"
+import { FaHeart, FaRegHeart, FaShare, FaStar, FaHome, FaShoppingCart } from "react-icons/fa"
+import { useNavigate } from "react-router-dom"
 import "slick-carousel/slick/slick.css"
 import "slick-carousel/slick/slick-theme.css"
-import { useNavigate } from "react-router-dom"
 
 const GoodsDetail = () => {
   const [activeTab, setActiveTab] = useState("details")
@@ -113,8 +113,23 @@ const GoodsDetail = () => {
     navigate("/Goods/GoodsOrder")
   }
 
+  const doReturn = () => {
+    navigate(-1);
+  }
+
+  const doHome = () => {
+    navigate("/Goods");
+  }
+
   return (
     <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
+      <header className="flex items-center justify-between px-4 py-2 mb-[80px]">
+      <div className="text-2xl cursor-pointer z-10 mr-5" onClick={doReturn}>{"<"}</div>
+      <div className="text-2xl cursor-pointer z-10" onClick={doHome}><FaHome /></div>
+      <h5 className="text-center flex-1 text-2xl font-bold -ml-6">{product.name}</h5>
+      <div className="text-2xl cursor-pointer z-10" onClick={()=>navigate("/Goods/GoodsCart")}><FaShoppingCart /></div>
+      <div className="w-6" /> {/* 오른쪽 여백용 (좌우 균형 맞추기 위함) */}
+      </header>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
         <div className="relative mb-5">
           <Slider {...sliderSettings}>
