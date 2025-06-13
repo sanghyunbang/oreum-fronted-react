@@ -17,7 +17,6 @@ export default function useMountainWeather() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('jwtToken')}`
         },
         credentials: 'include', // 이거 꼭 있어야 세션/쿠키 공유 가능
         body: JSON.stringify({ mountainName }),
