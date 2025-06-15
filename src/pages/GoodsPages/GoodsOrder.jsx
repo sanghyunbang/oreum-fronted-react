@@ -16,23 +16,13 @@ const GoodsCart = () => {
 
   const [Goods, setGoods] = useState([
     {id: 1, img: "/Goods_img/캠핑가방.jpeg", name: "캠핑가방", category: "기타", brand: "아디다스", price: 15000, salePercent: 20, option: "M", qty: 5,},
-    // {id: 2, img: "/Goods_img/청바지.jpeg", name: "청바지", category: "하의", brand: "아디다스", price: 35000, salePercent: 10, option: "S", qty: 1,},
-    // {id: 3, img: "/Goods_img/운동화.jpeg", name: "운동화", category: "신발", brand: "아디다스", price: 65000, option: "S", qty: 2,},
-    // {id: 4, img: "/Goods_img/등산스틱.jpeg", name: "등산스틱", category: "기타", brand: "아디다스", price: 12000, salePercent: 15, option: "L", qty: 1,},
-    // {id: 5, img: "/Goods_img/후드티.jpeg", name: "후드티", category: "상의", brand: "아디다스", price: 28000, salePercent: 30, option: "M", qty: 1,},
+    {id: 2, img: "/Goods_img/청바지.jpeg", name: "청바지", category: "하의", brand: "아디다스", price: 35000, salePercent: 10, option: "S", qty: 1,},
+    {id: 3, img: "/Goods_img/운동화.jpeg", name: "운동화", category: "신발", brand: "아디다스", price: 65000, option: "S", qty: 2,},
+    {id: 4, img: "/Goods_img/등산스틱.jpeg", name: "등산스틱", category: "기타", brand: "아디다스", price: 12000, salePercent: 15, option: "L", qty: 1,},
+    {id: 5, img: "/Goods_img/후드티.jpeg", name: "후드티", category: "상의", brand: "아디다스", price: 28000, salePercent: 30, option: "M", qty: 1,},
   ])
 
-  //전 페이지로 이동
-  const doReturn = () => {
-    navigate(-1)
-  }
-  
-  //goods페이징 이동
-  const doHome = () => {
-    navigate("/Goods")
-  }
-
-  //폼테이터로 저장
+  //폼데이터로 저장
   const doChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
@@ -62,6 +52,11 @@ const GoodsCart = () => {
     return calculateTotalOriginal() - calculateTotalDiscounted()
   }
 
+  //결제
+  const doPayment = () => {
+    alert("결제되었습니다");
+  }
+
   //주소명 가져오는 API
   const DeliveryAddress = () => {
     if (!window.daum?.Postcode) {
@@ -85,14 +80,14 @@ const GoodsCart = () => {
   }, [])
 
   return (
-    <div className="max-w-3xl mx-auto bg-white p-4 md:p-6">
+    <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
       {/* Header */}
       <header className="flex items-center justify-between border-b pb-4 mb-6">
-        <button onClick={doReturn} className="flex items-center text-gray-700 hover:text-gray-900">
+        <button onClick={()=>navigate(-1)} className="flex items-center text-gray-700 hover:text-gray-900">
           <FaArrowLeft className="mr-2" /> 뒤로
         </button>
         <h1 className="text-2xl font-bold text-center flex-1">주문서</h1>
-        <button onClick={doHome} className="text-gray-700 hover:text-gray-900">
+        <button onClick={()=>navigate("/Goods")} className="text-gray-700 hover:text-gray-900">
           <FaHome size={20} />
         </button>
       </header>
@@ -158,13 +153,13 @@ const GoodsCart = () => {
               Goods.map((cart, idx) => (
                 <div key={idx} className="flex items-center gap-4 border-b pb-4 last:border-b-0">
                   <div className="w-20 h-20 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
-                    <img src={cart.img || "/placeholder.svg"} alt={cart.name} className="w-full h-full object-cover" />
+                    <img src={cart.img || "/placeholder.svg"} alt={cart.name} className="w-full h-full object-cover cursor-pointer" onClick={()=>doImg(cart.id)}/>
                   </div>
 
                   <div className="flex-1">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-medium text-gray-900">{cart.name}</h3>
+                        <h3 className="font-medium text-gray-900 cursor-pointer" onClick={()=>navigate(`/Goods/GoodsDetail/${cart.id}`)}>{cart.name}</h3>
                         <p className="text-sm text-gray-500">
                           {cart.brand} | {cart.option || "옵션없음"} | {cart.qty}개
                         </p>
@@ -313,7 +308,8 @@ const GoodsCart = () => {
         </section>
 
         {/* Payment Button */}
-        <button className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-md text-lg font-bold transition-colors">
+        <button className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-md text-lg font-bold transition-colors"
+        onClick={doPayment}>
           {(calculateTotalDiscounted() - Number.parseInt(formData.point || "0")).toLocaleString()}원 결제하기
         </button>
       </div>

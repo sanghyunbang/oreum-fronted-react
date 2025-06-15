@@ -21,11 +21,11 @@ const GoodsDetail = () => {
     likes: 30,
     images: ["/Goods_img/캠핑가방.jpeg", "/Goods_img/캠핑가방.jpeg"],
     description: `고급스러운 동산화 파우치입니다. \n고품질 소재로 제작된 실용적인 파우치입니다.`,
-    shipping: {
-      fee: 3000,
-      freeShippingMin: 30000,
-      estimatedDays: "2-3일",
-    },
+    // shipping: {
+    //   fee: 3000,
+    //   freeShippingMin: 30000,
+    //   estimatedDays: "2-3일",
+    // },
     reviews: [
       { id: 1, rating: 4, comment: "정말 좋은 상품이에요!", author: "김**" },
       { id: 2, rating: 4, comment: "배송이 빨라요", author: "이**" },
@@ -113,19 +113,11 @@ const GoodsDetail = () => {
     navigate("/Goods/GoodsOrder")
   }
 
-  const doReturn = () => {
-    navigate(-1);
-  }
-
-  const doHome = () => {
-    navigate("/Goods");
-  }
-
   return (
     <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
       <header className="flex items-center justify-between px-4 py-2 mb-[80px]">
-      <div className="text-2xl cursor-pointer z-10 mr-5" onClick={doReturn}>{"<"}</div>
-      <div className="text-2xl cursor-pointer z-10" onClick={doHome}><FaHome /></div>
+      <div className="text-2xl cursor-pointer z-10 mr-5" onClick={()=>navigate(-1)}>{"<"}</div>
+      <div className="text-2xl cursor-pointer z-10" onClick={()=>navigate("/Goods")}><FaHome /></div>
       <h5 className="text-center flex-1 text-2xl font-bold -ml-6">{product.name}</h5>
       <div className="text-2xl cursor-pointer z-10" onClick={()=>navigate("/Goods/GoodsCart")}><FaShoppingCart /></div>
       <div className="w-6" /> {/* 오른쪽 여백용 (좌우 균형 맞추기 위함) */}
@@ -160,11 +152,11 @@ const GoodsDetail = () => {
 
           <div className="bg-gray-50 p-4 rounded-lg mb-5">
             <div>
-              <strong>배송비:</strong> {product.shipping.fee.toLocaleString()}원 (
-              {product.shipping.freeShippingMin.toLocaleString()}원 이상 무료)
+              <strong>배송비:</strong> 3000원 (
+              30000원 이상 무료)
             </div>
             <div>
-              <strong>배송일:</strong> 영업일 기준 {product.shipping.estimatedDays} 이내
+              <strong>배송일:</strong> 영업일 기준 2-3일 이내
             </div>
           </div>
 
@@ -222,7 +214,7 @@ const GoodsDetail = () => {
             </button>
             <button
               className="w-[124px] h-[44px] bg-black text-white font-medium rounded flex items-center justify-center"
-              onClick={handleAdd}
+              onClick={()=>navigate("/Goods/GoodsOrder")}
             >
               구매하기
             </button>

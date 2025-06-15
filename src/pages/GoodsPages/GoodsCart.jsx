@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaHome } from "react-icons/fa";     // Font Awesome
+import { FaHome, FaArrowLeft } from "react-icons/fa";     // Font Awesome
 
 const GoodsOrder = () => {
     const [checkedAll, setCheckedAll] = useState(true);
     const [selectedGoods, setSelectedGoods] = useState([]); // 선택된 상품들
     const [Goods, setGoods] = useState([
-        { id: 1, img: "/Goods_img/캠핑가방.jpeg", name: "캠핑가방", category: "기타", brand: "아디다스", price: 15000, salePercent: 20, option: "M", qty: 5 },
+        { id: 1, img: "/Goods_img/캠핑가방.jpeg", name: "캠핑가방", category: "기타", brand: "아디다스", price: 15000, salePercent: 20, option: "M", qty: 1 },
         { id: 2, img: "/Goods_img/청바지.jpeg", name: "청바지", category: "하의", brand: "아디다스", price: 35000, salePercent: 10, option: "S", qty: 1 },
-        { id: 3, img: "/Goods_img/운동화.jpeg", name: "운동화", category: "신발", brand: "아디다스", price: 65000, option: "S", qty: 2 },
+        { id: 3, img: "/Goods_img/운동화.jpeg", name: "운동화", category: "신발", brand: "아디다스", price: 65000, option: "S", qty: 1 },
         { id: 4, img: "/Goods_img/등산스틱.jpeg", name: "등산스틱", category: "기타", brand: "아디다스", price: 12000, salePercent: 15, option: "L", qty: 1 },
         { id: 5, img: "/Goods_img/후드티.jpeg", name: "후드티", category: "상의", brand: "아디다스", price: 28000, salePercent: 30, option: "M", qty: 1 },
     ]);
@@ -36,7 +36,7 @@ const GoodsOrder = () => {
     useEffect(()=>{
         const checked = true;  // 초기값 설정
         setCheckedAll(checked);
-        setSelectedGoods(checked ? Goods.map((_, idx) => idx) : []);
+        setSelectedGoods(checked ? Goods.map(item => item.id) : []);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     },[])
 
@@ -44,55 +44,43 @@ const GoodsOrder = () => {
     const selectAll = (e) => {
         const checked = e.target.checked;
         setCheckedAll(checked);
-        setSelectedGoods(checked ? Goods.map((_, idx) => idx) : []);
+        setSelectedGoods(checked ? Goods.map(item => item.id) : []);
     };
 
     // 개별 선택
-    const doSelect = (e, idx) => {
-        if (e.target.checked) {
-            setSelectedGoods(prev => [...prev, idx]);
-        } else {
-            setSelectedGoods(prev => prev.filter(i => i !== idx));
-        }
+    const doSelect = (e, id) => {
+        const updated = e.target.checked
+            ? [...selectedGoods, id]
+            : selectedGoods.filter(i => i !== id);
+
+        setSelectedGoods(updated);
+        setCheckedAll(updated.length === Goods.length);
     };
 
-    // 선택 삭제(여러개)
+    // 선택 삭제(선택삭제 버튼)
     const doDelete = () => {
         if (window.confirm("선택한 상품을 삭제하시겠습니까?")) {
-            setGoods(prev => prev.filter((_, idx) => !selectedGoods.includes(idx)));
+            setGoods(prev => prev.filter((item) => !selectedGoods.includes(item.id)));
             setSelectedGoods([]);
             setCheckedAll(false);
             alert("삭제되었습니다.");
         }
     };
 
-    //선택 삭제(단일)
+    //선택 삭제( x 버튼)
     const removeOption = (cart) => {
         if (window.confirm("삭제하시겠습니까?")) {
-            setGoods(prev =>
-                prev.filter(opt =>
-                    !(opt.size === cart.size && opt.name === cart.name && opt.color === cart.color)
-                )
-            );
+            setGoods(prev => {
+                // 선택된 상품 목록에서 삭제된 항목 제외
+                const updated = prev.filter(opt => opt.id !== cart.id);
+                // 체크된 항목 수와 삭제된 후 상품 수 같으면 -> 전체 선택 유지
+                const updatedSelected = selectedGoods.filter(id => id !== cart.id);
+                setSelectedGoods(updatedSelected);
+                setCheckedAll(updatedSelected.length === updated.length);
+                return updated;
+            });
             alert("삭제되었습니다.");
         }
-    };
-
-    // 수량 조정
-    const downQty = (cart) => {
-        setGoods(prev =>
-            prev.map(opt =>
-                opt === cart ? { ...opt, qty: Math.max(1, opt.qty - 1) } : opt
-            )
-        );
-    };
-
-    const upQty = (cart) => {
-        setGoods(prev =>
-            prev.map(opt =>
-                opt === cart ? { ...opt, qty: opt.qty + 1 } : opt
-            )
-        );
     };
 
     // 상품 가격 계산 함수 (할인 적용)
@@ -114,22 +102,17 @@ const GoodsOrder = () => {
         const selectedItems = Goods.filter((_, idx) => selectedGoods.includes(idx));
         navigate("/Goods/GoodsOrder", { state: { items: selectedItems } });
     };
-
-    const doReturn = () =>{
-        navigate(-1);
-    };
-
-    const doHome = () => {
-        navigate("/Goods");
-    }
-
+    
     return (
-        <div className="p-6 max-w-2xl mx-auto">
-            <header className="flex items-center justify-between px-4 py-2 mb-[80px]">
-            <div className="text-2xl cursor-pointer z-10 mr-5" onClick={doReturn}>{"<"}</div>
-            <div className="text-2xl cursor-pointer z-10" onClick={doHome}><FaHome /></div>
-            <h5 className="text-center flex-1 text-2xl font-bold -ml-6">장바구니</h5>
-            <div className="w-6" /> {/* 오른쪽 여백용 (좌우 균형 맞추기 위함) */}
+        <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
+            <header className="flex items-center justify-between pb-4 mb-6">
+                <button onClick={()=>navigate(-1)} className="flex items-center text-gray-700 hover:text-gray-900">
+                <FaArrowLeft className="mr-2" /> 뒤로
+                </button>
+                <h1 className="text-2xl font-bold text-center flex-1">장바구니</h1>
+                <button onClick={()=>navigate("/Goods")} className="text-gray-700 hover:text-gray-900">
+                <FaHome size={20} />
+                </button>
             </header>
 
             {/* 상단 전체선택 */}
@@ -152,8 +135,8 @@ const GoodsOrder = () => {
                         <div key={idx} className="flex items-center gap-4 border-t py-4">
                             <input
                                 type="checkbox"
-                                checked={selectedGoods.includes(idx)}
-                                onChange={(e) => doSelect(e, idx)}
+                                checked={selectedGoods.includes(cart.id)}
+                                onChange={(e) => doSelect(e, cart.id)}
                             />
                             <img
                                 src={cart.img}
@@ -167,9 +150,11 @@ const GoodsOrder = () => {
                                 </div>
                                 <div className="text-gray-500 mb-1">{cart.option || "옵션없음"} | {cart.qty}개</div>
                                 <div className="flex items-center">
-                                    <button onClick={() => downQty(cart)} className="px-2 py-[2px] border border-gray-400">-</button>
+                                    <button className="px-2 py-[2px] border border-gray-400"
+                                    onClick={() => setGoods(prev=>prev.map(opt =>opt === cart ? { ...opt, qty: Math.max(1, opt.qty - 1) } : opt))}> - </button>
                                     <input readOnly type="number" value={cart.qty} className="w-12 px-0 py-[2px] text-center border-t border-b border-gray-400 appearance-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none" />
-                                    <button onClick={() => upQty(cart)} className="px-2 py-[2px] border border-gray-400">+</button>
+                                    <button className="px-2 py-[2px] border border-gray-400"
+                                    onClick={() => setGoods(prev =>prev.map(opt =>opt === cart ? { ...opt, qty: opt.qty + 1 } : opt))}>+</button>
                                     <span className="ml-4 font-semibold">
                                         {cart.salePercent?
                                         <>
