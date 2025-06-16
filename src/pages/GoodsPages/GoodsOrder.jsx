@@ -153,7 +153,7 @@ const GoodsCart = () => {
               Goods.map((cart, idx) => (
                 <div key={idx} className="flex items-center gap-4 border-b pb-4 last:border-b-0">
                   <div className="w-20 h-20 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
-                    <img src={cart.img || "/placeholder.svg"} alt={cart.name} className="w-full h-full object-cover cursor-pointer" onClick={()=>doImg(cart.id)}/>
+                    <img src={cart.img || "/placeholder.svg"} alt={cart.name} className="w-full h-full object-cover cursor-pointer" onClick={()=>navigate(`/Goods/GoodsDetail/${cart.id}`)}/>
                   </div>
 
                   <div className="flex-1">

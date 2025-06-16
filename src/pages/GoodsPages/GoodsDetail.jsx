@@ -79,24 +79,6 @@ const GoodsDetail = () => {
     setSelectedOption((prev) => prev.filter((opt) => opt.size !== size))
   }
 
-  //갯수감소
-  const downQty = (size) => {
-    setSelectedOption((prev) =>
-      prev.map((opt) =>
-        opt.size === size ? { ...opt, qty: Math.max(1, opt.qty - 1) } : opt
-      )
-    )
-  }
-
-  //갯수증가
-  const upQty = (size) => {
-    setSelectedOption((prev) =>
-      prev.map((opt) =>
-        opt.size === size ? { ...opt, qty: opt.qty + 1 } : opt
-      )
-    )
-  }
-
   //장바구니 추가
   const handleAddToCart = () => {
     const getParticle = (word) => {
@@ -106,11 +88,6 @@ const GoodsDetail = () => {
       return hasFinalConsonant ? "이" : "가"
     }
     alert(`${product.name}${getParticle(product.name)} 장바구니에 추가되었습니다.`)
-  }
-
-  //구매하기
-  const handleAdd = () => {
-    navigate("/Goods/GoodsOrder")
   }
 
   return (
@@ -183,13 +160,15 @@ const GoodsDetail = () => {
                     </button>
                   </span>
                   <p className="flex items-center border rounded-md overflow-hidden">
-                    <button className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 text-lg font-medium transition-colors duration-200 focus:outline-none border-r\" onClick={() => downQty(opt.size)}>
+                    <button className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 text-lg font-medium transition-colors duration-200 focus:outline-none border-r\" 
+                    onClick={() => setSelectedOption((prev) => prev.map((opt) => opt.size === opt ? { ...opt, qty: Math.max(1, opt.qty - 1) } : opt))}>
                       -
                     </button>
                     <input type = "number"
                     className="w-12 h-10 text-center border-none focus:ring-0 focus:outline-none text-gray-800 text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     value={opt.qty} readOnly />
-                    <button className="flex items-center mr-[100px] justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 text-lg font-medium transition-colors duration-200 focus:outline-none border-l" onClick={() => upQty(opt.size)}>
+                    <button className="flex items-center mr-[100px] justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 text-lg font-medium transition-colors duration-200 focus:outline-none border-l" 
+                    onClick={() => setSelectedOption((prev) => prev.map((opt)=>opt.size === opt ? { ...opt, qty: opt.qty + 1 } : opt))}>
                       +
                     </button>
                     <p>{product.price.toLocaleString()}원</p>
