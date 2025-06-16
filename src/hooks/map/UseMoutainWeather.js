@@ -4,22 +4,18 @@ export default function useMountainWeather() {
   const [weather, setWeather] = useState(null);
   const [error, setError] = useState(null);
 
-  const fetchWeatherByMountain = async (mountainName) => {
-    const backendUrl = "http://localhost:8080/weather/summit";
+  const fetchWeatherByMountainNum = async (mountainNum) => {
+    const backendUrl = `http://localhost:8080/weather/summit?mountainNum=${mountainNum}`;
     try {
       console.clear();
-      console.log("🟢 산 이름으로 날씨 요청:", mountainName);
+      console.log("🟢 mountainNum으로 날씨 요청:", mountainNum);
 
       setError(null);
       setWeather(null);
 
       const response = await fetch(backendUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: 'include', // 이거 꼭 있어야 세션/쿠키 공유 가능
-        body: JSON.stringify({ mountainName }),
+        method: "GET",
+        credentials: 'include', // 세션/쿠키 공유 필요 시
       });
 
       console.log("✅ 백엔드 응답 상태:", response.status);
@@ -39,5 +35,5 @@ export default function useMountainWeather() {
     }
   };
 
-  return { weather, error, fetchWeatherByMountain };
+  return { weather, error, fetchWeatherByMountainNum };
 }
