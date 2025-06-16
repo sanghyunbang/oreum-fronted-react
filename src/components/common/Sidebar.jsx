@@ -1,5 +1,4 @@
-// src/components/common/Sidebar.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FaHome,
@@ -9,29 +8,88 @@ import {
   FaPlus,
   FaStar,
 } from "react-icons/fa";
-import CurationBanner from "./CurationBanner"; // ✅ 추가
+import CurationBanner from "./CurationBanner";
+
+const mountainEmojis = [
+  { label: "🏞️", value: "🏞️" },
+  { label: "🌄", value: "🌄" },
+  { label: "⛰️", value: "⛰️" },
+  { label: "🏔️", value: "🏔️" },
+  { label: "🏕️", value: "🏕️" },
+];
 
 const Sidebar = () => {
   const navigate = useNavigate();
 
   const recentMountains = ["지리산", "설악산", "한라산"];
-  const communities = [
-    { name: "지리산", icon: "🏞️" },
-    { name: "북한산", icon: "🌄" },
-    { name: "한라산", icon: "⛰️" },
-    { name: "대둔산", icon: "🏔️" },
-    { name: "himedia", icon: "🌲" },
-  ];
-  
+  const [communities, setCommunities] = useState([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  // form states
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [isPrivate, setIsPrivate] = useState(false);
+  const [thumbnailUrl, setThumbnailUrl] = useState(mountainEmojis[0].value);
+
+  const fetchCommunities = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/community/list", {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("커뮤니티 리스트 불러오기 실패");
+      const data = await res.json();
+      setCommunities(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCommunities();
+  }, []);
+
+  const handleAddCommunity = async () => {
+    if (!title.trim()) return alert("제목을 입력하세요");
+
+    try {
+      // DTO 형태에 맞게 body 구성
+      const body = {
+        title,
+        description,
+        isPrivate,
+        thumbnailUrl,
+      };
+
+      const res = await fetch("http://localhost:8080/api/community/insertpost", {
+        method: "POST",
+        headers: {
+           "Content-Type": "application/json",
+         },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) throw new Error("커뮤니티 추가 실패");
+
+      // 초기화 및 폼 닫기
+      setTitle("");
+      setDescription("");
+      setIsPrivate(false);
+      setThumbnailUrl(mountainEmojis[0].value);
+      setShowAddForm(false);
+      fetchCommunities();
+    } catch (error) {
+      console.error(error);
+      alert("커뮤니티 추가 중 오류가 발생했습니다.");
+    }
+  };
 
   return (
     <aside className="w-[250px] px-4 py-6 bg-white border-r border-gray-200 text-sm space-y-6 overflow-y-auto h-full">
-      
-      {/* ✅ 추가된 배너 */}
       <div className="mt-6">
         <CurationBanner />
       </div>
-      {/* 네비게이션 */}
+
       <nav className="space-y-3">
         <div
           className="flex items-center gap-2 cursor-pointer hover:text-green-600"
@@ -42,8 +100,10 @@ const Sidebar = () => {
         <div className="flex items-center gap-2 cursor-pointer hover:text-green-600">
           <FaChartLine /> <span>인기 게시글</span>
         </div>
-        <div className="flex items-center gap-2 cursor-pointer hover:text-green-600"
-        onClick={() => navigate("/map")}>
+        <div
+          className="flex items-center gap-2 cursor-pointer hover:text-green-600"
+          onClick={() => navigate("/map")}
+        >
           <FaMapMarkedAlt /> <span>등산 지도</span>
         </div>
         <div className="flex items-center gap-2 cursor-pointer hover:text-green-600">
@@ -51,7 +111,92 @@ const Sidebar = () => {
         </div>
       </nav>
 
-      {/* 커스텀 큐레이션 */}
+      <div>
+        <h4 className="text-gray-700 font-semibold mb-2 flex items-center justify-between">
+          등산 커뮤니티
+          <button
+            onClick={() => setShowAddForm((prev) => !prev)}
+            className="text-green-600 hover:text-green-800 flex items-center gap-1"
+            aria-label="커뮤니티 추가"
+          >
+            <FaPlus />
+          </button>
+        </h4>
+
+        {showAddForm && (
+          <div className="mb-3 space-y-2">
+            <input
+              type="text"
+              placeholder="제목 (title)"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="border border-gray-300 rounded px-2 py-1 w-full"
+            />
+            <textarea
+              placeholder="설명 (description)"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="border border-gray-300 rounded px-2 py-1 w-full resize-none"
+              rows={3}
+            />
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={isPrivate}
+                onChange={(e) => setIsPrivate(e.target.checked)}
+              />
+              비공개 커뮤니티로 설정
+            </label>
+
+            <div>
+              <label className="block mb-1 font-semibold">썸네일 이미지 선택</label>
+              <div className="flex gap-2 flex-wrap">
+                {mountainEmojis.map((emoji) => (
+                  <button
+                    key={emoji.value}
+                    type="button"
+                    onClick={() => setThumbnailUrl(emoji.value)}
+                    className={`px-3 py-1 border rounded cursor-pointer ${
+                      thumbnailUrl === emoji.value
+                        ? "border-green-600 bg-green-100"
+                        : "border-gray-300 hover:border-green-400"
+                    }`}
+                  >
+                    {emoji.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <button
+              onClick={handleAddCommunity}
+              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 mt-2 w-full"
+            >
+              추가
+            </button>
+          </div>
+        )}
+
+        <ul className="space-y-2">
+          {communities.length === 0 ? (
+            <li>로딩중...</li>
+          ) : (
+            communities.map((com) => (
+              <li
+                key={com.title || com.name} // 서버 데이터에 따라 바꿔주세요
+                className="flex justify-between items-center cursor-pointer hover:text-green-700"
+                onClick={() => navigate(`/community/${com.title || com.name}`)}
+              >
+                <span>
+                  {com.thumbnailUrl || "🏕️"} {com.title || com.name}
+                </span>
+                <FaStar className="text-gray-300 hover:text-yellow-400" />
+              </li>
+            ))
+          )}
+        </ul>
+      </div>
+
       <div>
         <h4 className="text-gray-700 font-semibold mb-2">나만의 피드</h4>
         <div className="flex items-center gap-2 text-blue-600 cursor-pointer hover:underline">
@@ -59,7 +204,6 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* 최근 본 산 */}
       <div>
         <h4 className="text-gray-700 font-semibold mb-2">최근 본 산</h4>
         <ul className="space-y-1 text-gray-800">
@@ -74,26 +218,6 @@ const Sidebar = () => {
           ))}
         </ul>
       </div>
-
-      {/* 등산 커뮤니티 */}
-      <div>
-        <h4 className="text-gray-700 font-semibold mb-2">등산 커뮤니티</h4>
-        <ul className="space-y-2">
-          {communities.map((com) => (
-            <li
-              key={com.name}
-              className="flex justify-between items-center cursor-pointer hover:text-green-700"
-              onClick={() => navigate(`/community/${com.name}`)}
-            >
-              <span>
-                {com.icon} {com.name}
-              </span>
-              <FaStar className="text-gray-300 hover:text-yellow-400" />
-            </li>
-          ))}
-        </ul>
-      </div>
-
     </aside>
   );
 };

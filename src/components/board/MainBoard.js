@@ -46,6 +46,27 @@ function MainBoard() {
     loadPost();
   }, []);
 
+  const formatTimeSince = (createdAt) => {
+  const now = new Date();
+  const created = new Date(createdAt);
+  const diffMs = now - created;
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHr = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHr / 24);
+
+  if (diffDay >= 1) {
+    return `${diffDay}일 전`;
+  } else if (diffHr >= 1) {
+    return `${diffHr}시간 전`;
+  } else if (diffMin >= 1) {
+    return `${diffMin}분 전`;
+  } else {
+    return `방금 전`;
+  }
+};
+
+
   return (
     <div className="max-w-2xl mx-auto p-5">
       <h2 className="text-xl font-bold mb-4">게시글</h2>
@@ -58,9 +79,9 @@ function MainBoard() {
           {/* 작성자 및 날짜 + 북마크 */}
           <div className="flex justify-between items-center text-sm text-gray-500 mb-1">
             <span>
-              <strong>{post.author || "익명"}</strong> ·{" "}
-              {new Date(post.createdAt).toLocaleDateString()}
+              <strong>{post.author || "익명"}</strong> · {formatTimeSince(post.createdAt)}
             </span>
+
             <button
               className="text-yellow-400 text-lg hover:text-yellow-500"
               onClick={(e) => e.stopPropagation()}

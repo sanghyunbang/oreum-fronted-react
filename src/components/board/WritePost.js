@@ -18,7 +18,9 @@ function WritePost() {
     mountainName: "",
     route: "",
     caution: "",
-    nearByAttration: "",
+    nearbyAttraction: "",
+    meetingDate: "",
+    meetingLocation: ""
   });
 
   const [mountainName, setMountainName] = useState("");
@@ -51,7 +53,7 @@ function WritePost() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const res = await fetch("http://localhost:8080/user/infoForPost", {
+        const res = await fetch("http://localhost:8080/api/user", {
           credentials: "include", // 쿠키 전달
         });
 
@@ -117,6 +119,7 @@ function WritePost() {
         >
           <option value="general">일반게시글</option>
           <option value="curation">큐레이션게시글</option>
+          <option value="meeting">등산모임</option>
         </select>
       </div>
 
@@ -169,6 +172,33 @@ function WritePost() {
           </div>
         </>
       )}
+
+      {postdata.type === "meeting" && (
+          <>
+            <div className="mb-4">
+              <label className="block mb-1 font-medium text-gray-700">모임 날짜</label>
+              <input
+                type="date"
+                value={postdata.meetingDate || ""}
+                onChange={(e) => setPostdata({ ...postdata, meetingDate: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block mb-1 font-medium text-gray-700">모임 장소</label>
+              <input
+                type="text"
+                value={postdata.meetingLocation || ""}
+                onChange={(e) => setPostdata({ ...postdata, meetingLocation: e.target.value })}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+              />
+            </div>
+          </>
+        )}
+
 
       {/* 에디터 */}
       <div className="mb-12">
