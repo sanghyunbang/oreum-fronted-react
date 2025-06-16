@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+// Header.jsx
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { login, logout } from '../../redux/userSlice';
+import { logout } from '../../redux/userSlice';
 import LoginPage from '../../pages/LoginPage';
 
 const Header = () => {
@@ -12,7 +13,7 @@ const Header = () => {
   const [showLogin, setShowLogin] = useState(false);
 
   const handleLogout = () => {
-    localStorage.clear();
+    localStorage.clear(); // 혹시 남은 값 정리
     dispatch(logout());
     navigate("/login");
   };
@@ -27,27 +28,26 @@ const Header = () => {
         />
         오름 | OREUM
       </Link>
-      <div  className="bg-white w-2/3 py-1 rounded-[20px] flex justify-around">
+
+      <div className="bg-white w-2/3 py-1 rounded-[20px] flex justify-around">
         <input
-            type="text"
-            placeholder="  내가 관심있는 산을 검색해보세요!"
-            className="w-[90%] py-2 rounded-[20px] text-black text-sm indent-4"
-          />
-        <button
-          className="bg-green-500 text-white px-4 py-2 rounded-full text-sm hover:bg-green-600"
-        >
+          type="text"
+          placeholder="  내가 관심있는 산을 검색해보세요!"
+          className="w-[90%] py-2 rounded-[20px] text-black text-sm indent-4"
+        />
+        <button className="bg-green-500 text-white px-4 py-2 rounded-full text-sm hover:bg-green-600">
           🔍
         </button>
       </div>
+
       <div className="flex items-center gap-4">
- 
         {isLoggedIn ? (
           <>
-            <span>{userInfo?.nickname}님</span>
+            <span>{userInfo?.nickname || userInfo?.email}님</span>
             <button onClick={handleLogout} className="hover:underline">🚪 로그아웃</button>
           </>
         ) : (
-          <button onClick={() => setShowLogin(true)} style={{ color: 'white', textDecoration: 'none' }}>👤 로그인</button>
+          <button onClick={() => setShowLogin(true)} style={{ color: 'white' }}>👤 로그인</button>
         )}
         {showLogin && <LoginPage onClose={() => setShowLogin(false)} />}
         <Link to="/feed/write" className="bg-white text-green-700 px-3 py-1 rounded hover:bg-gray-100">+ 글쓰기</Link>

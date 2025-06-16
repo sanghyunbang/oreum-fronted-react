@@ -7,6 +7,9 @@ import JoinPage from "./Join_Page";
 import FindPw from "./Find_Pw";
 import FindUserid from "./Find_Userid";
 
+import { useDispatch } from "react-redux";
+import { login } from "../redux/userSlice";
+
 const LoginPage = ({ onClose }) => {
   const [formData, setFormData] = useState({ email: "", pw: "" });
   const [errors, setErrors] = useState({});
@@ -16,6 +19,7 @@ const LoginPage = ({ onClose }) => {
   const [showFindUserid, setShowFindUserid] = useState(false);
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const location = useLocation();
 
   const query = new URLSearchParams(location.search);
@@ -80,6 +84,7 @@ const LoginPage = ({ onClose }) => {
         withCredentials: true, // 쿠키 기반 인증 정보 전송
       })
       .then((res) => {
+        dispatch(login(res.data));
         alert(`${res.data.nickname || res.data.email}님 자동 로그인되었습니다.`);
         navigate("/");
       })
