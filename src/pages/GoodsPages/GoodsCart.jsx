@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaHome, FaArrowLeft } from "react-icons/fa";     // Font Awesome
 
-const GoodsOrder = () => {
+const GoodsCart = () => {
     const [checkedAll, setCheckedAll] = useState(true);
     const [selectedGoods, setSelectedGoods] = useState([]); // 선택된 상품들
     const [Goods, setGoods] = useState([
@@ -200,4 +200,4 @@ const GoodsOrder = () => {
     );
 };
 
-export default GoodsOrder;
+export default GoodsCart;

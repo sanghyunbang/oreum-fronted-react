@@ -2,7 +2,7 @@ import { FaHome, FaArrowLeft, FaPercent, FaTag, FaCreditCard, FaMoneyBillWave } 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 
-const GoodsCart = () => {
+const GoodsOrder = () => {
   const [formData, setFormData] = useState({
     addressname: "",
     addressnumber: "",
@@ -317,4 +317,4 @@ const GoodsCart = () => {
   )
 }
 
-export default GoodsCart
+export default GoodsOrder;

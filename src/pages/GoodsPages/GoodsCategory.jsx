@@ -78,7 +78,7 @@ const GoodsCategory = ({product}) => {
                 <div className="flex justify-between items-start mb-1">
                   <h3 className="font-semibold text-base text-gray-900">{product.name}</h3>
                 </div>
-                <p className="text-base font-bold text-gray-900">
+                <div className="text-base font-bold text-gray-900">
                   {product.salePercent ? (
                     <>
                       <span className="line-through text-gray-400 text-base mr-2">
@@ -95,7 +95,7 @@ const GoodsCategory = ({product}) => {
                       <span className="text-sm font-bold text-gray-600 ml-1">원</span>
                     </>
                   )}
-                </p>
+                </div>
               </div>
             </div>
           ))}
