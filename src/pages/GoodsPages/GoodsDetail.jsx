@@ -8,33 +8,15 @@ import { useSelector } from "react-redux"
 
 const GoodsDetail = () => {
   const [activeTab, setActiveTab] = useState("details")
-  const [isLiked, setIsLiked] = useState(false)
   const [selectedOption, setSelectedOption] = useState([])
+  const [goods,setGoods] = useState("");
+  const [goodsOpt, setGoodsOpt] = useState("");
+  const [isLiked, setIsLiked] = useState(false)
   const userInfo = useSelector((state) => state.user.userInfo);
-  const [goods,setGoods] = useState({price: 0,name: '',description: '',images: [],reviews: [],});
-  const { id } = useParams();
-  const navigate = useNavigate()
+  const { id } = useParams();  //상품 번호
+  const navigate = useNavigate();
 
-  //임시 떠미
-  // const goods = {
-  //   id: 1,
-  //   name: "동산화 파우치",
-  //   price: 15000, 
-  //   salePercent: 20,
-  //   likes: 30,
-  //   images: ["/Goods_img/캠핑가방.jpeg", "/Goods_img/캠핑가방.jpeg"],
-  //   description: `고급스러운 동산화 파우치입니다. \n고품질 소재로 제작된 실용적인 파우치입니다.`,
-  //   // shipping: {
-  //   //   fee: 3000,
-  //   //   freeShippingMin: 30000,
-  //   //   estimatedDays: "2-3일",
-  //   // },
-  //   reviews: [
-  //     { id: 1, rating: 4, comment: "정말 좋은 상품이에요!", author: "김**" },
-  //     { id: 2, rating: 4, comment: "배송이 빨라요", author: "이**" },
-  //   ],
-  // }
-
+  //상품 불러오기
   useEffect(() => {
     const doList = async () => {
       try {
@@ -47,9 +29,8 @@ const GoodsDetail = () => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-
         const data = await response.json();
-        setGoods(data);
+        setGoods(data[0]);
       } catch (error) {
         console.error("상품 불러오기 실패:", error);
       }
@@ -57,10 +38,28 @@ const GoodsDetail = () => {
     doList();
   }, [id]);
 
+  //상품 옵션 불러오기
+  useEffect(()=>{
+    const doOptionList = async () => {
+      try{
+        const response = await fetch(`http://localhost:8080/api/goods/detailListOpt?id=${id}`,{
+          method: "GET",
+          headers: {"Content-Type":"applicationi/json"},
+          credentials: "include",
+        });
+        const data = await response.json();
+        setGoodsOpt(data);
+      } catch (error){
+        console.error("상품 옵션 불러오기 실패:", error);
+      }
+    }
+    doOptionList();
+  },[id])
+
   //사진
   const sliderSettings = {
     dots: true,
-    infinite: true,
+    infinite: false,
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
@@ -70,29 +69,37 @@ const GoodsDetail = () => {
 
   //옵션 추가
   const addOption = (e) => {
-    const size = e.target.value
-    if (!size) return
-    setSelectedOption((prev) => {
-      const duplication = prev.find((opt) => opt.size === size)
-      if (duplication){
-        alert("이미 선택된 옵션입니다.");
-        return prev;
-      }
-      else{
-        return [...prev, { size, qty: 1 }]
-      }
-    })
-
+    if (!e.target.value) return;
+    const selected = JSON.parse(e.target.value);
+    const exists = selectedOption.some((opt) => opt.id === selected.id);
+    if (exists) {
+      alert("이미 선택된 옵션입니다.");
+      return;
+    }
+    setSelectedOption((prev) => [...prev, { ...selected, qty: 1 }]);
   }
+  useEffect(()=>{
+    console.log(selectedOption);
+  },[selectedOption])
 
   //삭제
-  const removeOption = (size) => {
-    setSelectedOption((prev) => prev.filter((opt) => opt.size !== size))
+  const removeOption = (id) => {
+    setSelectedOption((prev) => prev.filter((opt) => opt.id !== id))
   }
+
+  //총결제금액 계산
+  const totalPrice = selectedOption.reduce((acc, opt) => {
+    const unitPrice = Number(goods.price) || 0;
+    return acc + unitPrice * opt.qty;
+  }, 0);
 
   //장바구니 추가
   const handleAddToCart = async () => {
     if(!userInfo) {alert("로그인이 필요합니다."); return;}
+    if (selectedOption.length === 0) {
+      alert("옵션을 선택해주세요.");
+      return;
+    }
     const response = await fetch("http://localhost:8080/api/goods/cartAdd", {
       method: "POST",
       headers: {
@@ -100,16 +107,16 @@ const GoodsDetail = () => {
       },
       credentials: "include", // 세션 쿠키 등 포함 (로그인 상태 유지)
       body: JSON.stringify({
-        userId: userInfo.id,
-        goodsId: goods.id,
-        options: selectedOption// 예: [{ size: 'M', qty: 2 }]
+        userId: userInfo.userId,
+        options: selectedOption.map(opt => ({
+          id: opt.id,
+          qty: opt.qty
+        }))
       }),
     });
-
-    if (!response.ok) {
-      // 실패 처리
-      const err = await response.text();
-      alert("장바구니 추가 실패: " + err);
+    const data = await response.text();
+    if (data==="0") {
+      alert("해당 상품이 이미 장바구니에 존재합니다.");
       return;
     }
     // 성공 처리
@@ -128,7 +135,7 @@ const GoodsDetail = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
         <div className="relative mb-5">
           <Slider {...sliderSettings}>
-            {goods.image&&goods.images.map((image, index) => (
+            {(Array.isArray(goods.img) ? goods.img : JSON.parse(goods.img || "[]")).map((image, index) => (
               <div key={index}>
                 <img
                   src={image}
@@ -139,27 +146,26 @@ const GoodsDetail = () => {
             ))}
           </Slider>
         </div>
-
         <div className="py-5">
           <h1 className="text-2xl font-bold mb-3 text-gray-800">{goods.name}</h1>
 
           <div className="mb-5">
             <span className="text-base text-gray-500 line-through mr-2">
-              {goods.price.toLocaleString()}원
+              {goods.price?.toLocaleString()||0}원
             </span>
             {goods.salePercent ? (
               <>
                 <span className="line-through text-gray-400 text-base mr-2">
-                  {goods.price.toLocaleString()}원
+                  {goods.price?.toLocaleString()||0}원
                 </span><br/>
                   <span className="py-1 pr-1 text-base font-bold text-red-600">
                     {goods.salePercent}%
                   </span>
-                {(goods.price * (1 - goods.salePercent / 100)).toLocaleString()}원
+                {(goods.price * (1 - goods.salePercent / 100))?.toLocaleString()||0}원
               </>
             ) : (
               <>
-                {goods.price.toLocaleString()}
+                {goods.price?.toLocaleString()||0}
                 <span className="text-sm font-bold text-gray-600 ml-1">원</span>
               </>
             )}
@@ -179,9 +185,12 @@ const GoodsDetail = () => {
             <label className="w-16">사이즈:</label>
             <select name="size" onChange={addOption} className="border border-gray-300 rounded p-2" value="">
               <option value="">사이즈 선택</option>
-              <option value="S">S</option>
-              <option value="M">M</option>
-              <option value="L">L</option>
+              {Array.isArray(goodsOpt) &&
+                goodsOpt.map((opt) => (
+                  <option key={opt.id} value={JSON.stringify({ id: opt.id, size: opt.option_name })}>
+                    {opt.option_name}
+                  </option>
+              ))}
             </select>
           </div>
 
@@ -193,7 +202,7 @@ const GoodsDetail = () => {
                     {opt.size} 
                   </span>
                   <span>
-                    <button className="text-red-500" onClick={() => removeOption(opt.size)}>
+                    <button className="text-red-500" onClick={() => removeOption(opt.id)}>
                       X
                     </button>
                   </span>
@@ -209,13 +218,21 @@ const GoodsDetail = () => {
                     onClick={() => setSelectedOption((prev) => prev.map((o)=>o.size === opt.size ? { ...o, qty: o.qty + 1 } : o))}>
                       +
                     </button>
-                    <p>{goods.price.toLocaleString()}원</p>
+                    <p>{(Number(goods.price) * opt.qty)?.toLocaleString()||0}원</p>
                   </div>
                 </div>
               ))}
             </>
           )}
-
+          <div>
+            {/*총액계산*/}
+            <div className="mt-6 mb-6">
+              <div className="flex justify-between items-center border-t pt-2 text-lg font-semibold">
+                <span className="text-black">총 결제금액</span>
+                <span className="text-emerald-500 text-xl">{totalPrice.toLocaleString()}원</span>
+              </div>
+            </div>
+          </div>
           <div className="flex gap-2 mb-5">
             <div className="flex flex-col items-center justify-center w-[72px] h-[44px] bg-white rounded">
               <button className="flex items-center justify-center" onClick={() => setIsLiked(!isLiked)}>
