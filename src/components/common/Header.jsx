@@ -18,6 +18,14 @@ const Header = () => {
     navigate("/login");
   };
 
+  const handleWriteClick = () => {
+    if (isLoggedIn) {
+      navigate("/feed/write");
+    } else {
+      setShowLogin(true);
+    }
+  };
+
   return (
     <header className="bg-blue-400 text-white px-6 py-3 flex justify-between items-center shadow">
       <Link to="/" className="flex items-center text-xl font-bold gap-2">
@@ -50,8 +58,14 @@ const Header = () => {
           <button onClick={() => setShowLogin(true)} style={{ color: 'white' }}>👤 로그인</button>
         )}
         {showLogin && <LoginPage onClose={() => setShowLogin(false)} />}
-        <Link to="/feed/write" className="bg-white text-green-700 px-3 py-1 rounded hover:bg-gray-100">+ 글쓰기</Link>
-      </div>
+
+        <button
+          onClick={handleWriteClick}
+          className="bg-white text-green-700 px-3 py-1 rounded hover:bg-gray-100"
+        >
+          + 글쓰기
+        </button>
+        </div>
     </header>
   );
 };
