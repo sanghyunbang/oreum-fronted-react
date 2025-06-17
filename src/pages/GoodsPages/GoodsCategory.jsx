@@ -2,7 +2,6 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 const GoodsCategory = ({product}) => {
-  console.log("product ",product);
   const navigate = useNavigate();
   const filters = ["전체", "상의", "하의", "신발", "기타"]
   const [activeFilter, setActiveFilter] = useState("전체")
