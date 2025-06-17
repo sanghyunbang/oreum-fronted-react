@@ -10,7 +10,7 @@ module.exports = function(app) {
     })
   );
 
-  // ✅ 기상청 프록시 추가
+  // 기상청 프록시 추가
   app.use(
     '/weatherapi',
     createProxyMiddleware({

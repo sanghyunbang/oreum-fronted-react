@@ -13,7 +13,7 @@ const OAuth2RedirectPage = () => {
     const nickname = query.get("nickname");
 
     if (email && nickname) {
-      // 쿠키는 자동 저장되었으니 굳이 localStorage에 토큰 저장 ❌
+      // 쿠키는 자동 저장되었으니 굳이 localStorage에 토큰 저장 
       // Redux에 로그인 상태만 반영
       dispatch(login({ email, nickname }));
 

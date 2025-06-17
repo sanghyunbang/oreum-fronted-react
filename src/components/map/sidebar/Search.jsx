@@ -31,7 +31,7 @@ const skyCodeToText = (code) => {
   }
 };
 
-const Search = () => {
+const Search = ({onSearchResult}) => {
   const {
     weather: mountainWeather,
     error: weatherError,
@@ -56,12 +56,13 @@ const Search = () => {
 
       if (results.length > 0) {
         const matched = results[0];
+        onSearchResult(matched);
         await fetchWeatherByMountainNum(matched.mountainNum);
       } else {
         alert("해당 산을 찾을 수 없습니다.");
       }
     } catch (err) {
-      console.error("❌ 검색 중 오류 발생:", err);
+      console.error("[X] 검색 중 오류 발생:", err);
       alert("검색 중 오류가 발생했습니다.");
     } finally {
       setLoading(false);
