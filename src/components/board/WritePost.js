@@ -7,11 +7,12 @@ function WritePost() {
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);
   const dropRef = useRef();
+  const [boards, setBoards] = useState([]);
 
   const [postdata, setPostdata] = useState({
     userId: "",
     nickname: "",
-    boardId: 1,
+    boardId: "",
     type: "general",
     title: "",
     content: "",
@@ -71,7 +72,23 @@ function WritePost() {
       }
     };
 
+    const fetchBoards = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/community/list", {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("게시판 목록 불러오기 실패");
+
+      const data = await res.json(); // 예: [{ id, title, thumbnailUrl }]
+      setBoards(data);
+      
+    } catch (err) {
+      console.error("게시판 불러오기 실패:", err);
+    }
+  };
+
     fetchUserInfo();
+    fetchBoards();
   }, []);
 
   // 글 등록
@@ -79,6 +96,7 @@ function WritePost() {
     e.preventDefault();
 
     const formData = new FormData();
+    console.log(postdata.boardId)
 
     files.forEach((file) => formData.append("media", file));
 
@@ -86,9 +104,19 @@ function WritePost() {
       postdata.mountainName = mountainName;
       postdata.route = hikingCourse;
     }
+      if (!postdata.boardId) {
+      alert("게시판을 선택하세요.");
+      return;
+      }
+      //boardId 정수형으로 보내기위한 필터
+      const finalPost = {
+        ...postdata,
+        boardId: parseInt(postdata.boardId, 10),
+      };
 
-    formData.append("post", new Blob([JSON.stringify(postdata)], { type: "application/json" }));
-
+    formData.append("post", new Blob([JSON.stringify(finalPost)], { type: "application/json" }));
+      console.log(formData)
+      console.log(postdata.boardId)
     try {
       const res = await fetch("http://localhost:8080/posts/insert", {
         method: "POST",
@@ -119,7 +147,7 @@ function WritePost() {
         >
           <option value="general">일반게시글</option>
           <option value="curation">큐레이션게시글</option>
-          <option value="meeting">등산모임</option>
+          <option value="meeting">모임/동행</option>
         </select>
       </div>
 
@@ -133,6 +161,26 @@ function WritePost() {
           className="w-full border border-gray-300 rounded px-3 py-2"
           required
         />
+      </div>
+
+      {/* 게시판 선택 */}
+      <div className="mb-4">
+        <label className="block mb-1 font-medium text-gray-700">게시판 선택</label>
+        <select
+          value={postdata.boardId}
+          onChange={(e) =>{
+            setPostdata({ ...postdata, boardId: e.target.value });
+          }}
+          className="w-full border border-gray-300 rounded px-3 py-2"
+          required
+        >
+          <option value="">게시판을 선택하세요</option>
+          {boards.map((board) => (
+            <option key={board.boardId} value={board.boardId}>
+              {board.thumbnailUrl || "🏕️"} {board.title}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* 작성자 */}

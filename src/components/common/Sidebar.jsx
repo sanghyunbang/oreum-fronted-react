@@ -7,6 +7,7 @@ import {
   FaUsers,
   FaPlus,
   FaStar,
+  FaMinus
 } from "react-icons/fa";
 import CurationBanner from "./CurationBanner";
 
@@ -117,9 +118,9 @@ const Sidebar = () => {
           <button
             onClick={() => setShowAddForm((prev) => !prev)}
             className="text-green-600 hover:text-green-800 flex items-center gap-1"
-            aria-label="커뮤니티 추가"
+            aria-label={showAddForm ? "커뮤니티 추가 닫기" : "커뮤니티 추가"}
           >
-            <FaPlus />
+            {showAddForm ? <FaMinus /> : <FaPlus />}
           </button>
         </h4>
 

@@ -16,16 +16,25 @@ function MainBoard() {
 
   const loadPost = async () => {
     try {
-      const response = await fetch("http://localhost:8030/", {
-        method: "post",
+      const response = await fetch("http://localhost:8080/posts/list", {
+        method: "GET",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
       });
       if (!response.ok) throw new Error("응답 없음");
 
       const data = await response.json();
-      setPostlist(data);
+      setPostlist(
+        data.map((post) => ({
+          postId: post.postId,
+          title: post.title,
+          content: post.content,
+          nickname: post.nickname || "익명",
+          createdAt: post.createdAt,
+          likeCount: post.likeCount || 0,
+          commentCount: post.commentCount || 0,
+          comments: post.comments || [], 
+        }))
+      );
     } catch (error) {
       setPostlist([
         {
@@ -67,21 +76,19 @@ function MainBoard() {
 };
 
 
-  return (
+   return (
     <div className="max-w-2xl mx-auto p-5">
       <h2 className="text-xl font-bold mb-4">게시글</h2>
       {postlist.map((post) => (
         <div
-          key={post.id}
-          onClick={() => navigate(`/post/${post.id}`)}
+          key={post.postId}
+          onClick={() => navigate(`/post/${post.postId}`)}
           className="cursor-pointer border border-gray-300 rounded-lg p-4 mb-4 bg-white shadow min-h-[352px] flex flex-col justify-between hover:bg-gray-50 transition"
         >
-          {/* 작성자 및 날짜 + 북마크 */}
           <div className="flex justify-between items-center text-sm text-gray-500 mb-1">
             <span>
-              <strong>{post.author || "익명"}</strong> · {formatTimeSince(post.createdAt)}
+              <strong>{post.nickname}</strong> · {formatTimeSince(post.createdAt)}
             </span>
-
             <button
               className="text-yellow-400 text-lg hover:text-yellow-500"
               onClick={(e) => e.stopPropagation()}
@@ -90,19 +97,19 @@ function MainBoard() {
             </button>
           </div>
 
-          {/* 제목 */}
           <h3 className="font-semibold text-base text-gray-800 mb-4">
             {post.title}
           </h3>
 
-          {/* 내용 */}
-          <p className="text-sm text-gray-700 mb-4">
-            {post.content?.length > 100
-              ? post.content.slice(0, 100) + "..."
-              : post.content}
-          </p>
+          
+            {post.content && (
+              <div
+                className="text-sm text-gray-700 mb-4"
+                dangerouslySetInnerHTML={{ __html: post.content }}
+              />
+            )}
+          
 
-          {/* 좋아요/댓글 */}
           <div className="flex justify-between text-sm text-gray-600 mt-auto pt-2 border-t border-gray-200">
             <button
               onClick={(e) => {
@@ -111,33 +118,31 @@ function MainBoard() {
               }}
               className="hover:text-red-500"
             >
-              👍 {post.upvotes || 0}
+              👍 {post.likeCount}
             </button>
 
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                toggleComments(post.id); // 댓글창 토글
+                toggleComments(post.postId);
               }}
               className="hover:text-blue-500"
             >
-              💬 {post.commentCount || 0} 댓글
+              💬 {post.commentCount} 댓글
             </button>
           </div>
 
-          {/* 댓글 영역 (토글) */}
-          {openComments[post.id] && (
+          {openComments[post.postId] && (
             <div
               className="mt-4 p-3 border rounded bg-gray-50 text-sm text-gray-700"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* 댓글 리스트 */}
               {post.comments?.map((cmt, idx) => (
                 <p key={idx} className="mb-1">
                   - {cmt}
                 </p>
               ))}
-              {/* 댓글 입력창 */}
+
               <input
                 type="text"
                 placeholder="댓글 달기..."
