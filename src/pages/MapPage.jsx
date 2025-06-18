@@ -6,6 +6,10 @@ const MapPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [trails, setTrails] = useState([]);
 
+  //지도 중심부 관련
+  const initCenter = [37.5665, 126.9780];
+  const [center, setCenter] = useState(initCenter);
+
   const VWORLD_KEY = process.env.REACT_APP_VWORLD_API_KEY;
  
 
@@ -15,6 +19,9 @@ const MapPage = () => {
     return;
   }
     const {name, lat, lon} = mountainInfo;
+    if (lat && lon) {
+      setCenter([lat,lon]);
+    }
 
     const delta = 0.01;
     const minLon = lon - delta;
@@ -98,7 +105,7 @@ const MapPage = () => {
       {/* 지도 영역 */}
       <div className="flex-1 h-full">
         <div className="w-full h-full">
-          <MapFromKakao trails={trails}/>
+          <MapFromKakao trails={trails} center={center}/>
         </div>
       </div>
     </div>

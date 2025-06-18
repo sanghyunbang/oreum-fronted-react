@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 
-export default function MapFromKakao({ trails , center = [37.5665, 126.9780], minDistance = 0 }) {
+export default function MapFromKakao({ trails , center, minDistance = 0 }) {
   const mapRef = useRef(null);
   const kakaoKey = process.env.REACT_APP_KAKAO_MAP_KEY;
 
@@ -60,7 +60,7 @@ export default function MapFromKakao({ trails , center = [37.5665, 126.9780], mi
                 const [x, y] = pt.trim().split(/\s+/).map(Number);
                 return new window.kakao.maps.LatLng(y, x);
               });
-            console.log(`📍 trail[${idx}] 좌표 수: ${coords.length}`, coords);
+            console.log(`trail[${idx}] 좌표 수: ${coords.length}`, coords);
           } catch (e) {
             console.error(`좌표 파싱 실패:`, e);
             return;
@@ -86,7 +86,7 @@ export default function MapFromKakao({ trails , center = [37.5665, 126.9780], mi
           polyline.setMap(map);
           console.log(`[V] trail[${idx}] 선 그리기 완료`)
 
-          // 시작마커
+          // 시작마커 -> 이게 어디 쓰이지?
           const startMarker = new window.kakao.maps.Marker({
             position: coords[0],
             map,
