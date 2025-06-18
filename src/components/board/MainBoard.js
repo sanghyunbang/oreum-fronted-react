@@ -3,15 +3,23 @@ import { useNavigate } from "react-router-dom";
 
 function MainBoard() {
   const [postlist, setPostlist] = useState([]);
-  const [openComments, setOpenComments] = useState({}); // 댓글창 상태
+  const [openComments, setOpenComments] = useState({});
+  const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
+  const [userId, setUserId] = useState(null);
 
   const navigate = useNavigate();
 
-  const toggleComments = (postId) => {
-    setOpenComments((prev) => ({
-      ...prev,
-      [postId]: !prev[postId],
-    }));
+  const getUserInfo = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/user", {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("사용자 정보 불러오기 실패");
+      const data = await res.json();
+      setUserId(data.userId);
+    } catch (error) {
+      console.error("로그인 사용자 정보 가져오기 실패:", error);
+    }
   };
 
   const loadPost = async () => {
@@ -25,6 +33,7 @@ function MainBoard() {
       const data = await response.json();
       setPostlist(
         data.map((post) => ({
+          userId: post.userId,
           postId: post.postId,
           title: post.title,
           content: post.content,
@@ -32,52 +41,75 @@ function MainBoard() {
           createdAt: post.createdAt,
           likeCount: post.likeCount || 0,
           commentCount: post.commentCount || 0,
-          comments: post.comments || [], 
+          comments: post.comments || [],
         }))
       );
-      console.log(postlist)
     } catch (error) {
-      setPostlist([
-        {
-          id: 1,
-          title: "임시 테스트 게시글",
-          content: "서버 연결 전 더미 데이터입니다.",
-          author: "테스트유저",
-          createdAt: new Date().toISOString(),
-          upvotes: 5,
-          commentCount: 3,
-          comments: ["재밌네요!", "좋은 글입니다."],
-        },
-      ]);
+      console.error("게시글 불러오기 실패:", error);
+    }
+  };
+
+  const loadBookmarks = async (uid) => {
+    try {
+      const res = await fetch(`http://localhost:8080/posts/bookmarks/${uid}`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("북마크 불러오기 실패");
+      const data = await res.json();
+      setBookmarkedPosts(data);
+    } catch (error) {
+      console.error("북마크 불러오기 에러:", error);
+    }
+  };
+
+  const toggleBookmark = async (postId) => {
+    try {
+      const res = await fetch("http://localhost:8080/posts/bookmark", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ userId, postId }),
+      });
+      if (!res.ok) throw new Error("북마크 처리 실패");
+
+      const data = await res.json();
+      setBookmarkedPosts((prev) =>
+        data.bookmarked
+          ? [...prev, postId]
+          : prev.filter((id) => id !== postId)
+      );
+    } catch (err) {
+      console.error("북마크 토글 실패:", err);
     }
   };
 
   useEffect(() => {
+    getUserInfo(); // 먼저 userId를 받아와야 함
     loadPost();
   }, []);
 
+  useEffect(() => {
+    if (userId) {
+      loadBookmarks(userId);
+    }
+  }, [userId]);
+
   const formatTimeSince = (createdAt) => {
-  const now = new Date();
-  const created = new Date(createdAt);
-  const diffMs = now - created;
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHr = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHr / 24);
+    const now = new Date();
+    const created = new Date(createdAt);
+    const diffMs = now - created;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHr = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHr / 24);
 
-  if (diffDay >= 1) {
-    return `${diffDay}일 전`;
-  } else if (diffHr >= 1) {
-    return `${diffHr}시간 전`;
-  } else if (diffMin >= 1) {
-    return `${diffMin}분 전`;
-  } else {
+    if (diffDay >= 1) return `${diffDay}일 전`;
+    if (diffHr >= 1) return `${diffHr}시간 전`;
+    if (diffMin >= 1) return `${diffMin}분 전`;
     return `방금 전`;
-  }
-};
+  };
 
-
-   return (
+  return (
     <div className="max-w-2xl mx-auto p-5">
       <h2 className="text-xl font-bold mb-4">게시글</h2>
       {postlist.map((post) => (
@@ -91,10 +123,17 @@ function MainBoard() {
               <strong>{post.nickname}</strong> · {formatTimeSince(post.createdAt)}
             </span>
             <button
-              className="text-yellow-400 text-lg hover:text-yellow-500"
-              onClick={(e) => e.stopPropagation()}
+              className={`text-lg ${
+                bookmarkedPosts.includes(post.postId)
+                  ? "text-yellow-400 hover:text-yellow-500"
+                  : "text-gray-400 hover:text-yellow-400"
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleBookmark(post.postId);
+              }}
             >
-              ⭐
+              {bookmarkedPosts.includes(post.postId) ? "⭐" : "☆"}
             </button>
           </div>
 
@@ -102,14 +141,13 @@ function MainBoard() {
             {post.title}
           </h3>
 
-          
-            {post.content && (
-              <div
-                className="text-sm text-gray-700 mb-4"
-                dangerouslySetInnerHTML={{ __html: post.content }}
-              />
-            )}
-          
+          {post.content && (
+            <div
+              className="text-sm text-gray-700 mb-4"
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+          )}
+
           <div className="flex justify-between text-sm text-gray-600 mt-auto pt-2 border-t border-gray-200">
             <button
               onClick={(e) => {
@@ -124,7 +162,10 @@ function MainBoard() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                toggleComments(post.postId);
+                setOpenComments((prev) => ({
+                  ...prev,
+                  [post.postId]: !prev[post.postId],
+                }));
               }}
               className="hover:text-blue-500"
             >

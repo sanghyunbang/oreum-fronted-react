@@ -10,6 +10,7 @@ function BoardDetail() {
   const [replyMap, setReplyMap] = useState({}); // commentId: reply text
   const [activeReplyBox, setActiveReplyBox] = useState(null); // 열린 대댓글 입력창 ID
 
+
   const fetchPostDetail = async () => {
     try {
       const response = await fetch(`http://localhost:8080/posts/${postId}`, {
@@ -20,17 +21,7 @@ function BoardDetail() {
       const data = await response.json();
       setPost(data);
     } catch (error) {
-      // 더미 데이터 (서버 없을 때용)
-      setPost({
-        id: postId,
-        title: "임시 상세 게시글",
-        content: "이곳은 게시글의 전체 내용을 보여주는 상세 페이지입니다.",
-        author: "테스트유저",
-        createdAt: "2025/6/9 13:54",
-        upvotes: 12,
-        commentCount: 2,
-        comments: ["좋은 정보 감사합니다!", "재밌게 읽었어요."],
-      });
+      console.log("에러")
     }
   };
 
@@ -123,6 +114,15 @@ function BoardDetail() {
       if (res.ok) {
         const data = await res.json();
         setUserInfo(data);
+
+        const bookmarkRes = await fetch(`http://localhost:8080/posts/${postId}/bookmarked?userId=${data.userId}`, {
+          method: "GET",
+          credentials: "include",
+        });
+        if (bookmarkRes.ok) {
+          const { bookmarked } = await bookmarkRes.json();
+          setIsFavorited(bookmarked);
+        }
       } else {
         setUserInfo(null);
       }
@@ -150,29 +150,27 @@ function BoardDetail() {
   }
 
   try {
-    const response = await fetch("http://localhost:8080/posts/like", {
-      method: isFavorited ? "DELETE" : "POST",
+    const response = await fetch("http://localhost:8080/posts/bookmark", {
+      method: "POST",
       credentials: "include",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         postId: parseInt(postId, 10),
         userId: userInfo.userId,
+        bookmark: !isFavorited, // true면 등록, false면 해제
       }),
     });
 
-    if (!response.ok) throw new Error("좋아요 처리 실패");
+    if (!response.ok) throw new Error("북마크 처리 실패");
 
     setIsFavorited(!isFavorited);
-    setPost((prev) => ({
-      ...prev,
-      upvotes: prev.upvotes + (isFavorited ? -1 : 1),
-    }));
-  } catch (err) {
-    console.error(err);
-    alert("좋아요 처리 중 오류 발생");
+  } catch (error) {
+    console.error("북마크 오류:", error);
+    alert("북마크 처리 중 문제가 발생했습니다.");
   }
 };
-
 
   const timeSince = (dateString) => {
     const now = new Date();
@@ -250,6 +248,40 @@ const renderComments = (comments, depth = 0) => {
   ));
 };
 
+const handleLike = async () => {
+  if (!userInfo) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:8080/posts/like", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        postId: parseInt(postId, 10),
+        userId: userInfo.userId,
+      }),
+    });
+
+    if (!response.ok) throw new Error("서버 응답 오류");
+
+    const result = await response.json();
+
+    // 서버 응답이 { liked: true } or { liked: false } 형태라고 가정
+    setPost((prev) => ({
+      ...prev,
+      likeCount: prev.likeCount + (result.liked ? 1 : -1),
+    }));
+  } catch (err) {
+    console.error("좋아요 처리 오류:", err);
+    alert("좋아요 처리 중 문제가 발생했습니다.");
+  }
+};
+
 
 
 
@@ -285,8 +317,11 @@ const renderComments = (comments, depth = 0) => {
 
       {/* 좋아요 / 댓글 수 */}
       <div className="flex gap-2 text-sm text-gray-600 mb-4">
-        <button className="flex items-center gap-1 px-2 py-1 border border-gray-300 rounded hover:bg-gray-100">
-          👍 {post.upvotes}
+        <button
+          onClick={handleLike}
+          className="flex items-center gap-1 px-2 py-1 border border-gray-300 rounded hover:bg-gray-100"
+        >
+          👍 {post.likeCount}
         </button>
         <span className="flex items-center gap-1 px-2 py-1 border border-gray-300 rounded bg-gray-50 cursor-default">
           💬 {post.commentCount} 댓글
