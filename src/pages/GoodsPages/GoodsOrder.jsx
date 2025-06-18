@@ -1,30 +1,26 @@
 import { FaHome, FaArrowLeft, FaPercent, FaTag, FaCreditCard, FaMoneyBillWave } from "react-icons/fa"
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useState, useEffect, useCallback } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
+import { useSelector } from "react-redux"
 
 const GoodsOrder = () => {
-  const [formData, setFormData] = useState({
-    addressname: "",
-    addressnumber: "",
-    zipcode: "",
-    addressbasic: "",
-    addressdetail: "",
-    request: "",
-    point: "",
-  })
+  const [formData, setFormData] = useState({ addressname: "", addressnumber: "", zipcode: "", addressbasic: "", addressdetail: "", request: "", point: "",total:"0" })
+  const userInfo = useSelector((state) => state.user.userInfo);
+  const location = useLocation();
   const navigate = useNavigate()
 
-  const [Goods, setGoods] = useState([
-    {id: 1, img: "/Goods_img/캠핑가방.jpeg", name: "캠핑가방", category: "기타", brand: "아디다스", price: 15000, salePercent: 20, option: "M", qty: 5,},
-    {id: 2, img: "/Goods_img/청바지.jpeg", name: "청바지", category: "하의", brand: "아디다스", price: 35000, salePercent: 10, option: "S", qty: 1,},
-    {id: 3, img: "/Goods_img/운동화.jpeg", name: "운동화", category: "신발", brand: "아디다스", price: 65000, option: "S", qty: 2,},
-    {id: 4, img: "/Goods_img/등산스틱.jpeg", name: "등산스틱", category: "기타", brand: "아디다스", price: 12000, salePercent: 15, option: "L", qty: 1,},
-    {id: 5, img: "/Goods_img/후드티.jpeg", name: "후드티", category: "상의", brand: "아디다스", price: 28000, salePercent: 30, option: "M", qty: 1,},
-  ])
+  const { items = [] } = location.state || {};
+
+  useEffect(() => {
+    if (items.length <= 0) {
+      alert("선택된 상품이 없습니다.");
+      navigate("/Goods/Cart"); // 👈 장바구니로 리다이렉트 추천
+    }
+  }, [items, navigate]);
 
   //폼데이터로 저장
   const doChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
   const doPoint = () => {
@@ -39,22 +35,56 @@ const GoodsOrder = () => {
 
   //할인가격 포함 안 된 총가격
   const calculateTotalOriginal = () => {
-    return Goods.reduce((sum, item) => sum + item.price * item.qty, 0)
+    return items.reduce((sum, item) => sum + item.price * item.qty, 0)
   }
 
   //할인가격 포함된 총가격
-  const calculateTotalDiscounted = () => {
-    return Goods.reduce((sum, item) => sum + getDiscountedPrice(item) * item.qty, 0)
-  }
+  const calculateTotalDiscounted = useCallback(() => {
+  return items.reduce((sum, item) => sum + getDiscountedPrice(item) * item.qty, 0);
+}, [items]);
 
   //할인 금액 계산
   const calculateSavings = () => {
     return calculateTotalOriginal() - calculateTotalDiscounted()
   }
 
+  useEffect(()=>{
+    const total1 = (calculateTotalDiscounted() - Number.parseInt(formData.point || "0"));
+    setFormData((prev)=> ({...prev, total:total1}))
+  },[formData.point, items, calculateTotalDiscounted])
+
   //결제
-  const doPayment = () => {
-    alert("결제되었습니다");
+  const doPayment = async (e) => {
+    e.preventDefault();
+    if (!formData.addressname || !formData.addressnumber || !formData.zipcode || !formData.addressbasic || !formData.addressdetail) {
+      alert("모든 필수 배송 정보를 입력해주세요.");
+      return;
+    }
+    const res = await fetch("http://localhost:8080/api/goods/addOrder",{
+      method:"POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({userId:userInfo.userId, ...formData}),
+    })
+    if(res.ok){
+      const orderId = await res.json();
+      const itemsWithOrderId = items.map(item => ({
+        order_id: orderId,
+        goods_options_id: item.goods_options_id ?? item.option_id,
+        qty: item.qty,
+        item_price: getDiscountedPrice(item),
+      }));
+      const response = await fetch("http://localhost:8080/api/goods/addOrderItem",{
+        method:"POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({items: itemsWithOrderId}),
+      })
+      if(response.ok){
+        alert("결제되었습니다");
+        navigate("/Goods/GoodsCart");
+      }
+    }
   }
 
   //주소명 가져오는 API
@@ -93,6 +123,7 @@ const GoodsOrder = () => {
       </header>
 
       <div className="space-y-8">
+        <form onSubmit={doPayment}>
         {/* Shipping Information */}
         <section className="border rounded-lg p-4 bg-gray-50">
           <h2 className="text-xl font-bold mb-4 flex items-center border-b pb-2">배송지 정보</h2>
@@ -100,14 +131,14 @@ const GoodsOrder = () => {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">수령인</label>
-              <input type="text" name="addressname" value={formData.addressname} onChange={doChange} placeholder="이름을 입력해주세요."
+              <input type="text" name="addressname" value={formData.addressname} onChange={doChange} placeholder="이름을 입력해주세요." required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">연락처</label>
-              <input type="text" name="addressnumber" value={formData.addressnumber} onChange={doChange} placeholder="ex) 010-1234-5678"
+              <input type="text" name="addressnumber" value={formData.addressnumber} onChange={doChange} placeholder="ex) 010-1234-5678" required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -115,27 +146,27 @@ const GoodsOrder = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">배송지</label>
               <div className="flex gap-2 mb-2">
-                <input type="text" name="zipcode" value={formData.zipcode} readOnly placeholder="우편번호"
+                <input type="text" name="zipcode" value={formData.zipcode} readOnly placeholder="우편번호" required
                   className="w-1/3 px-3 py-2 border border-gray-300 rounded-md bg-gray-100"
                 />
-                <button type="button" onClick={DeliveryAddress} className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+                <button type="button" onClick={DeliveryAddress} className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors" required
                 >
                   배송지 등록
                 </button>
               </div>
 
-              <input type="text" name="addressbasic" value={formData.addressbasic} readOnly placeholder="주소를 입력해주세요."
+              <input type="text" name="addressbasic" value={formData.addressbasic} readOnly placeholder="주소를 입력해주세요." required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 mb-2"
               />
 
-              <input type="text" name="addressdetail" value={formData.addressdetail} onChange={doChange} placeholder="상세 주소를 입력해주세요."
+              <input type="text" name="addressdetail" value={formData.addressdetail} onChange={doChange} placeholder="상세 주소를 입력해주세요." required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">배송 요청사항 (선택)</label>
-              <input type="text" name="request" value={formData.request || ""} onChange={doChange} placeholder="배송 요청사항을 입력해주세요."
+              <input type="text" name="request" value={formData.request || ""} onChange={doChange} placeholder="배송 요청사항을 입력해주세요." required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -149,19 +180,19 @@ const GoodsOrder = () => {
           </h2>
 
           <div className="space-y-4">
-            {Goods.length ? (
-              Goods.map((cart, idx) => (
+            {items.length ? (
+              items.map((cart, idx) => (
                 <div key={idx} className="flex items-center gap-4 border-b pb-4 last:border-b-0">
                   <div className="w-20 h-20 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
-                    <img src={cart.img || "/placeholder.svg"} alt={cart.name} className="w-full h-full object-cover cursor-pointer" onClick={()=>navigate(`/Goods/GoodsDetail/${cart.id}`)}/>
+                    <img src={cart.img || "/placeholder.svg"} alt={cart.goods_name} className="w-full h-full object-cover cursor-pointer" onClick={()=>navigate(`/Goods/GoodsDetail/${cart.goods_id}`)}/>
                   </div>
 
                   <div className="flex-1">
                     <div className="flex justify-between items-start">
                       <div>
-                        <h3 className="font-medium text-gray-900 cursor-pointer" onClick={()=>navigate(`/Goods/GoodsDetail/${cart.id}`)}>{cart.name}</h3>
+                        <h3 className="font-medium text-gray-900 cursor-pointer" onClick={()=>navigate(`/Goods/GoodsDetail/${cart.goods_id}`)}>{cart.goods_name}</h3>
                         <p className="text-sm text-gray-500">
-                          {cart.brand} | {cart.option || "옵션없음"} | {cart.qty}개
+                          {cart.brand} | {cart.option_name || "옵션없음"} | {cart.qty}개
                         </p>
                       </div>
 
@@ -308,10 +339,11 @@ const GoodsOrder = () => {
         </section>
 
         {/* Payment Button */}
-        <button className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-md text-lg font-bold transition-colors"
-        onClick={doPayment}>
-          {(calculateTotalDiscounted() - Number.parseInt(formData.point || "0")).toLocaleString()}원 결제하기
+        <button type="submit" 
+        className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-md text-lg font-bold transition-colors">
+          {parseInt(formData.total || "0").toLocaleString()}원 결제하기
         </button>
+        </form>
       </div>
     </div>
   )

@@ -21,7 +21,6 @@ const GoodsCart = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log("data= ", data);
                 setGoods(data);
             }
         };
@@ -96,7 +95,8 @@ const GoodsCart = () => {
     }, 0);
 
     const doOrder = () => {
-        const selectedItems = Goods.filter(item => selectedGoods.includes(item.cart_id));
+        const selectedItems = Goods.filter(item => selectedGoods.includes(item.cart_id)).map(item => ({
+        ...item, goods_options_id: item.goods_options_id ?? item.option_id,}));;
         navigate("/Goods/GoodsOrder", { state: { items: selectedItems } });
     };
 

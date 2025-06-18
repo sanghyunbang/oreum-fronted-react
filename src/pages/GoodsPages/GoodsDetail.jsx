@@ -79,7 +79,7 @@ const GoodsDetail = () => {
     setSelectedOption((prev) => [...prev, { ...selected, qty: 1 }]);
   }
   useEffect(()=>{
-    console.log(selectedOption);
+    console.log("selectedOption: ",selectedOption);
   },[selectedOption])
 
   //삭제
@@ -122,6 +122,11 @@ const GoodsDetail = () => {
     // 성공 처리
     alert("장바구니에 추가되었습니다!");
   };
+
+  const doPurchase = () => {
+    if(!userInfo) {alert("로그인이 필요합니다."); return;};
+    navigate("/Goods/GoodsOrder", { state: { items: selectedOption }});
+  }
 
   return (
     <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
@@ -248,7 +253,7 @@ const GoodsDetail = () => {
             </button>
             <button
               className="w-[124px] h-[44px] bg-black text-white font-medium rounded flex items-center justify-center"
-              onClick={()=>{if(!userInfo) {alert("로그인이 필요합니다."); return;} navigate("/Goods/GoodsOrder")}}
+              onClick={doPurchase}
             >
               구매하기
             </button>
