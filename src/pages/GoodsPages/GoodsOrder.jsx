@@ -11,13 +11,6 @@ const GoodsOrder = () => {
 
   const { items = [] } = location.state || {};
 
-  useEffect(() => {
-    if (items.length <= 0) {
-      alert("선택된 상품이 없습니다.");
-      navigate("/Goods/Cart"); // 👈 장바구니로 리다이렉트 추천
-    }
-  }, [items, navigate]);
-
   //폼데이터로 저장
   const doChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -33,27 +26,28 @@ const GoodsOrder = () => {
     return Math.floor(item.price * discount)
   }
 
+  //할인가격 포함된 총가격
+  const calculateTotalDiscounted = useCallback(() => {
+    return items.reduce((sum, item) => sum + getDiscountedPrice(item) * item.qty, 0);
+  }, [items]);
+
   //할인가격 포함 안 된 총가격
   const calculateTotalOriginal = () => {
     return items.reduce((sum, item) => sum + item.price * item.qty, 0)
   }
 
-  //할인가격 포함된 총가격
-  const calculateTotalDiscounted = useCallback(() => {
-  return items.reduce((sum, item) => sum + getDiscountedPrice(item) * item.qty, 0);
-}, [items]);
+  //포인트 포함된 총결제 금액 계산
+  useEffect(()=>{
+    const total1 = (calculateTotalDiscounted() - Number.parseInt(formData.point || "0"));
+    setFormData((prev)=> ({...prev, total:total1}))
+  },[formData.point, items, calculateTotalDiscounted])
 
   //할인 금액 계산
   const calculateSavings = () => {
     return calculateTotalOriginal() - calculateTotalDiscounted()
   }
 
-  useEffect(()=>{
-    const total1 = (calculateTotalDiscounted() - Number.parseInt(formData.point || "0"));
-    setFormData((prev)=> ({...prev, total:total1}))
-  },[formData.point, items, calculateTotalDiscounted])
-
-  //결제
+  //결제하기
   const doPayment = async (e) => {
     e.preventDefault();
     if (!formData.addressname || !formData.addressnumber || !formData.zipcode || !formData.addressbasic || !formData.addressdetail) {
@@ -87,6 +81,14 @@ const GoodsOrder = () => {
     }
   }
 
+  //구매페이지 상품 여부 확인
+  useEffect(() => {
+    if (items.length <= 0) {
+      alert("선택된 상품이 없습니다.");
+      navigate("/Goods/Cart"); // 👈 장바구니로 리다이렉트 추천
+    }
+  }, [items, navigate]);
+
   //주소명 가져오는 API
   const DeliveryAddress = () => {
     if (!window.daum?.Postcode) {
@@ -107,7 +109,7 @@ const GoodsOrder = () => {
     script.src = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
     script.async = true
     document.body.appendChild(script)
-  }, [])
+  }, [])   //여기까지 주소api
 
   return (
     <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">

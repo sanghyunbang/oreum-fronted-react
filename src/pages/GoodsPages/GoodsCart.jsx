@@ -10,6 +10,7 @@ const GoodsCart = () => {
     const userInfo = useSelector((state) => state.user.userInfo);
     const navigate = useNavigate();
 
+    //유저의 장바구니 리스트
     useEffect(() => {
         const CartData = async () => {
             if (!userInfo) { alert("로그인이 필요합니다."); return; }
@@ -27,24 +28,29 @@ const GoodsCart = () => {
         CartData();
     }, [userInfo]);
 
+    //처음 화면 로딩시 전체 선택되게끔
     useEffect(() => {
         const checked = true;
         setCheckedAll(checked);
         setSelectedGoods(checked ? Goods.map(item => item.cart_id) : []);
     }, [Goods]);
 
+
+    //전체 선택
     const selectAll = (e) => {
         const checked = e.target.checked;
         setCheckedAll(checked);
         setSelectedGoods(checked ? Goods.map(item => item.cart_id) : []);
     };
 
+    //개별 선택
     const doSelect = (e, id) => {
         const updated = e.target.checked ? [...selectedGoods, id] : selectedGoods.filter(i => i !== id);
         setSelectedGoods(updated);
         setCheckedAll(updated.length === Goods.length);
     };
 
+    //삭제 함수(여러개)
     const doDelete = async () => {
         if (window.confirm("선택한 상품을 삭제하시겠습니까?")) {
             const res = await fetch("http://localhost:8080/api/goods/selRemoveCart",{
@@ -61,6 +67,7 @@ const GoodsCart = () => {
         }
     };
 
+    //삭제 함수(단일)
     const removeOption = async (cart) => {
         if (window.confirm("삭제하시겠습니까?")) {
             const res = await fetch("http://localhost:8080/api/goods/removeCart",{
@@ -81,11 +88,13 @@ const GoodsCart = () => {
         }
     };
 
+    //할인 가격
     const getDiscountedPrice = (item) => {
         const discount = item.salePercent ? (1 - item.salePercent / 100) : 1;
         return Math.floor(item.price * discount);
     };
 
+    //총 가격
     const total = Goods.reduce((acc, item) => {
         if (selectedGoods.includes(item.cart_id)) {
             const discounted = getDiscountedPrice(item);
@@ -94,6 +103,7 @@ const GoodsCart = () => {
         return acc;
     }, 0);
 
+    //선택한 상품 구매 이동
     const doOrder = () => {
         const selectedItems = Goods.filter(item => selectedGoods.includes(item.cart_id)).map(item => ({
         ...item, goods_options_id: item.goods_options_id ?? item.option_id,}));;

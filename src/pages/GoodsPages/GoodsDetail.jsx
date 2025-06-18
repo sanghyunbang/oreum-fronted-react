@@ -16,47 +16,7 @@ const GoodsDetail = () => {
   const { id } = useParams();  //상품 번호
   const navigate = useNavigate();
 
-  //상품 불러오기
-  useEffect(() => {
-    const doList = async () => {
-      try {
-        const response = await fetch(`http://localhost:8080/api/goods/detailList?id=${id}`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setGoods(data[0]);
-      } catch (error) {
-        console.error("상품 불러오기 실패:", error);
-      }
-    };
-    doList();
-  }, [id]);
-
-  //상품 옵션 불러오기
-  useEffect(()=>{
-    const doOptionList = async () => {
-      try{
-        const response = await fetch(`http://localhost:8080/api/goods/detailListOpt?id=${id}`,{
-          method: "GET",
-          headers: {"Content-Type":"applicationi/json"},
-          credentials: "include",
-        });
-        const data = await response.json();
-        setGoodsOpt(data);
-      } catch (error){
-        console.error("상품 옵션 불러오기 실패:", error);
-      }
-    }
-    doOptionList();
-  },[id])
-
-  //사진
+  //슬라이더 사진 세팅
   const sliderSettings = {
     dots: true,
     infinite: false,
@@ -82,7 +42,7 @@ const GoodsDetail = () => {
     console.log("selectedOption: ",selectedOption);
   },[selectedOption])
 
-  //삭제
+  //옵션 삭제
   const removeOption = (id) => {
     setSelectedOption((prev) => prev.filter((opt) => opt.id !== id))
   }
@@ -123,10 +83,51 @@ const GoodsDetail = () => {
     alert("장바구니에 추가되었습니다!");
   };
 
+  //구매하기
   const doPurchase = () => {
     if(!userInfo) {alert("로그인이 필요합니다."); return;};
     navigate("/Goods/GoodsOrder", { state: { items: selectedOption }});
   }
+
+  //상품 불러오기
+  useEffect(() => {
+    const doList = async () => {
+      try {
+        const response = await fetch(`http://localhost:8080/api/goods/detailList?id=${id}`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setGoods(data[0]);
+      } catch (error) {
+        console.error("상품 불러오기 실패:", error);
+      }
+    };
+    doList();
+  }, [id]);
+
+  //상품 옵션 불러오기
+  useEffect(()=>{
+    const doOptionList = async () => {
+      try{
+        const response = await fetch(`http://localhost:8080/api/goods/detailListOpt?id=${id}`,{
+          method: "GET",
+          headers: {"Content-Type":"applicationi/json"},
+          credentials: "include",
+        });
+        const data = await response.json();
+        setGoodsOpt(data);
+      } catch (error){
+        console.error("상품 옵션 불러오기 실패:", error);
+      }
+    }
+    doOptionList();
+  },[id])
 
   return (
     <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
