@@ -5,10 +5,14 @@ function BoardDetail() {
   const { postId } = useParams(); // /post/:postId 에서 ID 추출
   const [post, setPost] = useState(null);
   const [isFavorited, setIsFavorited] = useState(true);
+  const [newComment, setNewComment] = useState("");
+  const [userInfo, setUserInfo] = useState(null);
+  const [replyMap, setReplyMap] = useState({}); // commentId: reply text
+  const [activeReplyBox, setActiveReplyBox] = useState(null); // 열린 대댓글 입력창 ID
 
   const fetchPostDetail = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/post/${postId}`, {
+      const response = await fetch(`http://localhost:8080/posts/${postId}`, {
         method: "GET",
         credentials: "include",
       });
@@ -30,8 +34,105 @@ function BoardDetail() {
     }
   };
 
+  const handleAddReply = async (parentId) => {
+  const replyContent = replyMap[parentId];
+  if (!replyContent?.trim()) return;
+  if (!userInfo) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`http://localhost:8080/posts/comments`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        content: replyContent,
+        userId: userInfo.userId,
+        postId: parseInt(postId, 10),
+        parentId, // 대댓글이므로 parentId 포함
+      }),
+    });
+
+    if (!response.ok) throw new Error("대댓글 등록 실패");
+
+    const addedReply = await response.json();
+
+    // 새로 받은 대댓글을 post.comments에 추가
+    setPost((prev) => ({
+      ...prev,
+      comments: [...prev.comments, addedReply],
+      commentCount: prev.commentCount + 1,
+    }));
+
+    // 입력 초기화
+    setReplyMap((prev) => ({ ...prev, [parentId]: "" }));
+    setActiveReplyBox(null);
+  } catch (error) {
+    console.error(error);
+    alert("대댓글 작성 중 오류 발생");
+  }
+};
+
+  const handleAddComment = async () => {
+  if (!newComment.trim()) return; // 빈 댓글 방지
+  if (!userInfo) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
+  
+  try {
+    const response = await fetch(`http://localhost:8080/posts/comments`, {
+      method: "POST",
+      credentials: "include",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ 
+        content: newComment, 
+        userId: userInfo.userId,
+        postId: parseInt(postId, 10),
+       }),
+    });
+
+    if (!response.ok) throw new Error("댓글 등록 실패");
+
+    const addedComment = await response.json();
+
+    // 댓글 목록에 추가
+    setPost((prevPost) => ({
+      ...prevPost,
+      comments: [...(prevPost.comments || []), addedComment], // 혹은 댓글 객체로 받으면 맞게 변경
+      commentCount: (prevPost.commentCount || 0) + 1,
+    }));
+
+    setNewComment(""); // 입력창 초기화
+  } catch (error) {
+    alert("댓글 작성 중 오류가 발생했습니다.");
+    console.error(error);
+  }
+};
+
+
   useEffect(() => {
+    const fetchUser = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/user", {
+        method: "GET",
+        credentials: "include",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUserInfo(data);
+      } else {
+        setUserInfo(null);
+      }
+    } catch {
+      setUserInfo(null);
+    }
+  };
+    fetchUser();
     fetchPostDetail();
+    console.log(postId)
   }, [postId]);
 
   if (!post) return <div className="p-10 text-center">불러오는 중...</div>;
@@ -42,9 +143,36 @@ function BoardDetail() {
       .catch(() => alert("복사에 실패했습니다."));
   };
 
-  const toggleFavorite = () => {
+  const toggleFavorite = async () => {
+  if (!userInfo) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:8080/posts/like", {
+      method: isFavorited ? "DELETE" : "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        postId: parseInt(postId, 10),
+        userId: userInfo.userId,
+      }),
+    });
+
+    if (!response.ok) throw new Error("좋아요 처리 실패");
+
     setIsFavorited(!isFavorited);
-  };
+    setPost((prev) => ({
+      ...prev,
+      upvotes: prev.upvotes + (isFavorited ? -1 : 1),
+    }));
+  } catch (err) {
+    console.error(err);
+    alert("좋아요 처리 중 오류 발생");
+  }
+};
+
 
   const timeSince = (dateString) => {
     const now = new Date();
@@ -61,6 +189,69 @@ function BoardDetail() {
     if (diffHours < 24) return `${diffHours}시간 전`;
     return `${diffDays}일 전`;
   };
+
+  // 댓글을 parentId 기반으로 트리로 정리
+const buildCommentTree = (comments) => {
+  const map = {};
+  const roots = [];
+
+  comments.forEach((comment) => {
+    comment.replies = [];
+    map[comment.commentId] = comment;
+  });
+
+  comments.forEach((comment) => {
+    if (comment.parentId) {
+      map[comment.parentId]?.replies.push(comment);
+    } else {
+      roots.push(comment);
+    }
+  });
+  return roots;
+};
+const renderComments = (comments, depth = 0) => {
+  return comments.map((cmt) => (
+    <div key={cmt.commentId} style={{ marginLeft: depth * 20 }} className="mb-2">
+      <p className="text-sm text-gray-700">
+       <strong>{cmt.nickname || '익명'}:</strong> {cmt.content}
+      </p>
+
+      {userInfo && (
+        <button
+          onClick={() => setActiveReplyBox(cmt.commentId)}
+          className="text-xs text-blue-500 hover:underline ml-2"
+        >
+          답글
+        </button>
+      )}
+
+      {activeReplyBox === cmt.commentId && (
+        <div className="mt-2">
+          <input
+            type="text"
+            value={replyMap[cmt.commentId] || ""}
+            onChange={(e) =>
+              setReplyMap((prev) => ({
+                ...prev,
+                [cmt.commentId]: e.target.value,
+              }))
+            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleAddReply(cmt.commentId);
+            }}
+            placeholder="답글 입력..."
+            className="w-full px-2 py-1 text-sm border border-gray-300 rounded"
+          />
+        </div>
+      )}
+
+      {cmt.replies?.length > 0 && renderComments(cmt.replies, depth + 1)}
+    </div>
+  ));
+};
+
+
+
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white border rounded-lg shadow">
@@ -87,9 +278,10 @@ function BoardDetail() {
       <h2 className="text-xl font-semibold text-gray-800 mb-4">{post.title}</h2>
 
       {/* 본문 내용 */}
-      <p className="text-base text-gray-700 whitespace-pre-wrap mb-6 min-h-[300px]">
-        {post.content}
-      </p>
+      <div
+        className="text-base text-gray-700 whitespace-pre-wrap mb-6 min-h-[300px]"
+        dangerouslySetInnerHTML={{ __html: post.content }}
+      />
 
       {/* 좋아요 / 댓글 수 */}
       <div className="flex gap-2 text-sm text-gray-600 mb-4">
@@ -110,21 +302,29 @@ function BoardDetail() {
 
       {/* 댓글 목록 */}
       <div className="mt-4 p-4 border-t border-gray-200">
-        <h4 className="text-sm font-semibold mb-2 text-gray-700">댓글</h4>
-        <div className="space-y-2 mb-4">
-          {post.comments?.map((cmt, idx) => (
-            <p key={idx} className="text-sm text-gray-700">
-              - {cmt}
-            </p>
-          ))}
-        </div>
+      <h4 className="text-sm font-semibold mb-2 text-gray-700">댓글</h4>
+
+      <div className="space-y-2 mb-4">
+        {renderComments(buildCommentTree(post.comments || []))}
+      </div>
 
         {/* 댓글 입력창 */}
-        <input
-          type="text"
-          placeholder="댓글 달기..."
-          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-        />
+        {userInfo ? (
+          <input
+            type="text"
+            placeholder="댓글 달기..."
+            className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleAddComment();
+              }
+            }}
+          />
+        ) : (
+          <p className="text-sm text-gray-500">댓글을 작성하려면 로그인 해주세요.</p>
+        )}
       </div>
     </div>
   );

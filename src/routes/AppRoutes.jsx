@@ -50,7 +50,7 @@ const AppRoutes = () => (
         <Route path="feed/:id" element={<PostDetailPage />} />
         <Route path="feed/write" element={<WritePostPage />} />
 
-        <Route path="boarddetail" element={<BoardDetail />} />
+        <Route path="post/:postId" element={<BoardDetail />} />
         <Route path="mainboard" element={<MainBoard />} />
         <Route path="minidisplay" element={<MiniDisplay />} />
         <Route path="writepost" element={<WritePost />} />

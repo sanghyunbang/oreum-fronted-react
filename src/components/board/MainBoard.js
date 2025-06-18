@@ -35,6 +35,7 @@ function MainBoard() {
           comments: post.comments || [], 
         }))
       );
+      console.log(postlist)
     } catch (error) {
       setPostlist([
         {
@@ -109,7 +110,6 @@ function MainBoard() {
               />
             )}
           
-
           <div className="flex justify-between text-sm text-gray-600 mt-auto pt-2 border-t border-gray-200">
             <button
               onClick={(e) => {
@@ -137,17 +137,15 @@ function MainBoard() {
               className="mt-4 p-3 border rounded bg-gray-50 text-sm text-gray-700"
               onClick={(e) => e.stopPropagation()}
             >
-              {post.comments?.map((cmt, idx) => (
-                <p key={idx} className="mb-1">
-                  - {cmt}
-                </p>
-              ))}
-
-              <input
-                type="text"
-                placeholder="댓글 달기..."
-                className="w-full mt-2 px-3 py-1 border border-gray-300 rounded text-sm"
-              />
+              {post.comments?.length > 0 ? (
+                post.comments.map((cmt, idx) => (
+                  <p key={idx} className="mb-1">
+                    - {cmt.content}
+                  </p>
+                ))
+              ) : (
+                <p className="text-gray-400">댓글이 없습니다.</p>
+              )}
             </div>
           )}
         </div>
