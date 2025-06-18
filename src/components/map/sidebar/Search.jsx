@@ -8,9 +8,9 @@ const BASE_URL = "http://localhost:8080";
 const formatPcp = (val) => {
   const value = String(val).trim();
   if (["?", "??", "???", "????", "-", "0", ""].includes(value)) {
-    return "강수없음";
+    return " ";
   }
-  return `${value}mm`;
+  return `${value}`;
 };
 
 
@@ -23,11 +23,11 @@ const skyCodeToText = (code) => {
     case "1.0":
       return "☀️ 맑음";
     case "3.0":
-      return "⛅️ 구름많음";
+      return "⛅️ 구름";
     case "4.0":
       return "☁️ 흐림";
     default:
-      return "정보없음";
+      return "/";
   }
 };
 
