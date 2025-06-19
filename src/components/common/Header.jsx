@@ -12,11 +12,18 @@ const Header = () => {
   const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   const [showLogin, setShowLogin] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.clear(); // 혹시 남은 값 정리
+  const handleLogout = async () => {
+  try {
+    await fetch("http://localhost:8080/api/user/logout", {
+      method: "POST",
+      credentials: "include",
+    });
     dispatch(logout());
     navigate("/login");
-  };
+  } catch (error) {
+    console.error("Logout failed", error);
+  }
+};
 
   const handleWriteClick = () => {
     if (isLoggedIn) {

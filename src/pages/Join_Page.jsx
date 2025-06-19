@@ -66,32 +66,60 @@ const JoinPage = ({ openLogin }) => {
   }
 
   //폼 제출
-  const doSubmit = (e) => {
-    e.preventDefault();
-    const newErrors = {};
-    if (!formData.nickname.trim()) newErrors.nickname = "아이디(을)를 입력하세요.";
-    else if (formData.nickname.length < 4 || formData.nickname.length > 20) newErrors.nickname = "아이디는 4자 이상 20자 이하로 입력해주세요.";
-    if (!formData.pw.trim()) newErrors.pw = "비밀번호(을)를 입력하세요.";
-    else if (formData.pw.length < 8 || formData.pw.length > 20) newErrors.pw = "비밀번호는 8자 이상 20자 이하로 입력해주세요.";
-    if (!formData.pwCheck.trim()) newErrors.pwCheck = "비밀번호 확인(을)를 입력하세요.";
-    if (formData.pw !== formData.pwCheck) newErrors.pwCheck = "비밀번호가 일치하지 않습니다.";
-    if (!formData.email.trim()) newErrors.email = "이메일(을)를 입력하세요.";
+  const doSubmit = async (e) => {
+  e.preventDefault();
 
-    //에러가 있을시 에러표시 및 포커스
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      const firstErrorField = Object.keys(newErrors)[0];
-      refs[firstErrorField].current.focus();
-      return;
-    }
-    if (!agree.terms || !agree.privacy) {
-      alert("필수 약관에 동의해주세요.");
-      return;
-    }
+  const newErrors = {};
+  if (!formData.nickname.trim()) newErrors.nickname = "아이디(을)를 입력하세요.";
+  else if (formData.nickname.length < 4 || formData.nickname.length > 20) newErrors.nickname = "아이디는 4자 이상 20자 이하로 입력해주세요.";
+  if (!formData.pw.trim()) newErrors.pw = "비밀번호(을)를 입력하세요.";
+  else if (formData.pw.length < 8 || formData.pw.length > 20) newErrors.pw = "비밀번호는 8자 이상 20자 이하로 입력해주세요.";
+  if (!formData.pwCheck.trim()) newErrors.pwCheck = "비밀번호 확인(을)를 입력하세요.";
+  if (formData.pw !== formData.pwCheck) newErrors.pwCheck = "비밀번호가 일치하지 않습니다.";
+  if (!formData.email.trim()) newErrors.email = "이메일(을)를 입력하세요.";
 
-    alert("등록 성공!!");
-    navigate("/login");
-  };
+  if (Object.keys(newErrors).length > 0) {
+    setErrors(newErrors);
+    const firstErrorField = Object.keys(newErrors)[0];
+    refs[firstErrorField].current.focus();
+    return;
+  }
+
+  if (!agree.terms || !agree.privacy) {
+    alert("필수 약관에 동의해주세요.");
+    return;
+  }
+
+  try {
+    const response = await fetch("http://localhost:8080/api/user/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        email: formData.email,
+        passwordHash: formData.pw,  // 서버에서 해싱 예정
+        nickname: formData.nickname,
+        address: formData.address,
+      }),
+    });
+
+    if (response.ok) {
+      alert("등록 성공!! 로그인 페이지로 이동합니다.");
+      navigate("/");
+      
+    } else if (response.status === 409) {
+      const data = await response.json();
+      alert(data.message);
+      refs.email.current.focus();
+    } else {
+      alert("회원가입 중 오류가 발생했습니다.");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("서버와 통신 중 오류가 발생했습니다.");
+  }
+};
+
 
   // 팝업 스타일을 Tailwind로 대체
   const Modal = ({ show, onClose, title, children }) => {

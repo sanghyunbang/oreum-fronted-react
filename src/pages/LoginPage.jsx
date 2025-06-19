@@ -120,7 +120,7 @@ const LoginPage = ({ onClose }) => {
           />
         </Modal>
       ) : (
-        <Modal show={true} onClose={onClose} title="로그인">
+        <Modal show={true} onClose={closeAllModals} title="로그인">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">로그인</h1>
 
