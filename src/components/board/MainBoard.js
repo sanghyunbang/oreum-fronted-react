@@ -42,6 +42,7 @@ function MainBoard() {
           likeCount: post.likeCount || 0,
           commentCount: post.commentCount || 0,
           comments: post.comments || [],
+          mediaList: post.mediaList || [], // 미디어 관련 추가 사항
         }))
       );
     } catch (error) {
@@ -140,6 +141,33 @@ function MainBoard() {
           <h3 className="font-semibold text-base text-gray-800 mb-4">
             {post.title}
           </h3>
+
+          {/* 썸네일 미디어 위치 ! */}
+          {post.mediaList?.length > 0 && (
+            <div className="mb-4">
+              {post.mediaList.slice(0, 1).map((media, idx) =>
+                media.mediaType === "image" ? (
+                  <img
+                    key={idx}
+                    src={media.mediaUrl}
+                    alt={`media-${idx}`}
+                    className="w-full h-48 object-cover rounded mb-2"
+                  />
+                ) : (
+                  <video
+                    key={idx}
+                    src={media.mediaUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-48 object-cover rounded mb-2"
+                  />
+                )
+              )}
+            </div>
+          )}
+
 
           {post.content && (
             <div

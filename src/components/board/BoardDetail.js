@@ -309,6 +309,33 @@ const handleLike = async () => {
       {/* 제목 */}
       <h2 className="text-xl font-semibold text-gray-800 mb-4">{post.title}</h2>
 
+      {/* 미디어 */}
+      {post.mediaList?.length > 0 && (
+        <div className="mb-6">
+          {post.mediaList.map((media, idx) =>
+            media.mediaType === "image" ? (
+              <img
+                key={idx}
+                src={media.mediaUrl}
+                alt={`image-${idx}`}
+                className="w-full max-h-[400px] object-contain rounded mb-3"
+              />
+            ) : (
+              <video
+                key={idx}
+                src={media.mediaUrl}
+                controls
+                muted
+                autoPlay
+                loop
+                playsInline
+                className="w-full max-h-[400px] rounded mb-3"
+              />
+            )
+          )}
+        </div>
+      )}
+
       {/* 본문 내용 */}
       <div
         className="text-base text-gray-700 whitespace-pre-wrap mb-6 min-h-[300px]"
