@@ -36,7 +36,7 @@ const AppRoutes = () => (
         <Route index element={<Home />} />
         <Route path="board" element={<BoardPage />} />
         <Route path="map" element={<MapPage />} />
-        <Route path="login" element={<LoginPage />} />
+        
         <Route path="join" element={<JoinPage />} />
         <Route path="fpw" element={<FindPw />} />
         <Route path="fuid" element={<FindUserid />} />
