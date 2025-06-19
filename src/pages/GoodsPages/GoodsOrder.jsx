@@ -11,6 +11,10 @@ const GoodsOrder = () => {
 
   const { items = [] } = location.state || {};
 
+  useEffect(()=>{
+    console.log(items);
+  },[items])
+
   //폼데이터로 저장
   const doChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -37,10 +41,14 @@ const GoodsOrder = () => {
   }
 
   //포인트 포함된 총결제 금액 계산
-  useEffect(()=>{
-    const total1 = (calculateTotalDiscounted() - Number.parseInt(formData.point || "0"));
-    setFormData((prev)=> ({...prev, total:total1}))
-  },[formData.point, items, calculateTotalDiscounted])
+  useEffect(() => {
+    const newTotal = calculateTotalDiscounted() - Number.parseInt(formData.point || "0");
+    setFormData((prev) => {
+      return prev.total !== newTotal
+        ? { ...prev, total: newTotal }
+        : prev; // 변경 없으면 그대로 반환 (불필요한 렌더링 방지)
+    });
+  }, [formData.point, items, calculateTotalDiscounted]);
 
   //할인 금액 계산
   const calculateSavings = () => {
@@ -49,6 +57,7 @@ const GoodsOrder = () => {
 
   //결제하기
   const doPayment = async (e) => {
+    console.log(items);
     e.preventDefault();
     if (!formData.addressname || !formData.addressnumber || !formData.zipcode || !formData.addressbasic || !formData.addressdetail) {
       alert("모든 필수 배송 정보를 입력해주세요.");
@@ -75,19 +84,21 @@ const GoodsOrder = () => {
         body: JSON.stringify({items: itemsWithOrderId}),
       })
       if(response.ok){
-        alert("결제되었습니다");
-        navigate("/Goods/GoodsCart");
+        const delCart = await fetch("http://localhost:8080/api/goods/selRemoveCart",{
+          method:"POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            id: items.map(item => item.cart_id ?? item.goods_options_id ?? item.option_id),
+          }),
+        })
+        if(delCart.ok){
+          alert("결제되었습니다");
+          navigate("/Goods/GoodsCart");
+        }
       }
     }
   }
-
-  //구매페이지 상품 여부 확인
-  useEffect(() => {
-    if (items.length <= 0) {
-      alert("선택된 상품이 없습니다.");
-      navigate("/Goods/Cart"); // 👈 장바구니로 리다이렉트 추천
-    }
-  }, [items, navigate]);
 
   //주소명 가져오는 API
   const DeliveryAddress = () => {
@@ -111,15 +122,30 @@ const GoodsOrder = () => {
     document.body.appendChild(script)
   }, [])   //여기까지 주소api
 
+  // useEffect(()=>{
+  //   const doUser = async() =>{
+  //     const res = await fetch("http://localhost:8080/api/goods/getUserPoint",{
+  //       method:"POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       credentials: "include",
+  //       body: JSON.stringify({userId:userInfo.userId}),
+  //     })
+  //     if(res.ok){
+
+  //     }
+  //   }
+  //   doUser();
+  // },[userInfo])
+
   return (
     <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
       {/* Header */}
       <header className="flex items-center justify-between border-b pb-4 mb-6">
-        <button onClick={()=>navigate(-1)} className="flex items-center text-gray-700 hover:text-gray-900">
+        <button onClick={()=>navigate(-1)} className="flex items-center text-1xl hover:text-gray-900">
           <FaArrowLeft className="mr-2" /> 뒤로
         </button>
         <h1 className="text-2xl font-bold text-center flex-1">주문서</h1>
-        <button onClick={()=>navigate("/Goods")} className="text-gray-700 hover:text-gray-900">
+        <button onClick={()=>navigate("/Goods")} className="text-2xl hover:text-gray-900">
           <FaHome size={20} />
         </button>
       </header>
@@ -168,7 +194,7 @@ const GoodsOrder = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">배송 요청사항 (선택)</label>
-              <input type="text" name="request" value={formData.request || ""} onChange={doChange} placeholder="배송 요청사항을 입력해주세요." required
+              <input type="text" name="request" value={formData.request || ""} onChange={doChange} placeholder="배송 요청사항을 입력해주세요."
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>

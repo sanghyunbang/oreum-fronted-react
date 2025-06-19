@@ -60,14 +60,6 @@ const Goods = () => {
     doListAll();
   }, []);
 
-  // const Goods = [
-  //   { id: 1, img: "/Goods_img/캠핑가방.jpeg", name: "캠핑가방", category: "기타", brand:"아디다스", price: 15000, salePercent: 20, }, //likes: 80,
-  //   { id: 2, img: "/Goods_img/청바지.jpeg", name: "청바지", category: "하의", brand:"아디다스", price: 35000, salePercent: 10, },
-  //   { id: 3, img: "/Goods_img/운동화.jpeg", name: "운동화", category: "신발", brand:"아디다스", price: 65000}, // 할인 없음
-  //   { id: 4, img: "/Goods_img/등산스틱.jpeg", name: "등산스틱", category: "기타", brand:"아디다스", price: 12000, salePercent: 15 },
-  //   { id: 5, img: "/Goods_img/후드티.jpeg", name: "후드티", category: "상의", brand:"아디다스", price: 28000, salePercent: 30 },
-  // ]
-
   const campaignClick = (p)=>{
     navigate("/Goods/campaign="+p.id);
   }
@@ -83,8 +75,11 @@ const Goods = () => {
           장바구니
         </button>
 
-        <button className="" onClick={()=>navigate("/Goods/GoodsOrder")}>
+        <button className="mx-10" onClick={()=>navigate("/Goods/GoodsOrder")}>
           구매하기
+        </button>
+        <button onClick={()=>navigate("/Goods/delivery")}>
+          주문내역
         </button>
       </header>
       <hr className="my-8" />

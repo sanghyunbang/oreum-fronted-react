@@ -113,11 +113,11 @@ const GoodsCart = () => {
     return (
         <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
             <header className="flex items-center justify-between pb-4 mb-6">
-                <button onClick={() => navigate(-1)} className="flex items-center text-gray-700 hover:text-gray-900">
+                <button onClick={() => navigate(-1)} className="flex items-center text-1xl hover:text-gray-900">
                     <FaArrowLeft className="mr-2" /> 뒤로
                 </button>
-                <h1 className="text-2xl font-bold text-center flex-1">장바구니</h1>
-                <button onClick={() => navigate("/Goods")} className="text-gray-700 hover:text-gray-900">
+                <h1 className="text-3xl font-bold text-center flex-1">장바구니</h1>
+                <button onClick={() => navigate("/Goods")} className="text-2xl hover:text-gray-900">
                     <FaHome size={20} />
                 </button>
             </header>

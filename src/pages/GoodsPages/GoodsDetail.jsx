@@ -11,11 +11,14 @@ const GoodsDetail = () => {
   const [selectedOption, setSelectedOption] = useState([])
   const [goods,setGoods] = useState("");
   const [goodsOpt, setGoodsOpt] = useState("");
-  const [isLiked, setIsLiked] = useState(false)
+  const [isLiked, setIsLiked] = useState(false);
   const userInfo = useSelector((state) => state.user.userInfo);
   const { id } = useParams();  //상품 번호
   const navigate = useNavigate();
 
+  useEffect(()=>{
+    console.log(goods);
+  },[goods])
   //슬라이더 사진 세팅
   const sliderSettings = {
     dots: true,
@@ -36,11 +39,23 @@ const GoodsDetail = () => {
       alert("이미 선택된 옵션입니다.");
       return;
     }
-    setSelectedOption((prev) => [...prev, { ...selected, qty: 1 }]);
-  }
-  useEffect(()=>{
-    console.log("selectedOption: ",selectedOption);
-  },[selectedOption])
+    const mergedOption = {
+      ...selected,             // { id, option_name } 등
+      qty: 1,
+      goods_id: goods.id,
+      goods_name: goods.name,
+      brand: goods.brand,
+      price: goods.price,
+      salePercent: goods.salePercent,
+      img: Array.isArray(goods.img) ? goods.img[0] : JSON.parse(goods.img || "[]")[0] || "/placeholder.png",
+
+      // ✅ 필수: goods_options_id를 명확히 추가
+      goods_options_id: selected.id,
+      option_name: selected.option_name
+    };
+
+    setSelectedOption((prev) => [...prev, mergedOption]);
+  };
 
   //옵션 삭제
   const removeOption = (id) => {
@@ -49,9 +64,24 @@ const GoodsDetail = () => {
 
   //총결제금액 계산
   const totalPrice = selectedOption.reduce((acc, opt) => {
-    const unitPrice = Number(goods.price) || 0;
+    const unitPrice = Number(goods.price * (1 - goods.salePercent / 100)) || 0;
     return acc + unitPrice * opt.qty;
   }, 0);
+
+  const doLiked = async () => {
+    const res = await fetch("http://localhost:8080/api/goods/liked",{
+      method:"POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ userId: userInfo.userId, goodsId: goods.id }),
+    })
+    if (res.ok) {
+      const result = await res.text();
+      setIsLiked(result === "liked");
+      // 프론트 likes 수 변경
+      setGoods((prev) => ({...prev,likes: prev.likes + (result === "liked" ? 1 : -1)}));
+    }
+  }
 
   //장바구니 추가
   const handleAddToCart = async () => {
@@ -76,7 +106,7 @@ const GoodsDetail = () => {
     });
     const data = await response.text();
     if (data==="0") {
-      alert("해당 상품이 이미 장바구니에 존재합니다.");
+      alert("현재 장바구니에 담긴 상품이 있습니다.");
       return;
     }
     // 성공 처리
@@ -84,10 +114,48 @@ const GoodsDetail = () => {
   };
 
   //구매하기
-  const doPurchase = () => {
-    if(!userInfo) {alert("로그인이 필요합니다."); return;};
-    navigate("/Goods/GoodsOrder", { state: { items: selectedOption }});
-  }
+  const doPurchase = async () => {
+    if(!userInfo) {alert("로그인이 필요합니다."); return;}
+    if (selectedOption.length === 0) {
+      alert("옵션을 선택해주세요.");
+      return;
+    }
+    const response = await fetch("http://localhost:8080/api/goods/cartAdd", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // 세션 쿠키 등 포함 (로그인 상태 유지)
+      body: JSON.stringify({
+        userId: userInfo.userId,
+        options: selectedOption.map(opt => ({
+          id: opt.id,
+          qty: opt.qty
+        }))
+      }),
+    });
+    if(response.ok){
+      navigate("/Goods/GoodsOrder", { state: { items: selectedOption } });
+    }
+  };
+
+  //좋아요 상태 불러오기
+  useEffect(()=>{
+    const LikeCh = async () =>{
+      const response = await fetch("http://localhost:8080/api/goods/like/check",{
+        method:"POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ userId: userInfo.userId, goodsId: goods.id }),
+      })
+      if(response.ok){
+        const data = await response.json();
+        console.log(data);
+        setIsLiked(data);
+      }
+    }
+    LikeCh();
+  },[userInfo,goods.id])
 
   //상품 불러오기
   useEffect(() => {
@@ -103,16 +171,14 @@ const GoodsDetail = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
+        console.log(data);
         setGoods(data[0]);
       } catch (error) {
         console.error("상품 불러오기 실패:", error);
       }
     };
-    doList();
-  }, [id]);
 
-  //상품 옵션 불러오기
-  useEffect(()=>{
+    //상품 옵션 불러오기
     const doOptionList = async () => {
       try{
         const response = await fetch(`http://localhost:8080/api/goods/detailListOpt?id=${id}`,{
@@ -126,15 +192,15 @@ const GoodsDetail = () => {
         console.error("상품 옵션 불러오기 실패:", error);
       }
     }
+    doList();
     doOptionList();
-  },[id])
-
+  }, [id]);
   return (
     <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
       <header className="flex items-center justify-between px-4 py-2 mb-[80px]">
       <div className="text-2xl cursor-pointer z-10 mr-5" onClick={()=>navigate(-1)}>{"<"}</div>
-      <div className="text-2xl cursor-pointer z-10" onClick={()=>navigate("/Goods")}><FaHome /></div>
-      <h5 className="text-center flex-1 text-2xl font-bold -ml-6">{goods.name}</h5>
+      <h5 className="text-center flex-1 text-2xl font-bold -ml-1">{goods.name}</h5>
+      <div className="text-2xl cursor-pointer z-10 mr-5" onClick={()=>navigate("/Goods")}><FaHome /></div>
       <div className="text-2xl cursor-pointer z-10" onClick={()=>navigate("/Goods/GoodsCart")}><FaShoppingCart /></div>
       <div className="w-6" /> {/* 오른쪽 여백용 (좌우 균형 맞추기 위함) */}
       </header>
@@ -156,9 +222,6 @@ const GoodsDetail = () => {
           <h1 className="text-2xl font-bold mb-3 text-gray-800">{goods.name}</h1>
 
           <div className="mb-5">
-            <span className="text-base text-gray-500 line-through mr-2">
-              {goods.price?.toLocaleString()||0}원
-            </span>
             {goods.salePercent ? (
               <>
                 <span className="line-through text-gray-400 text-base mr-2">
@@ -193,7 +256,7 @@ const GoodsDetail = () => {
               <option value="">사이즈 선택</option>
               {Array.isArray(goodsOpt) &&
                 goodsOpt.map((opt) => (
-                  <option key={opt.id} value={JSON.stringify({ id: opt.id, size: opt.option_name })}>
+                  <option key={opt.id} value={JSON.stringify({ id: opt.id, option_name: opt.option_name })}>
                     {opt.option_name}
                   </option>
               ))}
@@ -205,7 +268,7 @@ const GoodsDetail = () => {
               {selectedOption.map((opt, idx) => (
                 <div key={idx} className="border border-gray-200">
                   <span className="ml-5 mr-[100px]">
-                    {opt.size} 
+                    {opt.option_name} 
                   </span>
                   <span>
                     <button className="text-red-500" onClick={() => removeOption(opt.id)}>
@@ -214,17 +277,17 @@ const GoodsDetail = () => {
                   </span>
                   <div className="flex items-center border rounded-md overflow-hidden">
                     <button className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 text-lg font-medium transition-colors duration-200 focus:outline-none border-r" 
-                    onClick={() => setSelectedOption((prev) => prev.map((o) => o.size === opt.size ? { ...o, qty: Math.max(1, o.qty - 1) } : o))}>
+                    onClick={() => setSelectedOption((prev) => prev.map((o) => o.id === opt.id ? { ...o, qty: Math.max(1, o.qty - 1) } : o))}>
                       -
                     </button>
                     <input type = "number"
                     className="w-12 h-10 text-center border-none focus:ring-0 focus:outline-none text-gray-800 text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     value={opt.qty} readOnly />
                     <button className="flex items-center mr-[100px] justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 text-lg font-medium transition-colors duration-200 focus:outline-none border-l" 
-                    onClick={() => setSelectedOption((prev) => prev.map((o)=>o.size === opt.size ? { ...o, qty: o.qty + 1 } : o))}>
+                    onClick={() => setSelectedOption((prev) => prev.map((o)=>o.id === opt.id ? { ...o, qty: o.qty + 1 } : o))}>
                       +
                     </button>
-                    <p>{(Number(goods.price) * opt.qty)?.toLocaleString()||0}원</p>
+                    <p>{(goods.price * (1 - goods.salePercent / 100))?.toLocaleString()||0}원</p>
                   </div>
                 </div>
               ))}
@@ -241,7 +304,7 @@ const GoodsDetail = () => {
           </div>
           <div className="flex gap-2 mb-5">
             <div className="flex flex-col items-center justify-center w-[72px] h-[44px] bg-white rounded">
-              <button className="flex items-center justify-center" onClick={() => setIsLiked(!isLiked)}>
+              <button className="flex items-center justify-center" onClick={doLiked}>
                 {isLiked ? <FaHeart color="red" size={20} /> : <FaRegHeart color="gray" size={20} />}
               </button>
               <span className="text-sm text-gray-700">{goods.likes}</span>
