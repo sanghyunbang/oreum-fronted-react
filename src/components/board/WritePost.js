@@ -3,6 +3,8 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { useNavigate } from "react-router-dom";
 
+import MapPolyLine from "../mapForCuration/MapPolyLine";
+
 function WritePost() {
   const navigate = useNavigate();
   const [files, setFiles] = useState([]);
@@ -258,6 +260,8 @@ function WritePost() {
           style={{ height: "300px", marginBottom: "1rem" }}
         />
       </div>
+
+      <MapPolyLine />
 
       {/* 업로드 */}
       <div
