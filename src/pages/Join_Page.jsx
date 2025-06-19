@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const JoinPage = ({ openLogin }) => {
-  const [formData, setFormData] = useState({pw: "", pwCheck: "", email: "", nickname: "", address:""});
+  const [formData, setFormData] = useState({pw: "", name:"", pwCheck: "", email: "", nickname: "", address:""});
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [doShow,setDoShow] = useState(false);
@@ -71,6 +71,7 @@ const JoinPage = ({ openLogin }) => {
 
   const newErrors = {};
   if (!formData.nickname.trim()) newErrors.nickname = "아이디(을)를 입력하세요.";
+  if (!formData.name.trim()) newErrors.name = "이름을 입력하세요.";
   else if (formData.nickname.length < 4 || formData.nickname.length > 20) newErrors.nickname = "아이디는 4자 이상 20자 이하로 입력해주세요.";
   if (!formData.pw.trim()) newErrors.pw = "비밀번호(을)를 입력하세요.";
   else if (formData.pw.length < 8 || formData.pw.length > 20) newErrors.pw = "비밀번호는 8자 이상 20자 이하로 입력해주세요.";
@@ -100,13 +101,14 @@ const JoinPage = ({ openLogin }) => {
         passwordHash: formData.pw,  // 서버에서 해싱 예정
         nickname: formData.nickname,
         address: formData.address,
+        name: formData.name,
       }),
     });
 
     if (response.ok) {
       alert("등록 성공!! 로그인 페이지로 이동합니다.");
       navigate("/");
-      
+
     } else if (response.status === 409) {
       const data = await response.json();
       alert(data.message);
@@ -166,6 +168,23 @@ const JoinPage = ({ openLogin }) => {
           />
           {errors.nickname && <p className="text-red-500 text-sm mt-1">{errors.nickname}</p>}
         </div>
+
+        <div>
+          <label className="block mb-1 font-medium">이름 <span className="text-red-500">*</span></label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={doChange}
+            onBlur={() => {
+              if (!formData.name.trim()) setErrors(prev => ({ ...prev, name: "이름을 입력하세요." }));
+              else setErrors(prev => ({ ...prev, name: "" }));
+            }}
+            className={`w-full border rounded px-3 py-2 focus:outline-none focus:ring ${errors.name ? 'border-red-500' : 'border-gray-300'}`}
+          />
+          {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+        </div>
+
 
         <div>
           <label className="block mb-1 font-medium">비밀번호 <span className="text-red-500">*</span></label>
@@ -274,7 +293,13 @@ const JoinPage = ({ openLogin }) => {
 
           <p className="text-sm">
             계정이 이미 있으신가요?{" "}
-            <Link to="/login" className="text-blue-600 underline">로그인</Link>
+            <button
+              type="button"
+              onClick={openLogin}
+              className="text-blue-600 underline"
+            >
+              로그인
+            </button>
           </p>
 
           <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-semibold">
