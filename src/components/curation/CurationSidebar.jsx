@@ -45,15 +45,15 @@ export default function CurationSideBar({onPostResult}) {
     // 미디어 항목들 업로드 되면 담아 놓는 함수 (->loadMedia에서 호출되서 사용)[wp 동일]
     const addFiles = (newFiles) => {
         const validFiles = newFiles.filter((file) => 
-        file.type.startsWith("image/") || file.type === "video/mp4"
-    );
-    setFiles((prev) => [...prev, ...validFiles]);
-  };
+            file.type.startsWith("image/") || file.type === "video/mp4"
+        );
+        setFiles((prev) => [...prev, ...validFiles]);
+    };
 
     // 파일 올리던거 취소하기[wp 동일]
     const removeFile = (index) => {
         setFiles((prev) => prev.filter((_, i) => i !== index));
-    }
+    };
 
     /**
      파일 올리는 거 관련
