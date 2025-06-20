@@ -83,6 +83,11 @@ const GoodsDelivery = () => {
                     결제취소<FaTrash />
                     </button>
                 )}
+                {addr.status === "배송완료" && (
+                    <button className="text-blue-500 hover:text-blue-700" onClick={() => deleteAddress(addr.order_id)}>
+                    리뷰달기
+                    </button>
+                )}
                 </div>
             </div>
             </div>

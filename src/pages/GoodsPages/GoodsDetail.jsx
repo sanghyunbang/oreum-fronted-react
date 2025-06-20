@@ -16,9 +16,6 @@ const GoodsDetail = () => {
   const { id } = useParams();  //상품 번호
   const navigate = useNavigate();
 
-  useEffect(()=>{
-    console.log(goods);
-  },[goods])
   //슬라이더 사진 세팅
   const sliderSettings = {
     dots: true,
@@ -150,7 +147,6 @@ const GoodsDetail = () => {
       })
       if(response.ok){
         const data = await response.json();
-        console.log(data);
         setIsLiked(data);
       }
     }
@@ -159,6 +155,7 @@ const GoodsDetail = () => {
 
   //상품 불러오기
   useEffect(() => {
+    window.scrollTo(0, 0);
     const doList = async () => {
       try {
         const response = await fetch(`http://localhost:8080/api/goods/detailList?id=${id}`, {
@@ -171,7 +168,6 @@ const GoodsDetail = () => {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        console.log(data);
         setGoods(data[0]);
       } catch (error) {
         console.error("상품 불러오기 실패:", error);
@@ -266,7 +262,7 @@ const GoodsDetail = () => {
           {selectedOption.length > 0 && (
             <>
               {selectedOption.map((opt, idx) => (
-                <div key={idx} className="border border-gray-200">
+                <div key={idx} className="border border-gray-200 mb-1">
                   <span className="ml-5 mr-[100px]">
                     {opt.option_name} 
                   </span>
@@ -276,14 +272,14 @@ const GoodsDetail = () => {
                     </button>
                   </span>
                   <div className="flex items-center border rounded-md overflow-hidden">
-                    <button className="flex items-center justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 text-lg font-medium transition-colors duration-200 focus:outline-none border-r" 
+                    <button className="flex items-center justify-center w-10 h-9 bg-gray-100 hover:bg-gray-200 text-gray-600 text-lg font-medium transition-colors duration-200 focus:outline-none border-r" 
                     onClick={() => setSelectedOption((prev) => prev.map((o) => o.id === opt.id ? { ...o, qty: Math.max(1, o.qty - 1) } : o))}>
                       -
                     </button>
                     <input type = "number"
-                    className="w-12 h-10 text-center border-none focus:ring-0 focus:outline-none text-gray-800 text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    className="w-12 h-9 text-center border-none focus:ring-0 focus:outline-none text-gray-800 text-base [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     value={opt.qty} readOnly />
-                    <button className="flex items-center mr-[100px] justify-center w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-600 text-lg font-medium transition-colors duration-200 focus:outline-none border-l" 
+                    <button className="flex items-center mr-[100px] justify-center w-10 h-9 bg-gray-100 hover:bg-gray-200 text-gray-600 text-lg font-medium transition-colors duration-200 focus:outline-none border-l" 
                     onClick={() => setSelectedOption((prev) => prev.map((o)=>o.id === opt.id ? { ...o, qty: o.qty + 1 } : o))}>
                       +
                     </button>
@@ -388,4 +384,4 @@ const GoodsDetail = () => {
   )
 }
 
-export default GoodsDetail
+export default GoodsDetail;

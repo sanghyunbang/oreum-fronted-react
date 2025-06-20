@@ -12,6 +12,7 @@ const GoodsCart = () => {
 
     //유저의 장바구니 리스트
     useEffect(() => {
+        window.scrollTo(0, 0);
         const CartData = async () => {
             if (!userInfo) { alert("로그인이 필요합니다."); return; }
             const response = await fetch(`http://localhost:8080/api/goods/cartList`, {
@@ -35,7 +36,9 @@ const GoodsCart = () => {
         setSelectedGoods(checked ? Goods.map(item => item.cart_id) : []);
     }, [Goods]);
 
-
+    useEffect(()=>{
+        console.log("sele: ",selectedGoods);
+    },[selectedGoods])
     //전체 선택
     const selectAll = (e) => {
         const checked = e.target.checked;
@@ -139,10 +142,10 @@ const GoodsCart = () => {
                     {Goods.map((cart) => (
                         <div key={cart.cart_id} className="flex items-center gap-4 border-t py-4">
                             <input type="checkbox" className="scale-100" checked={selectedGoods.includes(cart.cart_id)} onChange={(e) => doSelect(e, cart.cart_id)} />
-                            <img src={cart.img} alt={cart.goods_name} className="w-[80px] h-[80px] object-cover rounded-md" />
+                            <img src={cart.img} alt={cart.goods_name} onClick={()=>navigate(`/Goods/GoodsDetail/${cart.goods_id}`)} className="w-[80px] h-[80px] object-cover rounded-md cursor-pointer" />
                             <div className="flex-1">
                                 <div className="flex justify-between items-center mb-2">
-                                    <span className="font-semibold">{cart.goods_name}</span>
+                                    <span className="font-semibold cursor-pointer" onClick={()=>navigate(`/Goods/GoodsDetail/${cart.goods_id}`)}>{cart.goods_name}</span>
                                     <button className="text-black text-2xl" onClick={() => removeOption(cart)}>x</button>
                                 </div>
                                 <div className="text-gray-500 mb-1">{cart.option_name || "옵션없음"} | {cart.qty}개</div>
@@ -155,12 +158,9 @@ const GoodsCart = () => {
                                             ))
                                         }
                                     > - </button>
-                                    <input
-                                        readOnly
-                                        type="number"
-                                        value={cart.qty}
-                                        className="w-12 px-0 py-[2px] text-center border-t border-b border-gray-400 appearance-none"
-                                    />
+                                    <p type="number" className="w-12 px-0 py-[2px] text-center border-t border-b border-gray-400 appearance-none">
+                                        {cart.qty}
+                                    </p>
                                     <button
                                         className="px-2 py-[2px] border border-gray-400"
                                         onClick={() =>

@@ -5,14 +5,23 @@ import { useSelector } from "react-redux"
 
 const GoodsOrder = () => {
   const [formData, setFormData] = useState({ addressname: "", addressnumber: "", zipcode: "", addressbasic: "", addressdetail: "", request: "", point: "",total:"0" })
+  const [selectedMethod, setSelectedMethod] = useState({ pg: "kakaopay.TC0ONETIME", method: "kakaopay", label: "카카오페이" });
+  const [impReady, setImpReady] = useState(false);
   const userInfo = useSelector((state) => state.user.userInfo);
   const location = useLocation();
   const navigate = useNavigate()
+  const paymentMethods = [
+    { pg: "kakaopay.TC0ONETIME", method: "kakaopay", label: "카카오페이" },
+    { pg: "tosspay.tosstest",   method: "tosspay",  label: "토스페이" },
+    { pg: "danal",              method: "phone",    label: "휴대폰 결제" },
+    { pg: "smilepay",          method: "smilepay",   label: "스마일페이" },
+    { pg: "payco.PARTNERTEST", method: "payco",     label: "페이코"},
+  ];
+
 
   const { items = [] } = location.state || {};
-
   useEffect(()=>{
-    console.log(items);
+    console.log("items",items);
   },[items])
 
   //폼데이터로 저장
@@ -55,10 +64,85 @@ const GoodsOrder = () => {
     return calculateTotalOriginal() - calculateTotalDiscounted()
   }
 
+  //주소명 가져오는 API
+  const DeliveryAddress = () => {
+    if (!window.daum?.Postcode) {
+      alert("주소 검색 로딩 중입니다. 잠시 후 다시 시도해주세요.")
+      return
+    }
+
+    new window.daum.Postcode({
+      oncomplete: (data) => {
+        const fullAddress = data.address
+        const postalCode = data.zonecode
+        setFormData((prev) => ({ ...prev, zipcode: postalCode, addressbasic: fullAddress }))
+      },
+    }).open()
+  }
+  useEffect(() => {
+    const script = document.createElement("script")
+    script.src = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
+    script.async = true
+    document.body.appendChild(script)
+  }, [])   //여기까지 주소api
+
+
+  //아임포트 api 생성 및 확인
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://cdn.iamport.kr/v1/iamport.js"; // ✅ 새 CD
+    script.async = true;
+    script.onload = () => {
+      console.log("IMP 로딩 완료");
+      setImpReady(true);
+    };
+    script.onerror = () => {
+      alert("아임포트 스크립트 로딩 실패");
+    };
+    document.body.appendChild(script);
+  }, []);
+
+  //주문 결제
+  const doIamportPayment = () => {
+    if (!formData.addressname || !formData.addressnumber || !formData.zipcode || !formData.addressbasic || !formData.addressdetail) {
+      alert("모든 배송 정보를 입력해주세요.");
+      return;
+    }
+    if (!document.getElementById("agreement").checked) {
+      alert("결제 약관에 동의해야 결제가 가능합니다.");
+      return;
+    }
+    if (!impReady) {
+      alert("결제 모듈이 아직 로딩되지 않았습니다. 잠시 후 다시 시도해주세요.");
+      return;
+    }
+    const { IMP } = window;
+    IMP.init("imp02018483"); // 아임포트 테스트용 가맹점 코드
+
+    //아임포트(결제시스템)에 결과 전송하는 데이터
+    IMP.request_pay({
+      pg: selectedMethod.pg,
+      pay_method: selectedMethod.method,
+      merchant_uid: "order_" + new Date().getTime(),
+      name: items.map((cart) => cart.goods_name).join(", "),
+      amount: parseInt(formData.total || "0"),
+      buyer_email: "tester@example.com",
+      buyer_name: "홍길동",
+      buyer_tel: "010-1234-5678",
+      buyer_addr: formData.addressbasic + " " + formData.addressdetail,
+      buyer_postcode: formData.zipcode,
+    }, async function (rsp) {
+      if (rsp.success) {
+        alert("결제 성공! 주문을 완료합니다.");
+        await doPayment();
+      } else {
+        alert("결제 취소되었습니다.");
+      }
+    });
+  };
+
   //결제하기
   const doPayment = async (e) => {
-    console.log(items);
-    e.preventDefault();
     if (!formData.addressname || !formData.addressnumber || !formData.zipcode || !formData.addressbasic || !formData.addressdetail) {
       alert("모든 필수 배송 정보를 입력해주세요.");
       return;
@@ -84,43 +168,33 @@ const GoodsOrder = () => {
         body: JSON.stringify({items: itemsWithOrderId}),
       })
       if(response.ok){
-        const delCart = await fetch("http://localhost:8080/api/goods/selRemoveCart",{
+        const delCart = await fetch("http://localhost:8080/api/goods/deleteCart",{
           method:"POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
-            id: items.map(item => item.cart_id ?? item.goods_options_id ?? item.option_id),
+            id: items.map(item => item.goods_options_id),
           }),
         })
         if(delCart.ok){
-          alert("결제되었습니다");
           navigate("/Goods/GoodsCart");
         }
       }
     }
   }
 
-  //주소명 가져오는 API
-  const DeliveryAddress = () => {
-    if (!window.daum?.Postcode) {
-      alert("주소 검색 로딩 중입니다. 잠시 후 다시 시도해주세요.")
-      return
-    }
-
-    new window.daum.Postcode({
-      oncomplete: (data) => {
-        const fullAddress = data.address
-        const postalCode = data.zonecode
-        setFormData((prev) => ({ ...prev, zipcode: postalCode, addressbasic: fullAddress }))
-      },
-    }).open()
-  }
+  //결제할때 팝업 확인
   useEffect(() => {
-    const script = document.createElement("script")
-    script.src = "https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"
-    script.async = true
-    document.body.appendChild(script)
-  }, [])   //여기까지 주소api
+  const checkIMP = setInterval(() => {
+    if (window.IMP) {
+      setImpReady(true);
+      clearInterval(checkIMP);
+    }
+  }, 100); // 0.1초마다 확인
+  // 만약 5초 안에 안 뜨면 타임아웃 처리
+  setTimeout(() => clearInterval(checkIMP), 10000);
+  }, []);
+  
 
   // useEffect(()=>{
   //   const doUser = async() =>{
@@ -141,7 +215,7 @@ const GoodsOrder = () => {
     <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
       {/* Header */}
       <header className="flex items-center justify-between border-b pb-4 mb-6">
-        <button onClick={()=>navigate(-1)} className="flex items-center text-1xl hover:text-gray-900">
+        <button onClick={()=>navigate(`/Goods`)} className="flex items-center text-1xl hover:text-gray-900">
           <FaArrowLeft className="mr-2" /> 뒤로
         </button>
         <h1 className="text-2xl font-bold text-center flex-1">주문서</h1>
@@ -151,7 +225,7 @@ const GoodsOrder = () => {
       </header>
 
       <div className="space-y-8">
-        <form onSubmit={doPayment}>
+        {/* <form onSubmit={doPayment}> */}
         {/* Shipping Information */}
         <section className="border rounded-lg p-4 bg-gray-50">
           <h2 className="text-xl font-bold mb-4 flex items-center border-b pb-2">배송지 정보</h2>
@@ -320,43 +394,21 @@ const GoodsOrder = () => {
 
           <div className="space-y-4">
             <div className="grid grid-cols-3 gap-2">
-              <button className="border py-3 rounded-md hover:bg-gray-100 transition-colors flex flex-col items-center justify-center">
-                <span>신용 · 체크카드</span>
+            {paymentMethods.map((method, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setSelectedMethod(method)}
+                className={`border py-3 rounded-md transition-colors flex flex-col items-center justify-center ${
+                  selectedMethod.method === method.method && selectedMethod.pg === method.pg
+                    ? "bg-green-100"
+                    : "hover:bg-gray-100"
+                }`}
+              >
+                <span>{method.label}</span>
               </button>
-              <button className="border py-3 rounded-md bg-green-100 hover:bg-green-200 transition-colors flex flex-col items-center justify-center">
-                <span>N pay</span>
-              </button>
-              <button className="border py-3 rounded-md bg-yellow-100 hover:bg-yellow-200 transition-colors flex flex-col items-center justify-center">
-                <span>카카오페이</span>
-              </button>
-              <button className="border py-3 rounded-md bg-blue-100 hover:bg-blue-200 transition-colors flex flex-col items-center justify-center">
-                <span>토스페이</span>
-              </button>
-              <button className="border py-3 rounded-md hover:bg-gray-100 transition-colors flex flex-col items-center justify-center">
-                <span>SAMSUNG Pay</span>
-              </button>
-              <button className="border py-3 rounded-md hover:bg-gray-100 transition-colors flex flex-col items-center justify-center">
-                <span>SSG PAY</span>
-              </button>
-              <button className="border py-3 rounded-md hover:bg-gray-100 transition-colors flex flex-col items-center justify-center">
-                <span>L PAY</span>
-              </button>
-            </div>
-
-            <div>
-              <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                <option>카드사 선택</option>
-                <option>신한카드</option>
-                <option>삼성카드</option>
-                <option>현대카드</option>
-                <option>KB국민카드</option>
-                <option>롯데카드</option>
-                <option>BC카드</option>
-                <option>하나카드</option>
-              </select>
-              <p className="text-xs text-gray-500 mt-1">신용카드 무이자 할부 안내</p>
-            </div>
-
+            ))}
+          </div>
             <div className="flex items-start">
               <input type="checkbox" id="agreement" className="mt-1 mr-2" />
               <label htmlFor="agreement" className="text-sm">
@@ -367,11 +419,12 @@ const GoodsOrder = () => {
         </section>
 
         {/* Payment Button */}
-        <button type="submit" 
-        className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-md text-lg font-bold transition-colors">
-          {parseInt(formData.total || "0").toLocaleString()}원 결제하기
+        <button type="button" onClick={doIamportPayment}
+          className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-md text-lg font-bold transition-colors"
+          >
+          {parseInt(formData.total || "0").toLocaleString()}원 결제하기 ({selectedMethod.label})
         </button>
-        </form>
+        {/* </form> */}
       </div>
     </div>
   )

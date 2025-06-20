@@ -78,7 +78,7 @@ const Goods = () => {
         <button className="mx-10" onClick={()=>navigate("/Goods/GoodsOrder")}>
           구매하기
         </button>
-        <button onClick={()=>navigate("/Goods/delivery")}>
+        <button onClick={()=>navigate("/Goods/GoodsDelivery")}>
           주문내역
         </button>
       </header>
