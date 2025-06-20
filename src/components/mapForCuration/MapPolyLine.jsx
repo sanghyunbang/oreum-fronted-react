@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-export default function MapWithSearch() {
+export default function MapPolyLine({onRouesResult}) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const searchMarkerRef = useRef(null);
@@ -47,6 +47,10 @@ export default function MapWithSearch() {
 
       // 화면 표시용
       setClickedCoords((prev) => [...prev, coord]);
+
+      // 상위 컴포넌트로 값 넘겨주기(CurationWritePage로)
+      onRouesResult((prev) => [...prev, coord]);
+
       // 내부 추적용
       clickedCoordsRef.current.push(coord);
 

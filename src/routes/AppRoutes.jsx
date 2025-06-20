@@ -29,6 +29,9 @@ import MountainDetailPage from '../components/board/MountainDetailPage';
 import AuthInit from './AuthInit'; // useEffect로 localStorage 확인하는 컴포넌트
 import CommunityPage from '../pages/CommunityPages/CommunityPage';
 
+// curation 글쓰기 전용 페이지
+import CurationWritePage from '../pages/BoardPages/CurationWritePage';
+
 const AppRoutes = () => (
   <Router>
     <AuthInit /> {/* Redux 로그인 여부 초기화 */}
@@ -55,6 +58,8 @@ const AppRoutes = () => (
         <Route path="mainboard" element={<MainBoard />} />
         <Route path="minidisplay" element={<MiniDisplay />} />
         <Route path="writepost" element={<WritePost />} />
+        {/* curation write관련 페이지 */}
+        <Route path='writeForCuration' element={<CurationWritePage />} />
         <Route path="mountaindetail" element={<MountainDetailPage />} />
 
         <Route path="community/:communityName" element={<CommunityPage/>}/>
