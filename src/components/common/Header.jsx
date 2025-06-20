@@ -33,6 +33,10 @@ const Header = () => {
     }
   };
 
+  const handleProfileClick = () => {
+    navigate("/mypage");  
+  };
+
   return (
     <header className="bg-blue-400 text-white px-6 py-3 flex justify-between items-center shadow">
       <Link to="/" className="flex items-center text-xl font-bold gap-2">
@@ -58,7 +62,14 @@ const Header = () => {
       <div className="flex items-center gap-4">
         {isLoggedIn ? (
           <>
-            <span>{userInfo?.nickname}님</span>
+            <button 
+              onClick={handleProfileClick} 
+              className="underline text-white font-semibold hover:text-gray-200"
+              style={{ background: "none", border: "none", cursor: "pointer", padding: 0 }}
+              type="button"
+            >
+              {userInfo?.nickname || userInfo?.name}님
+            </button>
             <button onClick={handleLogout} className="hover:underline">🚪 로그아웃</button>
           </>
         ) : (

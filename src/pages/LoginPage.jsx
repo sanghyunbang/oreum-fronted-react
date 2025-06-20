@@ -68,7 +68,7 @@ const LoginPage = ({ onClose }) => {
           withCredentials: true, // 변경 3: 쿠키를 포함해서 보내기 위한 옵션 추가
         }
       );
-
+      console.log(response.data)
       dispatch(login(response.data));
       // 변경 4: localStorage 저장 제거 (JWT는 쿠키에 저장됨, localStorage는 선택)
       alert("로그인 성공!");

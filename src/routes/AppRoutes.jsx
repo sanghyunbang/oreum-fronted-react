@@ -23,7 +23,7 @@ import MiniDisplay from '../components/board/MiniDisplay';
 import WritePost from '../components/board/WritePost';
 import MainBoard from '../components/board/MainBoard';
 import MountainDetailPage from '../components/board/MountainDetailPage';
-
+import Mypage from '../pages/Mypage';
 
 // 💡 (선택) 로그인 상태 초기화용 컴포넌트
 import AuthInit from './AuthInit'; // useEffect로 localStorage 확인하는 컴포넌트
@@ -49,6 +49,7 @@ const AppRoutes = () => (
         <Route path="Goods/GoodsOrder" element={<GoodsOrder />} />
         <Route path="Goods/GoodsCart" element={<GoodsCart />} />
         <Route path="Goods/GoodsDelivery/" element={<GoodsDelivery />} />
+        <Route path="mypage" element={<Mypage />} />
         {/* 게시판 기능 */}
         <Route path="feed" element={<MainFeedPage />} />
         <Route path="feed/:id" element={<PostDetailPage />} />
