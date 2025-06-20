@@ -34,6 +34,8 @@ const LoginPage = ({ onClose }) => {
     setLogged(e.target.checked);
   };
 
+  
+
   const closeAllModals = () => {
     setShowJoin(false);
     setShowFindPw(false);
@@ -57,7 +59,7 @@ const LoginPage = ({ onClose }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/login",
+        "http://localhost:8080/api/user/login",
         {
           email: formData.email,
           password: formData.pw,
@@ -67,8 +69,10 @@ const LoginPage = ({ onClose }) => {
         }
       );
 
+      dispatch(login(response.data));
       // 변경 4: localStorage 저장 제거 (JWT는 쿠키에 저장됨, localStorage는 선택)
       alert("로그인 성공!");
+      onClose();
       navigate("/");
     } catch (error) {
       console.error("로그인 실패:", error);

@@ -19,7 +19,7 @@ const Header = () => {
       credentials: "include",
     });
     dispatch(logout());
-    navigate("/login");
+    navigate("/");
   } catch (error) {
     console.error("Logout failed", error);
   }
@@ -58,7 +58,7 @@ const Header = () => {
       <div className="flex items-center gap-4">
         {isLoggedIn ? (
           <>
-            <span>{userInfo?.nickname || userInfo?.email}님</span>
+            <span>{userInfo?.nickname}님</span>
             <button onClick={handleLogout} className="hover:underline">🚪 로그아웃</button>
           </>
         ) : (
