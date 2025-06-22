@@ -32,7 +32,7 @@ const GoodsDelivery = () => {
         method:"POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({order_id : addr.id}),
+        body: JSON.stringify({order_id : id}),
       })
       const data = await response.text();
       if(data==="1"){

@@ -6,7 +6,7 @@ const GoodsAdd = () => {
     const [Goods, setGoods] = useState({name:"",brand:"",category:"",price:"",salePercent:0,description:""});
     const navigate = useNavigate();
     
-    const doChange = () =>{
+    const doChange = (e) =>{
         setGoods(prev=>({...prev,[e.target.name]:e.target.value}))
     }
     return(
