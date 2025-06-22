@@ -161,7 +161,7 @@ function MainBoard() {
                     loop
                     muted
                     playsInline
-                    className="w-full h-48 object-cover rounded mb-2"
+                    className="w-full h-full object-cover rounded mb-2"
                   />
                 )
               )}
