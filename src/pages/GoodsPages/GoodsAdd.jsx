@@ -1,5 +1,10 @@
+import { useState } from "react";
+import { FaArrowLeft, FaHome } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+
 const GoodsAdd = () => {
-    const [Goods, setGoods] = useState();
+    const [Goods, setGoods] = useState({name:"",brand:"",category:"",price:"",salePercent:0,description:""});
+    const navigate = useNavigate();
     
     const doChange = () =>{
         setGoods(prev=>({...prev,[e.target.name]:e.target.value}))
