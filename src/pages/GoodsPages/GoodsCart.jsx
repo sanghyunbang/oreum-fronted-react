@@ -23,11 +23,12 @@ const GoodsCart = () => {
             });
             if (response.ok) {
                 const data = await response.json();
+                console.log(data);
                 setGoods(data);
             }
         };
         CartData();
-    }, [userInfo]);
+    }, [userInfo, navigate]);
 
     //처음 화면 로딩시 전체 선택되게끔
     useEffect(() => {
@@ -35,10 +36,7 @@ const GoodsCart = () => {
         setCheckedAll(checked);
         setSelectedGoods(checked ? Goods.map(item => item.cart_id) : []);
     }, [Goods]);
-
-    useEffect(()=>{
-        console.log("sele: ",selectedGoods);
-    },[selectedGoods])
+    
     //전체 선택
     const selectAll = (e) => {
         const checked = e.target.checked;

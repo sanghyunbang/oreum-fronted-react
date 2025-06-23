@@ -17,12 +17,7 @@ const GoodsOrder = () => {
     { pg: "smilepay",          method: "smilepay",   label: "스마일페이" },
     { pg: "payco.PARTNERTEST", method: "payco",     label: "페이코"},
   ];
-
-
   const { items = [] } = location.state || {};
-  useEffect(()=>{
-    console.log("items",items);
-  },[items])
 
   //폼데이터로 저장
   const doChange = (e) => {
@@ -177,7 +172,7 @@ const GoodsOrder = () => {
           }),
         })
         if(delCart.ok){
-          navigate("/Goods/GoodsCart");
+          navigate("/Goods/GoodsDelivery");
         }
       }
     }
