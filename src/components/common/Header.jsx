@@ -26,6 +26,26 @@ const Header = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+  const confirmed = window.confirm("정말로 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.");
+  if (!confirmed) return;
+
+  try {
+    await fetch("http://localhost:8080/api/user", {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    dispatch(logout());
+    alert("회원 탈퇴가 완료되었습니다.");
+    navigate("/");
+  } catch (error) {
+    console.error("회원 탈퇴 실패", error);
+    alert("회원 탈퇴에 실패했습니다.");
+  }
+};
+
+
   const handleProfileClick = () => {
     setDropdownOpen((prev) => !prev);
   };
@@ -98,11 +118,29 @@ const Header = () => {
                 >
                   마이페이지
                 </button>
+
+                <button
+                  onClick={() => {
+                    navigate("/goods");
+                    setDropdownOpen(false);
+                  }}
+                  className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                >
+                  쇼핑
+                </button>
+
                 <button
                   onClick={handleLogout}
                   className="w-full px-4 py-2 text-left hover:bg-gray-100"
                 >
                   로그아웃
+                </button>
+
+                <button
+                  onClick={handleDeleteAccount}
+                  className="w-full px-4 py-2 text-left text-red-500 hover:bg-red-50"
+                >
+                  탈퇴하기
                 </button>
               </div>
             )}
