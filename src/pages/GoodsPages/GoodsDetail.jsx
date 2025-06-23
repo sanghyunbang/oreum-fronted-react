@@ -11,6 +11,7 @@ const GoodsDetail = () => {
   const [selectedOption, setSelectedOption] = useState([])
   const [goods,setGoods] = useState("");
   const [goodsOpt, setGoodsOpt] = useState("");
+  const [reviews, setReviews] = useState("");
   const [isLiked, setIsLiked] = useState(false);
   const userInfo = useSelector((state) => state.user.userInfo);
   const { id } = useParams();  //상품 번호
@@ -31,6 +32,7 @@ const GoodsDetail = () => {
   const addOption = (e) => {
     if (!e.target.value) return;
     const selected = JSON.parse(e.target.value);
+    console.log(selected.option_name);
     const exists = selectedOption.some((opt) => opt.id === selected.id);
     if (exists) {
       alert("이미 선택된 옵션입니다.");
@@ -119,9 +121,7 @@ const GoodsDetail = () => {
     }
     const response = await fetch("http://localhost:8080/api/goods/cartAdd", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: {"Content-Type": "application/json",},
       credentials: "include", // 세션 쿠키 등 포함 (로그인 상태 유지)
       body: JSON.stringify({
         userId: userInfo.userId,
@@ -150,7 +150,9 @@ const GoodsDetail = () => {
         setIsLiked(data);
       }
     }
-    LikeCh();
+    if (userInfo?.userId && goods?.id) {
+      LikeCh();
+    }
   },[userInfo,goods.id])
 
   //상품 불러오기
@@ -171,6 +173,7 @@ const GoodsDetail = () => {
         setGoods(data[0]);
       } catch (error) {
         console.error("상품 불러오기 실패:", error);
+        return;
       }
     };
 
@@ -186,10 +189,27 @@ const GoodsDetail = () => {
         setGoodsOpt(data);
       } catch (error){
         console.error("상품 옵션 불러오기 실패:", error);
+        return;
+      }
+    }
+    const doReview  = async () => {
+      try{
+        const response = await fetch(`http://localhost:8080/api/goods/listReview?id=${id}`,{
+          method:"GET",
+          headers: {"Content-Type":"application/json"},
+          credentials: "include",
+        })
+        const data = await response.json();
+        console.log("review: ",data);
+        setReviews(data);
+      }catch (error) {
+        console.error("리뷰 불러오기 실패:", error);
+        return;
       }
     }
     doList();
     doOptionList();
+    doReview();
   }, [id]);
   return (
     <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
@@ -252,8 +272,8 @@ const GoodsDetail = () => {
               <option value="">사이즈 선택</option>
               {Array.isArray(goodsOpt) &&
                 goodsOpt.map((opt) => (
-                  <option key={opt.id} value={JSON.stringify({ id: opt.id, option_name: opt.option_name })}>
-                    {opt.option_name}
+                  <option key={opt.id} value={JSON.stringify({ id: opt.id, option_name: opt.optionName })}>
+                    {opt.optionName}
                   </option>
               ))}
             </select>
@@ -264,7 +284,7 @@ const GoodsDetail = () => {
               {selectedOption.map((opt, idx) => (
                 <div key={idx} className="border border-gray-200 mb-1">
                   <span className="ml-5 mr-[100px]">
-                    {opt.option_name} 
+                    {opt.option_name||"gd"}
                   </span>
                   <span>
                     <button className="text-red-500" onClick={() => removeOption(opt.id)}>
@@ -350,16 +370,16 @@ const GoodsDetail = () => {
           {activeTab === "reviews" && (
             <div>
               <h3 className="text-xl font-bold mb-4">제품후기</h3>
-              {goods.reviews?(
+              {reviews.id?(
                 <>
-                {goods.reviews.map((review) => (
+                {reviews.map((review) => (
                   <div key={review.id} className="p-4 border-b border-gray-200 mb-4">
                     <div className="flex gap-1 mb-2">
                       {[...Array(5)].map((_, i) => (
                         <FaStar key={i} className={i < review.rating ? "text-yellow-500" : "text-gray-300"} />
                       ))}
                     </div>
-                    <p className="mb-2">{review.comment}</p>
+                    <p className="mb-2">{review.content}</p>
                     <small className="text-gray-500">작성자: {review.author}</small>
                   </div>
                 ))}
