@@ -28,6 +28,10 @@ npm install react-icons
 // 호버링 효과
 npm install polished
 
+//SELECTOR 관련 [0620 추가]
+npm install react-select
+
+
 
 # commit convention(커밋 메시지 규칙)
 

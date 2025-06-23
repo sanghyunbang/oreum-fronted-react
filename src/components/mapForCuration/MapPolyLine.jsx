@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { IoHandLeftSharp } from 'react-icons/io5';
 
-export default function MapPolyLine({onRouesResult}) {
+export default function MapPolyLine({onRoutesResult, markerSetting}) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const searchMarkerRef = useRef(null);
@@ -13,6 +14,10 @@ export default function MapPolyLine({onRouesResult}) {
   const colorList = ['#007bff', '#28a745', '#ffc107', '#e83e8c', '#17a2b8'];
 
   const kakaoKey = process.env.REACT_APP_KAKAO_MAP_KEY;
+
+  if (markerSetting === true) {
+    
+  }
 
   // 1. 지도 로딩
   useEffect(() => {
@@ -49,7 +54,7 @@ export default function MapPolyLine({onRouesResult}) {
       setClickedCoords((prev) => [...prev, coord]);
 
       // 상위 컴포넌트로 값 넘겨주기(CurationWritePage로)
-      onRouesResult((prev) => [...prev, coord]);
+      onRoutesResult((prev) => [...prev, coord]);
 
       // 내부 추적용
       clickedCoordsRef.current.push(coord);
@@ -101,8 +106,14 @@ export default function MapPolyLine({onRouesResult}) {
     });
   };
 
+  const [polylineIsOn, setPolylineIsOn] = useState(false);
+
+  const handlePolylineMode = (e) => {
+    setPolylineIsOn(prev => !prev);
+  }
+
   return (
-    <div className="w-full h-screen flex flex-col items-center p-4">
+    <div className="w-full flex flex-col items-center p-4">
       {/* 검색창 */}
       <div className="flex mb-2 w-full max-w-xl">
         <input
@@ -125,6 +136,7 @@ export default function MapPolyLine({onRouesResult}) {
 
       {/* 클릭 좌표 목록 */}
       <div className="mt-4 w-full max-w-4xl text-sm text-gray-700">
+        <button onClick={handlePolylineMode}>{polylineIsOn ? "큐레이팅 모드" : "검색 모드"}</button>
         <h2 className="font-bold mb-2">📍 클릭한 위치 좌표:</h2>
         <ul className="list-disc pl-5">
           {clickedCoords.map((coord, index) => (

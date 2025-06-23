@@ -17,6 +17,7 @@ import GoodsDetail from '../pages/GoodsPages/GoodsDetail';
 import GoodsOrder from '../pages/GoodsPages/GoodsOrder';
 import GoodsCart from '../pages/GoodsPages/GoodsCart';
 import GoodsDelivery from '../pages/GoodsPages/GoodsDelivery';
+import GoodsAdd from '../pages/GoodsPages/GoodsAdd';
 
 import BoardDetail from '../components/board/BoardDetail';
 import MiniDisplay from '../components/board/MiniDisplay';
@@ -41,14 +42,18 @@ const AppRoutes = () => (
         <Route path="board" element={<BoardPage />} />
         <Route path="map" element={<MapPage />} />
         
+        {/* 로그인 기능 */}
         <Route path="join" element={<JoinPage />} />
         <Route path="fpw" element={<FindPw />} />
         <Route path="fuid" element={<FindUserid />} />
+        {/* 굿즈 기능 */}
         <Route path="Goods" element={<GoodsPage />} />
+        <Route path="Goods/GoodsAdd" element={<GoodsAdd />} />
         <Route path="Goods/GoodsDetail/:id" element={<GoodsDetail />} />
         <Route path="Goods/GoodsOrder" element={<GoodsOrder />} />
         <Route path="Goods/GoodsCart" element={<GoodsCart />} />
         <Route path="Goods/GoodsDelivery/" element={<GoodsDelivery />} />
+
         <Route path="mypage" element={<Mypage />} />
         {/* 게시판 기능 */}
         <Route path="feed" element={<MainFeedPage />} />
