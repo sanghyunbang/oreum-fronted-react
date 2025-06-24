@@ -22,7 +22,7 @@ export default function CurationPreview({ segments }) {
 
             {/* 구간 내용 */}
             <div className="flex-1 border-l-4 border-green-400 pl-4">
-              <h4 className="text-md font-bold text-green-700 mb-1">🚩 구간 {key}</h4>
+              <h4 className="text-md font-bold text-green-700 mb-1">구간 : {key}</h4>
 
               {seg.route?.name && (
                 <p className="text-sm text-gray-700 mb-1">📍 {seg.route.name}</p>
