@@ -5,6 +5,8 @@ import { Form, useNavigate } from 'react-router-dom';
 function Mypage() {
   const [canEditNickname, setCanEditNickname] = useState(false);
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -26,9 +28,14 @@ const [likedPosts, setLikedPosts] = useState([]);
 const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
 
 const stripHtml = (html) => html.replace(/<[^>]+>/g, '');
+const paginate = (data) => {
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  return data.slice(startIndex, startIndex + itemsPerPage);
+};
 
 const fetchTabData = (tab) => {
   setActiveTab(tab);
+  setCurrentPage(1);
 
   const { userId } = formData;
 
@@ -87,6 +94,11 @@ const fetchTabData = (tab) => {
         setLoading(false);
       });
   }, []);
+  useEffect(() => {
+  if (formData.userId) {
+    fetchTabData('posts');
+  }
+}, [formData.userId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -129,12 +141,40 @@ const fetchTabData = (tab) => {
     });
 };
 
+const Pagination = ({ totalItems }) => {
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex justify-center mt-4 space-x-2">
+      {[...Array(totalPages)].map((_, index) => (
+        <button
+          key={index + 1}
+          className={`px-3 py-1 border rounded ${currentPage === index + 1 ? 'bg-blue-500 text-white' : 'bg-white'}`}
+          onClick={() => setCurrentPage(index + 1)}
+        >
+          {index + 1}
+        </button>
+      ))}
+    </div>
+  );
+};
+
+
   if (loading) return <p className="text-center text-gray-500 mt-10">로딩중...</p>;
   if (!userData) return <p className="text-center text-red-500 mt-10">사용자 정보를 불러올 수 없습니다.</p>;
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg mt-10">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">마이 페이지</h2>
+      <div className="flex items-center mb-6">
+        <img
+          src={formData.profile_image || '/images/profile.jfif'}
+          alt="프로필 이미지"
+          className="w-10 h-10 rounded-full object-cover border mr-2"
+        />
+        <h2 className="text-xl font-bold text-gray-800">마이 페이지</h2>
+      </div>
 
       {editMode ? (
         <div className="space-y-4">
@@ -215,12 +255,7 @@ const fetchTabData = (tab) => {
           <p><strong>이메일:</strong> {formData.email}</p>
           <p><strong>이름:</strong> {formData.name || '-'}</p>
           <p><strong>닉네임:</strong> {formData.nickname || '-'}</p>
-          <div>
-            <strong>프로필 이미지:</strong><br />
-            {formData.profile_image ? (
-              <img src={formData.profile_image} alt="프로필" className="w-24 h-24 mt-2 rounded-full object-cover border" />
-            ) : '없음'}
-          </div>
+          
           <p><strong>주소:</strong> {formData.address || '-'}</p>
           <p><strong>포인트:</strong> {formData.points ?? 0}</p>
 
@@ -228,81 +263,87 @@ const fetchTabData = (tab) => {
           <div className="my-10">
             <hr className="border-t border-gray-300" />
           </div>
-        <div className="flex space-x-4 mb-4">
-          <button onClick={() => fetchTabData('posts')} className="bg-gray-200 px-4 py-2 rounded">내가 쓴 글</button>
-          <button onClick={() => fetchTabData('comments')} className="bg-gray-200 px-4 py-2 rounded">덧글</button>
-          <button onClick={() => fetchTabData('likes')} className="bg-gray-200 px-4 py-2 rounded">좋아요한 게시물</button>
-          <button onClick={() => fetchTabData('bookmarks')} className="bg-gray-200 px-4 py-2 rounded">북마크한 게시물</button>
-        </div>
 
-        {activeTab === 'posts' && (
-          <div>
-            <h3 className="text-lg font-semibold mb-2">내가 쓴 글</h3>
-            {userPosts.map(post => (
-              <div
-                key={post.postId}
-                className="p-3 border-b cursor-pointer hover:bg-gray-100"
-                onClick={() => navigate(`/post/${post.postId}`)}
-              >
-                <h4 className="text-md font-bold">{post.title}</h4>
-                <div className="text-sm text-gray-700">{stripHtml(post.content)}</div>
-              </div>
-            ))}
+          <div className="flex space-x-4 mb-4">
+            <button onClick={() => fetchTabData('posts')} className={`px-4 py-2 rounded ${activeTab === 'posts' ? 'bg-blue-400 text-white' : 'bg-gray-200'}`}>내가 쓴 글</button>
+            <button onClick={() => fetchTabData('comments')} className={`px-4 py-2 rounded ${activeTab === 'comments' ? 'bg-blue-400 text-white' : 'bg-gray-200'}`}>덧글</button>
+            <button onClick={() => fetchTabData('likes')} className={`px-4 py-2 rounded ${activeTab === 'likes' ? 'bg-blue-400 text-white' : 'bg-gray-200'}`}>좋아요한 게시물</button>
+            <button onClick={() => fetchTabData('bookmarks')} className={`px-4 py-2 rounded ${activeTab === 'bookmarks' ? 'bg-blue-400 text-white' : 'bg-gray-200'}`}>북마크한 게시물</button>
           </div>
-        )}
+        <div className="h-96 overflow-y-scroll border rounded p-4 bg-gray-50">
+    {activeTab === 'posts' && (
+      <div>
+        <h3 className="text-lg font-semibold mb-2">내가 쓴 글</h3>
+        {paginate(userPosts).map(post => (
+          <div
+            key={post.postId}
+            className="p-3 border-b cursor-pointer hover:bg-gray-100"
+            onClick={() => navigate(`/post/${post.postId}`)}
+          >
+            <h4 className="text-md font-bold">{post.title}</h4>
+            <div className="text-sm text-gray-700">{stripHtml(post.content)}</div>
+          </div>
+        ))}
+        <Pagination totalItems={userPosts.length} />
+      </div>
+    )}
 
-        {activeTab === 'comments' && (
-          <div>
-            <h3 className="text-lg font-semibold mb-2">내가 쓴 덧글</h3>
-            {userComments.map(comment => (
-               <div
-                key={comment.commentId}
-                className="p-3 border-b cursor-pointer hover:bg-gray-50"
-                onClick={() => {
-                  if (comment.postId) {
-                    navigate(`/post/${comment.postId}`);
-                  } else {
-                    alert('해당 게시글 정보를 찾을 수 없습니다.');
-                  }
-                }}
-              >
-                <p>{comment.content}</p>
-              </div>
-            ))}
+    {activeTab === 'comments' && (
+      <div>
+        <h3 className="text-lg font-semibold mb-2">내가 쓴 덧글</h3>
+        {paginate(userComments).map(comment => (
+          <div
+            key={comment.commentId}
+            className="p-3 border-b cursor-pointer hover:bg-gray-50"
+            onClick={() => {
+              if (comment.postId) {
+                navigate(`/post/${comment.postId}`);
+              } else {
+                alert('해당 게시글 정보를 찾을 수 없습니다.');
+              }
+            }}
+          >
+            <p>{comment.content}</p>
           </div>
-        )}
+        ))}
+        <Pagination totalItems={userComments.length} />
+      </div>
+    )}
 
-        {activeTab === 'likes' && (
-          <div>
-            <h3 className="text-lg font-semibold mb-2">좋아요한 게시물</h3>
-            {likedPosts.map(post => (
-              <div
-                key={post.postId}
-                className="p-3 border-b cursor-pointer hover:bg-gray-100"
-                onClick={() => navigate(`/post/${post.postId}`)}
-              >
-                <p><strong>{post.title}</strong></p>
-                <p>{stripHtml(post.content)}</p>
-              </div>
-            ))}
+    {activeTab === 'likes' && (
+      <div>
+        <h3 className="text-lg font-semibold mb-2">좋아요한 게시물</h3>
+        {paginate(likedPosts).map(post => (
+          <div
+            key={post.postId}
+            className="p-3 border-b cursor-pointer hover:bg-gray-100"
+            onClick={() => navigate(`/post/${post.postId}`)}
+          >
+            <p><strong>{post.title}</strong></p>
+            <p>{stripHtml(post.content)}</p>
           </div>
-        )}
-        {activeTab === 'bookmarks' && (
-          <div>
-            <h3 className="text-lg font-semibold mb-2">북마크한 게시물</h3>
-            {bookmarkedPosts.map(post => (
-              <div
-                key={post.postId}
-                className="p-3 border-b cursor-pointer hover:bg-gray-100"
-                onClick={() => navigate(`/post/${post.postId}`)}
-              >
-                <p><strong>{post.title}</strong></p>
-                <p>{stripHtml(post.content)}</p>
-              </div>
-            ))}
-          </div>
-        )}
+        ))}
+        <Pagination totalItems={likedPosts.length} />
+      </div>
+    )}
 
+    {activeTab === 'bookmarks' && (
+      <div>
+        <h3 className="text-lg font-semibold mb-2">북마크한 게시물</h3>
+        {paginate(bookmarkedPosts).map(post => (
+          <div
+            key={post.postId}
+            className="p-3 border-b cursor-pointer hover:bg-gray-100"
+            onClick={() => navigate(`/post/${post.postId}`)}
+          >
+            <p><strong>{post.title}</strong></p>
+            <p>{stripHtml(post.content)}</p>
+          </div>
+        ))}
+        <Pagination totalItems={bookmarkedPosts.length} />
+      </div>
+    )}
+  </div>
       </div>
       <div className="flex justify-end mt-4">
         <button
