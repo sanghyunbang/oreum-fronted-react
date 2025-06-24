@@ -160,7 +160,7 @@ function WritePost() {
           className="w-full border border-gray-300 rounded px-3 py-2"
         >
           <option value="general">일반게시글</option>
-          <option value="curation">큐레이션게시글</option>
+          {/* <option value="curation">큐레이션게시글</option> */}
           <option value="meeting">모임/동행</option>
         </select>
       </div>

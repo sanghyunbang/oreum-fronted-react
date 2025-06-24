@@ -28,7 +28,7 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
   // 포인트 글쓸지, 구간 글 쓸지
   const [selectedMode, setSelectedMode] = useState("pointer"); // 'path' 또는 'pointer' - 키값 홀짝이 있으면 되는데 굳이 필요한가
 
-  // 키값 저장하기
+  // 키값 저장하기 -> 내가 지금 다룰 부분
   const [segmentKey, setSegmentKey] = useState(1);
 
 
@@ -127,7 +127,7 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
 
   return (
     <div className="max-w-2xl mx-auto p-4 h-full overflow-y-auto">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">게시글 작성</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">큐레이션 글 작성</h2>
       <button
         onClick={() => setCollapsed(!collapsed)}
         className="mb-4 px-3 py-1.5 bg-gradient-to-r from-green-100 via-green-200 to-blue-100 text-gray-800 font-medium rounded-full shadow hover:scale-105 transition-transform text-sm"
@@ -137,7 +137,7 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
 
       {!collapsed && (
         <div className="mb-6 p-4 rounded-lg border border-gray-200 bg-gray-50">
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label className="block mb-1 font-medium text-gray-700">[공통 정보] 게시글 유형</label>
             <select
               value={postdata.type}
@@ -148,7 +148,7 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
               <option value="curation">큐레이션게시글</option>
               <option value="meeting">모임/동행</option>
             </select>
-          </div>
+          </div> */}
           <div className="mb-4">
             <label className="block mb-1 font-medium text-gray-700">[공통 정보] 제목</label>
             <input

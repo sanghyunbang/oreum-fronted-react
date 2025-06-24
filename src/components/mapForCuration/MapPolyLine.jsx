@@ -193,7 +193,7 @@ export default function MapPolyLine({ setMarkerCounts, setPointers}) {
     clickedCoordsRef.current.pop(); // ref 내부 좌표 제거
     setClickedCoords([...clickedCoordsRef.current]); // 상태 반영
 
-    // 4. 상위 컴포넌트에도 반영
+    // 4. 상위 컴포넌트에도 반영 --> 자동으로 삭제 (상위 컴포넌트에서?)
     // onRoutesResult((prev) => prev.slice(0, -1));
 
     // 마커 수 반영

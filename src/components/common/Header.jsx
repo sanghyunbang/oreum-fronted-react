@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/userSlice';
 import LoginPage from '../../pages/LoginPage';
 
+import WriteTypeModal from './modal/WriteTypeModal';
+
 const Header = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -60,6 +62,14 @@ const Header = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  
+  const handleNavigate = (path) => {
+    navigate(path);
+  };
+
+  const [showWriteModal, setShowWriteModal] = useState(false);
+
+
   return (
     <header className="bg-blue-400 text-white px-6 py-3 flex justify-between items-center shadow h-16 relative">
       {/* 로고 */}
@@ -88,13 +98,17 @@ const Header = () => {
       <div className="relative flex items-center gap-4" ref={dropdownRef}>
         <button
           onClick={() => {
-            if (isLoggedIn) navigate("/feed/write");
+            if (isLoggedIn) setShowWriteModal(true);
             else setShowLogin(true);
           }}
           className="bg-white text-green-700 px-3 py-1 rounded hover:bg-gray-100"
         >
           + 글쓰기
         </button>
+
+        {showWriteModal && (
+          <WriteTypeModal onClose={() => setShowWriteModal(false)} />
+        )}
 
         {isLoggedIn ? (
           <>
