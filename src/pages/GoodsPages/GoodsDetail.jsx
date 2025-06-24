@@ -192,6 +192,8 @@ const GoodsDetail = () => {
         return;
       }
     }
+
+    //리뷰 불러오기
     const doReview  = async () => {
       try{
         const response = await fetch(`http://localhost:8080/api/goods/listReview?id=${id}`,{
@@ -200,7 +202,6 @@ const GoodsDetail = () => {
           credentials: "include",
         })
         const data = await response.json();
-        console.log("review: ",data);
         setReviews(data);
       }catch (error) {
         console.error("리뷰 불러오기 실패:", error);
@@ -303,7 +304,7 @@ const GoodsDetail = () => {
                     onClick={() => setSelectedOption((prev) => prev.map((o)=>o.id === opt.id ? { ...o, qty: o.qty + 1 } : o))}>
                       +
                     </button>
-                    <p>{(goods.price * (1 - goods.salePercent / 100))?.toLocaleString()||0}원</p>
+                    <p>{(goods.price * (1 - goods.salePercent / 100)*opt.qty)?.toLocaleString()||0}원</p>
                   </div>
                 </div>
               ))}
@@ -354,7 +355,7 @@ const GoodsDetail = () => {
               }`}
               onClick={() => setActiveTab(tab)}
             >
-              {tab === "details" ? "상세정보" : tab === "reviews" ? "제품후기" : "Q&A"}
+              {tab === "details" ? "상세정보" : tab === "reviews" ? `제품후기(${reviews?.length||0})` : "제품문의"}
             </button>
           ))}
         </div>
@@ -370,17 +371,63 @@ const GoodsDetail = () => {
           {activeTab === "reviews" && (
             <div>
               <h3 className="text-xl font-bold mb-4">제품후기</h3>
-              {reviews.id?(
+              {Array.isArray(reviews) && reviews.length > 0 ?(
                 <>
                 {reviews.map((review) => (
-                  <div key={review.id} className="p-4 border-b border-gray-200 mb-4">
-                    <div className="flex gap-1 mb-2">
-                      {[...Array(5)].map((_, i) => (
-                        <FaStar key={i} className={i < review.rating ? "text-yellow-500" : "text-gray-300"} />
-                      ))}
+                  <div key={review.reviewId} className="p-5 border-b border-gray-200">
+                    {/* 유저 정보 + 별점 */}
+                    <div className="flex items-start mb-3">
+                      {/* 프로필 이미지 */}
+                      <img
+                        src={review.profileImage || "/placeholder-profile.png"}
+                        alt="profile"
+                        className="w-10 h-10 rounded-full object-cover mr-3"
+                      />
+                      
+                      <div className="flex-1">
+                        {/* 닉네임 + 날짜 */}
+                        <div className="flex justify-between items-center">
+                          <div className="font-semibold text-gray-800">{review.nickname}</div>
+                          <div className="text-sm text-gray-500">
+                            {review.createdAt &&
+                              new Date(review.createdAt).toLocaleDateString("ko-KR", {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                              })}
+                          </div>
+                        </div>
+
+                        {/* 별점 */}
+                        <div className="flex mt-1 mb-2">
+                          {[...Array(5)].map((_, i) => (
+                            <FaStar key={i} className={i < review.rating ? "text-yellow-400" : "text-gray-300"} />
+                          ))}
+                        </div>
+                      </div>
                     </div>
-                    <p className="mb-2">{review.content}</p>
-                    <small className="text-gray-500">작성자: {review.author}</small>
+                    <div className="text-sm text-gray-500 mb-2">
+                      {`${review.goodsName} (${review.optionName}) / ${review.qty}개`}
+                    </div>
+
+                    {/* 이미지 영역 */}
+                    {review.imageUrl && (
+                      <div className="flex gap-2 mb-3">
+                        {review.imageUrl.split(",").map((img, idx) => (
+                          <img
+                            key={idx}
+                            src={img.trim()}
+                            alt={`리뷰 이미지 ${idx + 1}`}
+                            className="w-24 h-24 rounded object-cover"
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* 리뷰 내용 */}
+                    <p className="text-gray-800 whitespace-pre-line leading-relaxed">
+                      {review.content}
+                    </p>
                   </div>
                 ))}
                 </>

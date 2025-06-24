@@ -10,10 +10,7 @@ const GoodsReview = () => {
     const [rating, setRating] = useState(0); // 실제 선택된 별점
     const [hoverRating, setHoverRating] = useState(0); // 마우스 올렸을 때 별점
     const userInfo = useSelector((state) => state.user.userInfo);
-    const { orderId, goodsId, goodsName, goodsImg, optionName, qty, price } = location.state || {};
-    useEffect(()=>{
-        console.log(goodsId);
-    },[goodsId])
+    const { orderId, orderItemId, goodsName, goodsImg, optionName, qty, price } = location.state || {};
 
     const doSubmit = async () => {
         try {
@@ -21,7 +18,7 @@ const GoodsReview = () => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify({ id: userInfo.userId, goodsId, orderId, rating, review }),
+                body: JSON.stringify({ id: userInfo.userId, orderItemId, orderId, rating, review }),
             });
             if (!res.ok) throw new Error();
             alert("리뷰가 등록되었습니다.");

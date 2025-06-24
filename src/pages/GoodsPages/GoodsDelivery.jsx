@@ -46,9 +46,9 @@ const GoodsDelivery = () => {
     }
   };
 
-  const addReview = (orderId, goodsId, goodsName, goodsImg, optionName, qty, price) => {
+  const addReview = (orderId, orderItemId, goodsName, goodsImg, optionName, qty, price) => {
     navigate("/Goods/GoodsReview", {
-      state: { orderId, goodsId, goodsName, goodsImg, optionName, qty, price }
+      state: { orderId, orderItemId, goodsName, goodsImg, optionName, qty, price }
     });
   };
 
@@ -108,14 +108,18 @@ const GoodsDelivery = () => {
                           {item.item_price.toLocaleString()}원
                         </span>
                         {addr.status === "배송완료" && (
-                          <button
-                            className="text-blue-500 hover:text-blue-700 text-sm whitespace-nowrap"
-                            onClick={() =>
-                              addReview(addr.order_id, item.goods_id, item.goods_name, item.img, item.option_name, item.qty, item.item_price)
-                            }
-                          >
-                            리뷰달기
-                          </button>
+                          item.reviewWritten ? (
+                            <span className="text-gray-400 text-sm">리뷰 완료</span>
+                          ) : (
+                            <button
+                              className="text-blue-500 hover:text-blue-700 text-sm whitespace-nowrap"
+                              onClick={() =>
+                                addReview(addr.order_id, item.order_item_id, item.goods_name, item.img, item.option_name, item.qty, item.item_price)
+                              }
+                            >
+                              리뷰달기
+                            </button>
+                          )
                         )}
                       </li>
                     ))}
