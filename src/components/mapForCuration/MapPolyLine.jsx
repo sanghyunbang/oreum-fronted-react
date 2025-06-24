@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { IoHandLeftSharp } from 'react-icons/io5';
 
-export default function MapPolyLine({onRoutesResult, setMarkerCounts}) {
+export default function MapPolyLine({ setMarkerCounts, setPointers}) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const searchMarkerRef = useRef(null);
@@ -103,7 +103,7 @@ export default function MapPolyLine({onRoutesResult, setMarkerCounts}) {
 
       // 상위 컴포넌트로 값 넘겨주기(CurationWritePage로) 
       // ------> 사이드 바에서 허락을 해줘야 이게 실행(즉, 그전에 폴리라인 찍히는 여부 부터 컨트롤해야 함.)
-      onRoutesResult((prev) => [...prev, coord]);
+      // onRoutesResult((prev) => [...prev, coord]);
 
 
       // 내부 추적용
@@ -118,6 +118,10 @@ export default function MapPolyLine({onRoutesResult, setMarkerCounts}) {
 
       // 마커 수 반영
       setMarkerCounts(markerListRef.current.length);
+
+      // 여기에서 geoJson 업데이트 하기
+      setPointers(2*markerListRef.current.length-1, [lat, lng]);
+      
 
  
       // 폴리라인 그리기
@@ -190,7 +194,7 @@ export default function MapPolyLine({onRoutesResult, setMarkerCounts}) {
     setClickedCoords([...clickedCoordsRef.current]); // 상태 반영
 
     // 4. 상위 컴포넌트에도 반영
-    onRoutesResult((prev) => prev.slice(0, -1));
+    // onRoutesResult((prev) => prev.slice(0, -1));
 
     // 마커 수 반영
     setMarkerCounts(markerListRef.current.length);

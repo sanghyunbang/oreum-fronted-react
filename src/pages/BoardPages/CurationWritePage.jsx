@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import CurationSideBar from '../../components/curation/CurationSidebar';
 import MapPolyLine from '../../components/mapForCuration/MapPolyLine';
 import CurationPreview from '../../components/curation/CurationPreview';
+import useMarkerInfo from '../../hooks/map/useMarkerInfo';
 
 export default function CurationWritePage() {
   const navigate = useNavigate();
@@ -17,64 +18,83 @@ export default function CurationWritePage() {
     mountainName: '',
   });
 
-  const [segments, setSegments] = useState({});
+  const segObj = {
+    order:1,
+    segmentMode:'',
+    segmentKey:'',
+    difficulty:'',
+    caution:'',
+    geoJson:[],
+    facility:[],
+    pointerName:'',
+    description:'',
+    media:[],
+    isEmpty:false
+  };
+
 
   const [markerCounts, setMarkerCounts] = useState(0);
 
+  const [segments, setSegments] = useState({});
 
-
-  const [currentSegmentKey, setCurrentSegmentKey] = useState('');
-  const [segmentCounter, setSegmentCounter] = useState(1);
-
-  const handlePostResult = (segmentKey, segmentData) => {
-    const safeMedia = Array.isArray(segmentData.media) ? segmentData.media : [];
-    const processedMedia = safeMedia.map((file) => ({
-      ...file,
-      url: file.url || URL.createObjectURL(file.file || file),
-    }));
-
-    setSegments((prev) => ({
-      ...prev,
-      [segmentKey]: {
-        ...(prev[segmentKey] || {}),
-        content: segmentData.content,
-        media: processedMedia,
-        mountainName: commonData.mountainName,
-        pointerFrom: segmentData.pointerFrom,
-        pointerTo: segmentData.pointerTo,
-        facilities: segmentData.facilities,
-        route: segmentData.route || prev[segmentKey]?.route, //  여기 확인 필요[0624 11:50]
-      },
-    }));
-  };
-
-
-  // 지도에서 포인트 찍으면 segmentCounter 올라가고 -> 이게 구간 키로 작용
-  // 지도에 polyline이 생성되는 개수와 연관 -> 나중에 조건부(detail curation 모드 등)로 실행 가능
-  const handleRouteResult = (routePoint) => {
-    const nextKey = `${segmentCounter}-${segmentCounter + 1}`;
-    setCurrentSegmentKey(nextKey);
-    setSegmentCounter((prev) => prev + 1);
-
-    setSegments((prev) => ({
-      ...prev,
-      [nextKey]: {
-        ...(prev[nextKey] || {}),
-        route: routePoint,
-      },
-    }));
-  };
-
-  // polylineReady -> 사이드 바에서 저장하기 버튼을 누르면 true가 되도록 -
-  // -> 이게 false면 polyLine이 안찍혀야 함.
-  const [polylineReady, setPolylineReady] = useState(true);
-
+  // segments를 마커 개수에 따라서 셋팅해놓기
+  useEffect(() => {
+    setSegments((prevSegments) => {
+      const newSegments = { ...prevSegments };
   
-  // 현재 내가 작성하고 있는 구간
-  const handleSaveSegment = (newPointerFrom) => {
-    const nextKey = `${newPointerFrom}-`;
-    setCurrentSegmentKey(nextKey);
+      const totalCount = markerCounts + (markerCounts - 1); // 전체 세그먼트 개수
+  
+      // 1. 추가 또는 업데이트
+      for (let i = 0; i < totalCount; i++) {
+        const order = i + 1;
+  
+        if (!newSegments[order]) {
+          const isPointer = i % 2 === 0;
+          newSegments[order] = {
+            ...segObj,
+            order,
+            segmentMode: isPointer ? "pointer" : "path",
+          };
+        }
+      }
+  
+      // 2. 제거 (markerCount 줄어든 경우)
+      Object.keys(newSegments).forEach((key) => {
+        if (parseInt(key) > totalCount) {
+          delete newSegments[key];
+        }
+      });
+  
+      return newSegments;
+    });
+  }, [markerCounts]);
+  
+  /**
+   * 예시)
+   * segments = {
+        1: { order: 1, segmentMode: 'pointer', ... },
+        2: { order: 2, segmentMode: 'path', ... },
+        3: { order: 3, segmentMode: 'pointer', ... },
+        4: { order: 4, segmentMode: 'path', ... },
+        5: { order: 5, segmentMode: 'pointer', ... },
+      }
+
+   */
+  
+
+  const [currentSegmentKey, setCurrentSegmentKey] = useState(''); // 포인터면 단일 정수, 구간이면 "정수1-정수2" 형태
+  
+  // point는 marketListRef.current.length로 / 
+  const handlePointers = (orderKey, newGeoJson) => {
+    setSegments((prev) => ({
+      ...prev,
+      [orderKey]: {
+        ...prev[orderKey], // 기존 segment 복사
+        geoJson: newGeoJson, // geoJson만 업데이트
+      },
+    }));
   };
+  
 
   const handleSubmit = async () => {
     const formData = new FormData();
@@ -117,10 +137,8 @@ export default function CurationWritePage() {
     }
   };
 
-  // marker 갯수 세기 -> 이걸로 seg 키에 향후 사용할 예정
-  const handleMarkerCount = () => {
+  // 세부 수정할 구간 정하기기
 
-  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -129,21 +147,17 @@ export default function CurationWritePage() {
         <div className="bg-gray-100 w-full lg:w-[450px]">
           <CurationSideBar
             commonData={commonData} // 사이드바에서 한 번만 입력하면 되는 공통 부분
-            setCommonData={setCommonData}
-            currentSegmentKey={currentSegmentKey}
-            onPostResult={handlePostResult}
-            onSaveSegment={handleSaveSegment}
-            allSegments={segments}
-            setPolylineReady={setPolylineReady}
-
-            
+            segments={segments}
+            setSegments = {setSegments}
             markerCounts = {markerCounts}
+            segObj={segObj}
           />
         </div>
 
         {/* 본문 (지도 + 미리보기 위아래로 배치 + 제출 버튼) */}
         <div className="flex-1 w-full flex flex-col">
-          <MapPolyLine onRoutesResult={handleRouteResult} setMarkerCounts={setMarkerCounts} />
+          <MapPolyLine setMarkerCounts={setMarkerCounts} setPointers ={handlePointers} /> 
+          {/* focusSection={}  이거 넣어야 하는데 */}
 
           <div className="bg-white shadow-lg rounded p-4 mt-4">
             <CurationPreview segments={segments} />
