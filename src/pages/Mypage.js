@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Form } from 'react-router-dom';
+import { Form, useNavigate } from 'react-router-dom';
 
 function Mypage() {
   const [canEditNickname, setCanEditNickname] = useState(false);
+  const navigate = useNavigate();
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -22,6 +23,9 @@ const [activeTab, setActiveTab] = useState(''); // 'posts', 'comments', 'likes'
 const [userPosts, setUserPosts] = useState([]);
 const [userComments, setUserComments] = useState([]);
 const [likedPosts, setLikedPosts] = useState([]);
+const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
+
+const stripHtml = (html) => html.replace(/<[^>]+>/g, '');
 
 const fetchTabData = (tab) => {
   setActiveTab(tab);
@@ -45,8 +49,12 @@ const fetchTabData = (tab) => {
       .then(res => setLikedPosts(res.data))
       .catch(err => console.error("좋아요한 게시물 가져오기 실패", err));
   }
+  if (tab === 'bookmarks') {
+  axios.get(`http://localhost:8080/posts/bookmarks/user/${userId}`)
+    .then(res => setBookmarkedPosts(res.data))
+    .catch(err => console.error("북마크한 게시물 가져오기 실패", err));
+}
 };
-
 
   useEffect(() => {
     axios.get('http://localhost:8080/api/user', { withCredentials: true })
@@ -91,6 +99,7 @@ const fetchTabData = (tab) => {
         alert('정보가 업데이트 되었습니다!');
         setUserData(res.data);
         setEditMode(false);
+        setCanEditNickname(false);
       })
       .catch((err) => {
         console.error('업데이트 실패', err);
@@ -112,13 +121,13 @@ const fetchTabData = (tab) => {
         points: res.data.points || 0
       }));
       setEditMode(false);
+      setCanEditNickname(false);
     })
     .catch((err) => {
       console.error('사용자 정보 재요청 실패', err);
       alert('정보를 다시 불러오는 데 실패했습니다.');
     });
 };
-
 
   if (loading) return <p className="text-center text-gray-500 mt-10">로딩중...</p>;
   if (!userData) return <p className="text-center text-red-500 mt-10">사용자 정보를 불러올 수 없습니다.</p>;
@@ -223,16 +232,20 @@ const fetchTabData = (tab) => {
           <button onClick={() => fetchTabData('posts')} className="bg-gray-200 px-4 py-2 rounded">내가 쓴 글</button>
           <button onClick={() => fetchTabData('comments')} className="bg-gray-200 px-4 py-2 rounded">덧글</button>
           <button onClick={() => fetchTabData('likes')} className="bg-gray-200 px-4 py-2 rounded">좋아요한 게시물</button>
+          <button onClick={() => fetchTabData('bookmarks')} className="bg-gray-200 px-4 py-2 rounded">북마크한 게시물</button>
         </div>
-
 
         {activeTab === 'posts' && (
           <div>
             <h3 className="text-lg font-semibold mb-2">내가 쓴 글</h3>
             {userPosts.map(post => (
-              <div key={post.postId} className="p-3 border-b">
-                <p><strong>{post.title}</strong></p>
-                <p>{post.content}</p>
+              <div
+                key={post.postId}
+                className="p-3 border-b cursor-pointer hover:bg-gray-100"
+                onClick={() => navigate(`/post/${post.postId}`)}
+              >
+                <h4 className="text-md font-bold">{post.title}</h4>
+                <div className="text-sm text-gray-700">{stripHtml(post.content)}</div>
               </div>
             ))}
           </div>
@@ -242,7 +255,17 @@ const fetchTabData = (tab) => {
           <div>
             <h3 className="text-lg font-semibold mb-2">내가 쓴 덧글</h3>
             {userComments.map(comment => (
-              <div key={comment.commentId} className="p-3 border-b">
+               <div
+                key={comment.commentId}
+                className="p-3 border-b cursor-pointer hover:bg-gray-50"
+                onClick={() => {
+                  if (comment.postId) {
+                    navigate(`/post/${comment.postId}`);
+                  } else {
+                    alert('해당 게시글 정보를 찾을 수 없습니다.');
+                  }
+                }}
+              >
                 <p>{comment.content}</p>
               </div>
             ))}
@@ -253,13 +276,33 @@ const fetchTabData = (tab) => {
           <div>
             <h3 className="text-lg font-semibold mb-2">좋아요한 게시물</h3>
             {likedPosts.map(post => (
-              <div key={post.postId} className="p-3 border-b">
+              <div
+                key={post.postId}
+                className="p-3 border-b cursor-pointer hover:bg-gray-100"
+                onClick={() => navigate(`/post/${post.postId}`)}
+              >
                 <p><strong>{post.title}</strong></p>
-                <p>{post.content}</p>
+                <p>{stripHtml(post.content)}</p>
               </div>
             ))}
           </div>
         )}
+        {activeTab === 'bookmarks' && (
+          <div>
+            <h3 className="text-lg font-semibold mb-2">북마크한 게시물</h3>
+            {bookmarkedPosts.map(post => (
+              <div
+                key={post.postId}
+                className="p-3 border-b cursor-pointer hover:bg-gray-100"
+                onClick={() => navigate(`/post/${post.postId}`)}
+              >
+                <p><strong>{post.title}</strong></p>
+                <p>{stripHtml(post.content)}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
       </div>
       <div className="flex justify-end mt-4">
         <button
@@ -270,11 +313,8 @@ const fetchTabData = (tab) => {
         </button>
       </div>
       </div>
-      
       )}
-
     </div>
   );
 }
-
 export default Mypage;

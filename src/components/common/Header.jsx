@@ -45,7 +45,6 @@ const Header = () => {
   }
 };
 
-
   const handleProfileClick = () => {
     setDropdownOpen((prev) => !prev);
   };
