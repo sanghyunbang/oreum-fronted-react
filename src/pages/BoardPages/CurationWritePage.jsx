@@ -20,8 +20,6 @@ export default function CurationWritePage() {
 
   const segObj = {
     order:1,
-    segmentMode:'',
-    segmentKey:'',
     difficulty:'',
     caution:'',
     geoJson:[],
@@ -29,7 +27,8 @@ export default function CurationWritePage() {
     pointerName:'',
     description:'',
     media:[],
-    isEmpty:false
+    isEmpty:false,
+    isUpward:true
   };
 
 
@@ -78,7 +77,6 @@ export default function CurationWritePage() {
         4: { order: 4, segmentMode: 'path', ... },
         5: { order: 5, segmentMode: 'pointer', ... },
       }
-
    */
   
 
@@ -137,7 +135,25 @@ export default function CurationWritePage() {
     }
   };
 
-  // 세부 수정할 구간 정하기기
+  // 세부 수정할 구간 정하기
+
+  useEffect(() => {
+  console.log('🧩 segments 업데이트됨:', segments);
+}, [segments]);
+
+  // mapPolyLine에서 좌표 받아와서 해당 seg네 넣기
+
+  const handleSetGeoForSegment = (segmentKey, coords) => {
+    setSegments((prev) => ({
+      ...prev,
+      [segmentKey]: {
+        ...prev[segmentKey],
+        geoJson: coords,
+      },
+    }));
+  };
+
+
 
 
   return (
@@ -156,7 +172,10 @@ export default function CurationWritePage() {
 
         {/* 본문 (지도 + 미리보기 위아래로 배치 + 제출 버튼) */}
         <div className="flex-1 w-full flex flex-col">
-          <MapPolyLine setMarkerCounts={setMarkerCounts} setPointers ={handlePointers} /> 
+          <MapPolyLine
+            setMarkerCounts={setMarkerCounts}
+            setGeoForSegment={handleSetGeoForSegment}
+          /> 
           {/* focusSection={}  이거 넣어야 하는데 */}
 
           <div className="bg-white shadow-lg rounded p-4 mt-4">

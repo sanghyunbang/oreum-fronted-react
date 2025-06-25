@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { IoHandLeftSharp } from 'react-icons/io5';
 
-export default function MapPolyLine({ setMarkerCounts, setPointers}) {
+export default function MapPolyLine({ setMarkerCounts, setGeoForSegment}) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const searchMarkerRef = useRef(null);
@@ -120,7 +120,8 @@ export default function MapPolyLine({ setMarkerCounts, setPointers}) {
       setMarkerCounts(markerListRef.current.length);
 
       // 여기에서 geoJson 업데이트 하기
-      setPointers(2*markerListRef.current.length-1, [lat, lng]);
+      // setPointers(2*markerListRef.current.length-1, [lat, lng]);
+      setGeoForSegment(2*markerListRef.current.length-1, [...clickedCoordsRef.current]);
       
 
  
@@ -258,14 +259,14 @@ export default function MapPolyLine({ setMarkerCounts, setPointers}) {
             🔙 되돌리기
           </button>
         </div>
-        <h2 className="font-bold mb-2">📍 클릭한 위치 좌표:</h2>
+        {/* <h2 className="font-bold mb-2">📍 클릭한 위치 좌표:</h2>
         <ul className="list-disc pl-5">
           {clickedCoords.map((coord, index) => (
             <li key={index}>
               {index + 1}. 위도: {coord.lat.toFixed(6)}, 경도: {coord.lng.toFixed(6)}
             </li>
           ))}
-        </ul>
+        </ul> */}
       </div>
 
 

@@ -40,15 +40,23 @@ const formatOptionLabel = ({ label, icon }) => (
   </div>
 );
 
+
+
 export default function FacilitySelector({ selected, setSelected }) {
+  // selected = ["store", "parking"] 와 같은 string 배열
+  const selectedOptions = facilityOptions.filter(opt => selected.includes(opt.value));
+
   return (
     <div className="w-full mt-4">
       <label className="block mb-2 font-medium text-gray-700">주요시설</label>
       <Select
         isMulti
         options={facilityOptions}
-        value={selected}
-        onChange={setSelected}
+        value={selectedOptions}
+        onChange={(options) => {
+          const values = options.map(opt => opt.value);
+          setSelected(values);
+        }}
         formatOptionLabel={formatOptionLabel}
         placeholder="시설 검색"
         className="text-sm"

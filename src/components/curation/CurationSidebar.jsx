@@ -5,6 +5,7 @@ import 'react-quill/dist/quill.snow.css';
 import FacilitySelector from '../Icons/FacilitySelector';
 import MediaPreview from './MediaPreview';
 import useMarkerInfo from '../../hooks/map/useMarkerInfo';
+import { MdDescription } from 'react-icons/md';
 
 export default function CurationSideBar({ commonData, segments, setSegments, markerCounts, segObj}) {
 
@@ -28,7 +29,7 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
   // 포인트 글쓸지, 구간 글 쓸지
   const [selectedMode, setSelectedMode] = useState("pointer"); // 'path' 또는 'pointer' - 키값 홀짝이 있으면 되는데 굳이 필요한가
 
-  // 키값 저장하기 -> 내가 지금 다룰 부분
+  // 키값 저장하기 -> segment의 order이자 segments의 키 (내가 지금 펼쳐놓고 select해논 부분으로 업데이트)
   const [segmentKey, setSegmentKey] = useState(1);
 
 
@@ -104,26 +105,44 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
 
   // 지금 구간 저장하기 버튼 눌렀을 때 실행되는 함수
   const handleSaveClick = () => {
-
-    // 파일 관련 -> 미리보기에 사용할 url생성
-
+    const identityKey = segmentKey; 
     const filesWithUrl = segmentFiles.map(file => ({
       file,
       type: file.type,
-      url: file.url || URL.createObjectURL(file), // 브라우저에서 제공해주는 URL객체 메서드 -> File이나 Blob객체를 가리키는 임시 URL을 생성
+      url: file.url || URL.createObjectURL(file),
     }));
 
-    const identityKey = segmentKey;    
+    const newSegment = {
+      ...sectionData,
+      description: segmentContent,
+      facility: [...selectedFacilities],
+      media: filesWithUrl,
+    };
 
+    setSectionData(newSegment);
 
+    setSegments((prev) => ({
+      ...prev,
+      [identityKey]: {
+        ...prev[identityKey],  // 기존 좌표 등 유지
+        ...newSegment,          // 덮어씌울 필드만 업데이트
+        geoJson: prev[identityKey]?.geoJson 
+      }
+    }));
+
+    // 저장 이후 초기화
+    setSectionData(segObj);
+    setSegmentContent('');
+    setSegmentFiles([]);
+    setSelectedFacilities([]);
+    setFacilityKey(prev => prev + 1);   // 시설 셀렉터 리렌더
+    setQuillKey(prev => prev + 1);     // 에디터 리렌더
+    setSelectedPointer('');
+    setSelectedPath('');
   };
 
-  const handleTypeChange = (e) => {
-    const type = e.target.value;
-    if (type !== 'curation') navigate('/feed/write');
-    else setPostdata({ ...postdata, type });
-  };
-
+  // 종점의 경우 특수한 특징이 있어서 추가
+  const isLastPointer = selectedPointer && selectedPointer === pointerOptions[pointerOptions.length - 1].value;
 
   return (
     <div className="max-w-2xl mx-auto p-4 h-full overflow-y-auto">
@@ -137,18 +156,6 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
 
       {!collapsed && (
         <div className="mb-6 p-4 rounded-lg border border-gray-200 bg-gray-50">
-          {/* <div className="mb-4">
-            <label className="block mb-1 font-medium text-gray-700">[공통 정보] 게시글 유형</label>
-            <select
-              value={postdata.type}
-              onChange={handleTypeChange}
-              className="w-full border border-gray-300 rounded px-3 py-2"
-            >
-              <option value="general">일반게시글</option>
-              <option value="curation">큐레이션게시글</option>
-              <option value="meeting">모임/동행</option>
-            </select>
-          </div> */}
           <div className="mb-4">
             <label className="block mb-1 font-medium text-gray-700">[공통 정보] 제목</label>
             <input
@@ -165,14 +172,32 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
               onChange={(e) => setPostdata({ ...postdata, boardId: e.target.value })}
               className="w-full border border-gray-300 rounded px-3 py-2"
             >
-              <option value="">게시판을 선택하세요</option>
+              <option value="">선택하세요</option>
               {boards.map((board) => (
                 <option key={board.boardId} value={board.boardId}>
                   {board.thumbnailUrl || '🏕️'} {board.title}
                 </option>
               ))}
             </select>
-          </div>          
+          </div>
+
+          <div className="mb-4">
+            <label className="block mb-1 font-medium text-gray-700">[공통 정보] 상행/하행</label>
+            <select
+              value={postdata.boardId}
+              onChange={(e) => setPostdata({ ...postdata, isUpward: e.target.value })}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            >
+              <option value="">선택하세요</option>
+                <option key={"up"} value={true}>
+                  상행
+                </option>
+                <option key={"down"} value={false}>
+                  하행
+                </option>
+            </select>
+          </div>   
+
           <div className="mb-4">
             <label className="block mb-1 font-medium text-gray-700">[공통 정보] 산이름</label>
             <input
@@ -213,6 +238,87 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
 
       </div>
 
+      {selectedMode === "pointer" && (
+        <>
+          <div className="mb-4">
+            <label className="block mb-1 font-medium text-gray-700">작성할 포인터</label>
+            <select
+              className="w-full border border-gray-300 rounded px-3 py-2"
+              onChange={(e) => {
+                const selectedValue = e.target.value;
+                setSelectedPointer(selectedValue);
+
+                const matched = pointerOptions.find((p) => p.value === selectedValue);
+                if (matched) {
+                  setSegmentKey(matched.key);
+                  setSectionData((prev) => ({ ...prev, order: matched.key }));
+                }
+              }}
+              value={selectedPointer}
+            >
+              <option value="" disabled>선택하세요</option>
+              {pointerOptions.map((pointer) => (
+                <option key={pointer.key} value={pointer.value}>
+                  {pointer.value}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          
+          <div className="mb-4">
+            <label className="block mb-1 font-medium text-gray-700">포인터명</label>
+            <input
+              type="text"
+              value={sectionData.pointerName || ""}
+              onChange={(e) => setSectionData({ ...sectionData, pointerName: e.target.value })}
+              className="w-full border border-gray-300 rounded px-3 py-2"
+            />
+          </div>
+          
+
+          {/* 시설 선택은 마지막이든 아니든 공통 */}
+          <FacilitySelector
+            key={facilityKey}
+            selected={selectedFacilities}
+            setSelected={setSelectedFacilities}
+          />
+
+          {/* 종점일 경우 전용 작성 영역 보여주기 */}
+          {isLastPointer && (
+            <>
+              <div className="mt-6 mb-4">
+                <h3 className="text-lg font-semibold text-green-700 mb-2">🏁 종점 내용 작성</h3>
+
+                <div className="bg-white border border-gray-300 rounded overflow-hidden mb-4">
+                  <ReactQuill
+                    key={quillKey}
+                    value={segmentContent}
+                    onChange={setSegmentContent}
+                    className="editor-container"
+                    style={{ height: '300px' }}
+                  />
+                </div>
+
+                <div
+                  ref={dropRef}
+                  onDrop={handleDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                  onClick={() => dropRef.current.querySelector('input').click()}
+                  className="border-2 border-dashed border-gray-400 p-6 text-center rounded cursor-pointer mb-4"
+                >
+                  <p className="text-gray-500">이미지 또는 영상(mp4)을 드래그하거나 클릭하세요</p>
+                  <input type="file" accept="image/*,video/mp4" multiple onChange={handleFileSelect} className="hidden" />
+                </div>
+
+                <MediaPreview files={segmentFiles} onRemove={removeFile} />
+              </div>
+            </>
+          )}
+        </>
+      )}
+
+
       {/* 선택된 모드에 따라 필드 출력 */}
       {selectedMode === "path" && (
         <>
@@ -230,38 +336,17 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
                 const matched = pathOptions.find((path) => path.value === selectedValue);
                 if (matched) {
                   setSegmentKey(matched.key); // 여기서 path.key가 setSegmentKey로 들어감!
+                  setSectionData((prev) => ({...prev, order : matched.key})); // 내부 order도 
                 }
               }}
               
               value={selectedPath}
             >
+              <option value="" disabled>선택하세요</option>
               {pathOptions.map((path) => (
                 <option key={path.key} value={path.value}>{path.value}</option>
               ))}
             </select>
-
-              {/* {showGuide && (
-                <div className="absolute top-1/2 left-full ml-2 transform -translate-y-1/2 z-50">
-                  <div className="relative bg-blue-50 border border-blue-300 text-blue-900 text-sm px-3 py-2 rounded shadow-lg w-64">
-                    <p className="font-semibold mb-1">👣 큐레이션 안내</p>
-                    <p className="leading-snug">
-                      지도에서 클릭한 포인터 또는 경로를 선택한 뒤<br />
-                      내용을 작성해 주세요.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setShowGuide(false);
-                        localStorage.setItem("curationGuideSeen", "true");
-                      }}
-                      className="absolute top-1 right-1 text-xs text-gray-500 hover:text-gray-700"
-                    >
-                      ✕
-                    </button>
-                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -ml-2 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-blue-50" />
-                  </div>
-                </div>
-              )} */}
-
           </div>
 
           {/* 경로 난이도 */}
@@ -290,56 +375,45 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
               onChange={(e) => setSectionData({ ...sectionData, caution: e.target.value })}
             />
           </div>
+      
+          <label className="block mb-1 font-medium text-gray-700 mt-4">내용 (볼거리, 주의사항 등)</label>
+          <div className="bg-white border border-gray-300 rounded overflow-hidden mb-4">
+            <ReactQuill
+              key={quillKey}
+              value={segmentContent}
+              onChange={setSegmentContent}
+              className="editor-container"
+              style={{ height: '300px' }}
+            />
+          </div>
+
+          <div
+            ref={dropRef}
+            onDrop={handleDrop}
+            onDragOver={(e) => e.preventDefault()}
+            onClick={() => dropRef.current.querySelector('input').click()}
+            className="border-2 border-dashed border-gray-400 p-6 text-center rounded cursor-pointer mb-4"
+          >
+            <p className="text-gray-500">이미지 또는 영상(mp4)을 드래그하거나 클릭하세요</p>
+            <input type="file" accept="image/*,video/mp4" multiple onChange={handleFileSelect} className="hidden" />
+          </div>
+
+          <MediaPreview files={segmentFiles} onRemove={removeFile} />
+
         </>
       )}
 
 
-      {selectedMode === "pointer" && (
-        <>
-          <div className="mb-4">
-            <label className="block mb-1 font-medium text-gray-700">작성할 포인터</label>
-            <select
-              className="w-full border border-gray-300 rounded px-3 py-2"
-              onChange={(e) => {
-                const selectedValue = e.target.value;
-                setSelectedPointer(selectedValue);
-            
-                const matched = pointerOptions.find((p) => p.value === selectedValue);
-                if (matched) {
-                  setSegmentKey(matched.key); // key값 (1, 3, 5...)이 들어감!
-                }
-              }}
-            
-              value={selectedPointer}
-            >
-              {pointerOptions.map((pointer) => (
-                <option key={pointer.key} value={pointer.value}>{pointer.value}</option>
-              ))}
-            </select>
-          </div>
-
-          
-        <div className="mb-4">
-          <label className="block mb-1 font-medium text-gray-700">포인터명</label>
-          <input
-            type="text"
-            value={postdata.pointerTo}
-            onChange={(e) => setSectionData({ ...sectionData, pointerName: e.target.value })}
-            className="w-full border border-gray-300 rounded px-3 py-2"
-          />
-        </div>
-      </>
-
-      )}
 
 
-      <FacilitySelector
+
+      {/* <FacilitySelector
         key={facilityKey}
-        selectedFacilities={selectedFacilities}
-        setSelectedFacilities={setSelectedFacilities}
+        selected={selectedFacilities}
+        setSelected={setSelectedFacilities}
         // version={facilitiesVersion}
-      />
-      <label className="block mb-1 font-medium text-gray-700 mt-4">내용 (볼거리, 주의사항 등)</label>
+      /> */}
+      {/* <label className="block mb-1 font-medium text-gray-700 mt-4">내용 (볼거리, 주의사항 등)</label>
       <div className="bg-white border border-gray-300 rounded overflow-hidden mb-4">
         <ReactQuill
           key={quillKey}
@@ -348,9 +422,9 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
           className="editor-container"
           style={{ height: '300px' }}
         />
-      </div>
+      </div> */}
 
-      <div
+      {/* <div
         ref={dropRef}
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
@@ -361,9 +435,9 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
         <input type="file" accept="image/*,video/mp4" multiple onChange={handleFileSelect} className="hidden" />
       </div>
 
-      <MediaPreview files={segmentFiles} onRemove={removeFile} />
+      <MediaPreview files={segmentFiles} onRemove={removeFile} /> */}
 
-      <div className="flex justify-end space-x-3">
+      <div className="flex justify-end space-x-3 mt-4">
         <button type="button" onClick={handleSaveClick} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
           이 구간 저장
         </button>
