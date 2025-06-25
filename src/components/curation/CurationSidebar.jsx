@@ -7,7 +7,7 @@ import MediaPreview from './MediaPreview';
 import useMarkerInfo from '../../hooks/map/useMarkerInfo';
 import { MdDescription } from 'react-icons/md';
 
-export default function CurationSideBar({ commonData, segments, setSegments, markerCounts, segObj}) {
+export default function CurationSideBar({ commonData, setCommonData, segments, setSegments, markerCounts, segObj}) {
 
   // 훅 불러와서 사용 -> 포인터 및 구간 생성 (찍어놓은 마커 갯수에 따라서서) 
 
@@ -43,7 +43,7 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
   const [facilityKey, setFacilityKey] = useState(0); // for forcing FacilitySelector reset
 
 
-  const [postdata, setPostdata] = useState(commonData); // 공통사항 (유저id, 닉네임, boardId, 타입, title, 산이름)
+  // const [postdata, setPostdata] = useState(commonData); // 공통사항 (유저id, 닉네임, boardId, 타입, title, 산이름)
 
   // 이건 boards 표출과 관련
   const [boards, setBoards] = useState([]);
@@ -56,7 +56,7 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
       try {
         const res = await fetch('http://localhost:8080/api/user', { credentials: 'include' });
         const data = await res.json();
-        setPostdata((prev) => ({ ...prev, userId: data.userId, nickname: data.nickname }));
+        setCommonData((prev) => ({ ...prev, userId: data.userId, nickname: data.nickname }));
       } catch (err) {
         console.error('유저 정보 가져오기 실패:', err);
       }
@@ -160,16 +160,16 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
             <label className="block mb-1 font-medium text-gray-700">[공통 정보] 제목</label>
             <input
               type="text"
-              value={postdata.title}
-              onChange={(e) => setPostdata({ ...postdata, title: e.target.value })}
+              value={commonData.title}
+              onChange={(e) => setCommonData({ ...commonData, title: e.target.value })}
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
           <div className="mb-4">
             <label className="block mb-1 font-medium text-gray-700">[공통 정보] 게시판 선택</label>
             <select
-              value={postdata.boardId}
-              onChange={(e) => setPostdata({ ...postdata, boardId: e.target.value })}
+              value={commonData.boardId}
+              onChange={(e) => setCommonData({ ...commonData, boardId: e.target.value })}
               className="w-full border border-gray-300 rounded px-3 py-2"
             >
               <option value="">선택하세요</option>
@@ -184,8 +184,8 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
           <div className="mb-4">
             <label className="block mb-1 font-medium text-gray-700">[공통 정보] 상행/하행</label>
             <select
-              value={postdata.boardId}
-              onChange={(e) => setPostdata({ ...postdata, isUpward: e.target.value })}
+              value={commonData.boardId}
+              onChange={(e) => setCommonData({ ...commonData, isUpward: e.target.value })}
               className="w-full border border-gray-300 rounded px-3 py-2"
             >
               <option value="">선택하세요</option>
@@ -202,8 +202,8 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
             <label className="block mb-1 font-medium text-gray-700">[공통 정보] 산이름</label>
             <input
               type="text"
-              value={postdata.mountainName}
-              onChange={(e) => setPostdata({ ...postdata, mountainName: e.target.value })}
+              value={commonData.mountainName}
+              onChange={(e) => setCommonData({ ...commonData, mountainName: e.target.value })}
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>
@@ -211,7 +211,7 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
             <label className="block mb-1 font-medium text-gray-700">[공통 정보] 작성자</label>
             <input
               type="text"
-              value={postdata.nickname}
+              value={commonData.nickname}
               readOnly
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
@@ -386,7 +386,6 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
               style={{ height: '300px' }}
             />
           </div>
-
           <div
             ref={dropRef}
             onDrop={handleDrop}
@@ -399,10 +398,8 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
           </div>
 
           <MediaPreview files={segmentFiles} onRemove={removeFile} />
-
         </>
       )}
-
       <div className="flex justify-end space-x-3 mt-4">
         <button type="button" onClick={handleSaveClick} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
           이 구간 저장
