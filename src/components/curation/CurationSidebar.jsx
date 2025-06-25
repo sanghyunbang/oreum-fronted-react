@@ -107,9 +107,9 @@ export default function CurationSideBar({ commonData, setCommonData, segments, s
   const handleSaveClick = () => {
     const identityKey = segmentKey; 
     const filesWithUrl = segmentFiles.map(file => ({
-      file,
-      type: file.type,
-      url: file.url || URL.createObjectURL(file),
+      file, // 이게 파일 객체
+      type: file.type, // 이건 타입
+      url: file.url || URL.createObjectURL(file), // 이건 미리보여주기용
     }));
 
     const newSegment = {

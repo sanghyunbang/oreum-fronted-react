@@ -128,8 +128,9 @@ export default function CurationWritePage() {
 
       // 2-4 각 segment별 media도 FormData에 첨부
       Object.entries(segments).forEach(([segmentKey, segment]) => {
-        (segment.media || []).forEach((fileObj, idx) => {
-          const file = fileObj.file || fileObj; // ReactQuill 이미지면 file만 남는다고?
+        (segment.media || []).forEach((mediaObj, idx) => {
+          const file = mediaObj.file; 
+          if(!file) return;
           mongoFormData.append(`media-${segmentKey}-${idx}`,file)
         });
       });
