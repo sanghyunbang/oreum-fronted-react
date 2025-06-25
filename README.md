@@ -31,6 +31,9 @@ npm install polished
 //SELECTOR 관련 [0620 추가]
 npm install react-select
 
+// 미리 보기 관련[0625 추가]
+npm install -D @tailwindcss/line-clamp
+
 
 
 # commit convention(커밋 메시지 규칙)
