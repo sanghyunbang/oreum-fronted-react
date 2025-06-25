@@ -26,6 +26,7 @@ import WritePost from '../components/board/WritePost';
 import MainBoard from '../components/board/MainBoard';
 import MountainDetailPage from '../components/board/MountainDetailPage';
 import Mypage from '../pages/Mypage';
+import PostEditPage from '../components/board/PostEditPage';
 
 // 💡 (선택) 로그인 상태 초기화용 컴포넌트
 import AuthInit from './AuthInit'; // useEffect로 localStorage 확인하는 컴포넌트
@@ -66,6 +67,7 @@ const AppRoutes = () => (
         <Route path="mainboard" element={<MainBoard />} />
         <Route path="minidisplay" element={<MiniDisplay />} />
         <Route path="writepost" element={<WritePost />} />
+        <Route path="/post/:postId/edit" element={<PostEditPage />} />
         {/* curation write관련 페이지 */}
         <Route path='writeForCuration' element={<CurationWritePage />} />
         <Route path="mountaindetail" element={<MountainDetailPage />} />

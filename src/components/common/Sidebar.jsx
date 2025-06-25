@@ -52,6 +52,11 @@ const Sidebar = () => {
   const handleAddCommunity = async () => {
     if (!title.trim()) return alert("제목을 입력하세요");
 
+    const isDuplicate = communities.some((com) => com.title === title.trim());
+    if (isDuplicate) {
+    return alert("이미 같은 이름의 커뮤니티가 존재합니다.");
+  }
+
     try {
       // DTO 형태에 맞게 body 구성
       const body = {
@@ -184,12 +189,12 @@ const Sidebar = () => {
           ) : (
             communities.map((com) => (
               <li
-                key={com.title || com.name} // 서버 데이터에 따라 바꿔주세요
+                key={com.title} 
                 className="flex justify-between items-center cursor-pointer hover:text-green-700"
-                onClick={() => navigate(`/community/${com.title || com.name}`)}
+                onClick={() => navigate(`/community/${com.title}`)}
               >
                 <span>
-                  {com.thumbnailUrl || "🏕️"} {com.title || com.name}
+                  {com.thumbnailUrl || "🏕️"} {com.title}
                 </span>
                 <FaStar className="text-gray-300 hover:text-yellow-400" />
               </li>

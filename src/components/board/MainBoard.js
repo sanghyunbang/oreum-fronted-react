@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function MainBoard() {
@@ -6,6 +6,9 @@ function MainBoard() {
   const [openComments, setOpenComments] = useState({});
   const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
   const [userId, setUserId] = useState(null);
+  const [visibleCount, setVisibleCount] = useState(10);
+  const observerRef = useRef(null);
+
 
   const navigate = useNavigate();
 
@@ -94,6 +97,29 @@ function MainBoard() {
       loadBookmarks(userId);
     }
   }, [userId]);
+  useEffect(() => {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      if (entries[0].isIntersecting) {
+        setVisibleCount((prev) => Math.min(prev + 10, postlist.length));
+      }
+    },
+    {
+      threshold: 1.0,
+    }
+  );
+
+  if (observerRef.current) {
+    observer.observe(observerRef.current);
+  }
+
+  return () => {
+    if (observerRef.current) {
+      observer.unobserve(observerRef.current);
+    }
+  };
+}, [postlist]);
+
 
   const formatTimeSince = (createdAt) => {
     const now = new Date();
@@ -113,9 +139,12 @@ function MainBoard() {
   return (
     <div className="max-w-2xl mx-auto p-5">
       <h2 className="text-xl font-bold mb-4">게시글</h2>
-      {postlist.map((post) => (
+      {postlist.slice(0, visibleCount).map((post, idx) => {
+        const isLast = idx === visibleCount - 1;
+        return(
         <div
           key={post.postId}
+          ref={isLast ? observerRef : null}
           onClick={() => navigate(`/post/${post.postId}`)}
           className="cursor-pointer border border-gray-300 rounded-lg p-4 mb-4 bg-white shadow min-h-[352px] flex flex-col justify-between hover:bg-gray-50 transition"
         >
@@ -218,7 +247,8 @@ function MainBoard() {
             </div>
           )}
         </div>
-      ))}
+        )
+})}
     </div>
   );
 }
