@@ -16,6 +16,7 @@ export default function CurationWritePage() {
     type: 'curation',
     title: '',
     mountainName: '',
+    isUpward:true
   });
 
   const segObj = {
@@ -27,8 +28,7 @@ export default function CurationWritePage() {
     pointerName:'',
     description:'',
     media:[],
-    isEmpty:false,
-    isUpward:true
+    isEmpty:false
   };
 
 
@@ -97,19 +97,26 @@ export default function CurationWritePage() {
         mountainName: commonData.mountainName
       };
 
-      const sqlRes = await fetch('http://localhost:8080/posts/curationInsert', {
+      // 1-1. insert가 FormData형식을 받는걸로 돼 있어서 파일이 없더라도 FormData로 보내야
+      const SqlData = new FormData();
+
+      SqlData.append(
+        "post",
+        new Blob([JSON.stringify(sqlPost)], { type: "application/json "})
+      )
+
+      // fetch 전송
+      const sqlRes = await fetch('http://localhost:8080/posts/insert', {
         method: 'POST',
-        headers: {
-          'Content-Type' : 'application/json',
-        },
-        body: JSON.stringify(sqlPost),
+        body: SqlData,
         credentials: 'include',
       });
 
       if(!sqlRes.ok) throw new Error('MySQL 등록 실패');
 
-      const PrimaryKeyOfDB = await sqlRes.text(); // 프라이머리 키로 받을건데 text로 받아서 나중에 변환할듯
-      alert(`글 등록이 성공했습니다. 글 ID :`, PrimaryKeyOfDB);
+      const result = await sqlRes.json(); // 백에서 이런식 -> { message: "...", postId: ..., curationId: ... }
+      const PrimaryKeyOfDB = result.curationId;
+      alert(`글 등록이 성공했습니다. 아이디: ${PrimaryKeyOfDB}`);
 
       // 2. mongoDB로 보내기
       const mongoSegments = transformForMongoDB(segments);
@@ -131,7 +138,7 @@ export default function CurationWritePage() {
         (segment.media || []).forEach((mediaObj, idx) => {
           const file = mediaObj.file; 
           if(!file) return;
-          mongoFormData.append(`media-${segmentKey}-${idx}`,file)
+          mongoFormData.append(`media-${segmentKey}-${idx}`, file); // 이름 지정
         });
       });
 
