@@ -4,9 +4,16 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { useSelector } from "react-redux"
 
 const GoodsOrder = () => {
-  const [formData, setFormData] = useState({ addressname: "", addressnumber: "", zipcode: "", addressbasic: "", addressdetail: "", request: "", point: "",total:"0" })
+  const [formData, setFormData] = useState({
+    addressname: "", addressnumber: "", zipcode: "",
+    addressbasic: "", addressdetail: "", request: "",
+    maxPoints: 0, // 보유 포인트
+    points: 0,  // 사용할 포인트
+    total: "0"
+  });
   const [selectedMethod, setSelectedMethod] = useState({ pg: "kakaopay.TC0ONETIME", method: "kakaopay", label: "카카오페이" });
   const [impReady, setImpReady] = useState(false);
+  const [tempPoints, setTempPoints] = useState(0);
   const userInfo = useSelector((state) => state.user.userInfo);
   const location = useLocation();
   const navigate = useNavigate()
@@ -21,12 +28,14 @@ const GoodsOrder = () => {
 
   //폼데이터로 저장
   const doChange = (e) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  }
-
-  const doPoint = () => {
-    // Point usage logic would go here
-  }
+    const { name, value } = e.target;
+    if (name === "points") {
+      const cleanValue = value.replace(/^0+(?=\d)/, ""); // 앞자리 0 제거
+      setTempPoints(Math.max(0, Number(cleanValue)));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
 
   //물건 할인 가격
   const getDiscountedPrice = (item) => {
@@ -46,13 +55,13 @@ const GoodsOrder = () => {
 
   //포인트 포함된 총결제 금액 계산
   useEffect(() => {
-    const newTotal = calculateTotalDiscounted() - Number.parseInt(formData.point || "0");
+    const newTotal = calculateTotalDiscounted() - Number.parseInt(formData.points || "0");
     setFormData((prev) => {
       return prev.total !== newTotal
         ? { ...prev, total: newTotal }
         : prev; // 변경 없으면 그대로 반환 (불필요한 렌더링 방지)
     });
-  }, [formData.point, items, calculateTotalDiscounted]);
+  }, [formData.points, items, calculateTotalDiscounted]);
 
   //할인 금액 계산
   const calculateSavings = () => {
@@ -120,7 +129,7 @@ const GoodsOrder = () => {
       pay_method: selectedMethod.method,
       merchant_uid: "order_" + new Date().getTime(),
       name: items.map((cart) => cart.goods_name).join(", "),
-      amount: parseInt(formData.total || "0"),
+      amount: parseInt(formData.total || "0"), // total은 points가 차감된 값
       buyer_email: "tester@example.com",
       buyer_name: "홍길동",
       buyer_tel: "010-1234-5678",
@@ -191,23 +200,31 @@ const GoodsOrder = () => {
   }, []);
   
 
-  // useEffect(()=>{
-  //   const doUser = async() =>{
-  //     const res = await fetch("http://localhost:8080/api/goods/getUserPoint",{
-  //       method:"POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       credentials: "include",
-  //       body: JSON.stringify({userId:userInfo.userId}),
-  //     })
-  //     if(res.ok){
+  useEffect(()=>{
+    const doUser = async() =>{
+      const res = await fetch("http://localhost:8080/api/goods/getUserPoints",{
+        method:"POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({userId:userInfo.userId}),
+      })
+      if(res.ok){
+        const data = await res.json();
+        setFormData(prev=>({...prev,maxPoints: data ?? 0}));
+      }
+    }
+    doUser();
+  },[userInfo])
 
-  //     }
-  //   }
-  //   doUser();
-  // },[userInfo])
+  // ✅ 포인트 전액 사용 버튼
+  const doPoint = () => {
+    const usable = Math.min(tempPoints, formData.maxPoints);
+    setFormData(prev => ({ ...prev, points: usable }));
+    setTempPoints(usable);
+  };
 
   return (
-    <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
+    <div className="max-w-3xl min-w-[600px] mx-auto p-5 font-sans">
       {/* Header */}
       <header className="flex items-center justify-between border-b pb-4 mb-6">
         <button onClick={()=>navigate(`/Goods`)} className="flex items-center text-1xl hover:text-gray-900">
@@ -235,7 +252,7 @@ const GoodsOrder = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">연락처</label>
-              <input type="text" name="addressnumber" value={formData.addressnumber} onChange={doChange} placeholder="ex) 010-1234-5678" required
+              <input type="number" name="addressnumber" value={formData.addressnumber} onChange={doChange} placeholder="ex) 010-1234-5678" required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -326,7 +343,7 @@ const GoodsOrder = () => {
 
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <input type="number" name="point" value={formData.point} onChange={doChange} placeholder="사용할 포인트"
+              <input type="number" name="points" value={tempPoints.toString().replace(/^0+(?=\d)/, "")} onChange={doChange} placeholder="사용할 포인트"
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
               <button
@@ -338,7 +355,7 @@ const GoodsOrder = () => {
               </button>
             </div>
             <p className="text-sm text-gray-600">
-              잔여 포인트: <span className="font-semibold">1,000</span>점
+              잔여 포인트: <span className="font-semibold">{formData.maxPoints.toLocaleString()}</span>점
             </p>
           </div>
         </section>
@@ -367,14 +384,14 @@ const GoodsOrder = () => {
 
             <div className="flex justify-between py-1">
               <span className="text-gray-600">포인트 사용</span>
-              <span>-{Number.parseInt(formData.point || "0").toLocaleString()}원</span>
+              <span>-{Number.parseInt(formData.points || "0").toLocaleString()}원</span>
             </div>
 
             <div className="border-t mt-2 pt-3">
               <div className="flex justify-between font-bold text-lg">
                 <span>최종 결제금액</span>
                 <span className="text-green-600">
-                  {(calculateTotalDiscounted() - Number.parseInt(formData.point || "0")).toLocaleString()}원
+                  {(calculateTotalDiscounted() - Number.parseInt(formData.points || "0")).toLocaleString()}원
                 </span>
               </div>
             </div>
@@ -414,7 +431,7 @@ const GoodsOrder = () => {
         </section>
 
         {/* Payment Button */}
-        <button type="button" onClick={doIamportPayment}
+        <button type="button" onClick={doPayment}
           className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-md text-lg font-bold transition-colors"
           >
           {parseInt(formData.total || "0").toLocaleString()}원 결제하기 ({selectedMethod.label})

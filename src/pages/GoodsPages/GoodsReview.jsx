@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FaArrowLeft, FaHome, FaStar } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -12,6 +12,7 @@ const GoodsReview = () => {
     const userInfo = useSelector((state) => state.user.userInfo);
     const { orderId, orderItemId, goodsName, goodsImg, optionName, qty, price } = location.state || {};
 
+    //리뷰 제출
     const doSubmit = async () => {
         try {
             const res = await fetch("http://localhost:8080/api/goods/addReview", {
@@ -21,8 +22,8 @@ const GoodsReview = () => {
                 body: JSON.stringify({ id: userInfo.userId, orderItemId, orderId, rating, review }),
             });
             if (!res.ok) throw new Error();
-            alert("리뷰가 등록되었습니다.");
-            navigate("/Goods");
+            alert("리뷰가 등록되었습니다.\n+50 POINTS");
+            navigate("/Goods/GoodsDelivery");
         } catch {
             alert("리뷰 작성에 실패했습니다. 잠시후 다시 시도해주십시오.");
         }

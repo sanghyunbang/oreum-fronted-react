@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const GoodsCategory = ({ product }) => {
   const navigate = useNavigate();
@@ -37,69 +37,61 @@ const GoodsCategory = ({ product }) => {
       {/* 상품 표시 */}
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {filteredProducts.map((product) => (
-            <div 
-              key={product.id}
-              className="bg-white border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
-              onClick={() => productsClick(product)}
-            >
-              <div className="aspect-square bg-gray-100 relative overflow-hidden">
-                {product.img ? (
+          {filteredProducts.map((product) => {
+            // 이미지 파싱 및 추출
+            let imgSrc = "/placeholder.svg";
+            try {
+              const parsed = JSON.parse(product.img);  // 문자열을 배열로 파싱
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                imgSrc = `http://localhost:8080${parsed[0]}`; // 절대경로로 접근 (Spring 이미지 핸들러 활용)
+              }
+            } catch (e) {
+              if (typeof product.img === "string" && product.img.startsWith("/img/")) {
+                imgSrc = `http://localhost:8080${product.img}`;
+              }
+            }
+
+            return (
+              <div
+                key={product.id}
+                className="bg-white border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                onClick={() => productsClick(product)}
+              >
+                <div className="aspect-square bg-gray-100 relative overflow-hidden">
                   <img
-                    src={product.img}
+                    src={imgSrc}
                     alt={product.name}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
                     onError={(e) => {
                       e.currentTarget.src = "/placeholder.svg";
                     }}
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <div className="text-center">
-                      <div className="w-16 h-16 mx-auto mb-2 bg-gray-200 rounded-full flex items-center justify-center">
-                        <svg
-                          className="w-8 h-8 text-gray-400"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          />
-                        </svg>
-                      </div>
-                      <span className="text-sm">이미지 없음</span>
-                    </div>
-                  </div>
-                )}
-              </div>
+                </div>
 
-              <div className="p-4">
-                <span className="text-xs text-gray-600">{product.brand}</span>
-                <br />
-                <h3 className="font-semibold text-base text-gray-900">{product.name}</h3>
-                <div className="text-base font-bold text-gray-900 mt-1">
-                  {product.salePercent ? (
-                    <>
-                      <span className="line-through text-gray-400 text-sm mr-2">
+                <div className="p-4">
+                  <span className="text-xs text-gray-600">{product.brand}</span>
+                  <br />
+                  <h3 className="font-semibold text-base text-gray-900">{product.name}</h3>
+                  <div className="text-base font-bold text-gray-900 mt-1">
+                    {product.salePercent ? (
+                      <>
+                        <span className="line-through text-gray-400 text-sm mr-2">
+                          {product.price.toLocaleString()}원
+                        </span>
+                        <br />
+                        <span className="text-red-600 mr-1">{product.salePercent}%</span>
+                        {(product.price * (1 - product.salePercent / 100)).toLocaleString()}원
+                      </>
+                    ) : (
+                      <>
                         {product.price.toLocaleString()}원
-                      </span>
-                      <br />
-                      <span className="text-red-600 mr-1">{product.salePercent}%</span>
-                      {(product.price * (1 - product.salePercent / 100)).toLocaleString()}원
-                    </>
-                  ) : (
-                    <>
-                      {product.price.toLocaleString()}원
-                    </>
-                  )}
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="text-center py-20 text-gray-500">

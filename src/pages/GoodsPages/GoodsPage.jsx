@@ -52,6 +52,7 @@ const Goods = () => {
         }
 
         const data = await response.json();
+        console.log(data);
         setGoods(data);
       } catch (error) {
         console.error("상품 목록 불러오기 실패:", error);
@@ -69,14 +70,14 @@ const Goods = () => {
   }
 
   return (
-    <div className="w-full max-w-4xl min-w-[600px] mx-auto px-4 border border-gray-200">
+    <div className="w-full max-w-3xl min-w-[600px] mx-auto px-4 border border-gray-200">
       <header className="text-center text-3xl my-5 font-semibold">스토어
         <button className="mx-10" onClick={()=>navigate("/Goods/GoodsCart")}>
           장바구니
         </button>
 
-        <button className="mx-10" onClick={()=>navigate("/Goods/GoodsOrder")}>
-          구매하기
+        <button className="mx-10" onClick={()=>navigate("/Goods/GoodsAdd")}>
+          상품추가
         </button>
         <button onClick={()=>navigate("/Goods/GoodsDelivery")}>
           주문내역

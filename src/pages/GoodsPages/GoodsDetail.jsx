@@ -32,7 +32,6 @@ const GoodsDetail = () => {
   const addOption = (e) => {
     if (!e.target.value) return;
     const selected = JSON.parse(e.target.value);
-    console.log(selected.option_name);
     const exists = selectedOption.some((opt) => opt.id === selected.id);
     if (exists) {
       alert("이미 선택된 옵션입니다.");
@@ -213,7 +212,7 @@ const GoodsDetail = () => {
     doReview();
   }, [id]);
   return (
-    <div className="max-w-4xl min-w-[600px] mx-auto p-5 font-sans">
+    <div className="max-w-3xl min-w-[600px] mx-auto p-5 font-sans">
       <header className="flex items-center justify-between px-4 py-2 mb-[80px]">
       <div className="text-2xl cursor-pointer z-10 mr-5" onClick={()=>navigate(-1)}>{"<"}</div>
       <h5 className="text-center flex-1 text-2xl font-bold -ml-1">{goods.name}</h5>
@@ -227,9 +226,10 @@ const GoodsDetail = () => {
             {(Array.isArray(goods.img) ? goods.img : JSON.parse(goods.img || "[]")).map((image, index) => (
               <div key={index}>
                 <img
-                  src={image}
+                  src={`http://localhost:8080${image}`}
                   alt={`${goods.name} ${index + 1}`}
                   className="w-full h-[400px] object-cover rounded-lg"
+                  onError={(e) => (e.currentTarget.src = "/placeholder.svg")}
                 />
               </div>
             ))}
@@ -364,7 +364,7 @@ const GoodsDetail = () => {
           {activeTab === "details" && (
             <div>
               <h3 className="text-xl font-bold mb-4">상품 상세정보</h3>
-              <pre className="mb-4">{goods.description}</pre>
+              <div className="mb-4 leading-relaxed text-gray-800" dangerouslySetInnerHTML={{ __html: goods.description ?? "설명이 없습니다." }} />
             </div>
           )}
 

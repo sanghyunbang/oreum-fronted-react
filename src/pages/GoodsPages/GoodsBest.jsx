@@ -3,17 +3,27 @@ const GoodsBest = ({ product, rank }) => {
     ? product.price * (1 - product.salePercent / 100)
     : product.price;
 
-  // 순위별 색상 지정
   const rankColors = {
-    1: "bg-yellow-400 border border-yellow-200", // 금
-    2: "bg-gray-400 border-gray-200",   // 은
-    3: "bg-orange-500 border-orange-200", // 동
+    1: "bg-yellow-400 border border-yellow-200",
+    2: "bg-gray-400 border-gray-200",
+    3: "bg-orange-500 border-orange-200",
   };
+
+  // ✅ 이미지 경로 파싱 처리
+  let imgSrc = "/placeholder.svg";
+  try {
+    const parsed = JSON.parse(product.img);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      imgSrc = `http://localhost:8080${parsed[0]}`;
+    }
+  } catch (e) {
+    if (typeof product.img === "string" && product.img.startsWith("/img/")) {
+      imgSrc = `http://localhost:8080${product.img}`;
+    }
+  }
 
   return (
     <div className="relative w-[180px] sm:w-[200px] rounded-lg overflow-hidden shadow hover:shadow-md transition-shadow bg-white">
-
-      {/* 🥇 순위 뱃지 (왼쪽 상단 + 색상별) */}
       {rank && (
         <div
           className={`absolute top-2 left-2 ${rankColors[rank]} text-xs font-bold text-white rounded-full px-2 py-1 z-10 shadow`}
@@ -23,37 +33,14 @@ const GoodsBest = ({ product, rank }) => {
       )}
 
       <div className="aspect-square bg-gray-100 relative overflow-hidden">
-        {product.img ? (
-          <img
-            src={product.img || "/placeholder.svg"}
-            alt={product.name}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-            onError={(e) => {
-              e.currentTarget.src = "/placeholder.svg?height=300&width=300";
-            }}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-2 bg-gray-200 rounded-full flex items-center justify-center">
-                <svg
-                  className="w-8 h-8 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <span className="text-sm">이미지 없음</span>
-            </div>
-          </div>
-        )}
+        <img
+          src={imgSrc}
+          alt={product.name}
+          className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+          onError={(e) => {
+            e.currentTarget.src = "/placeholder.svg";
+          }}
+        />
       </div>
 
       <div className="p-3">
