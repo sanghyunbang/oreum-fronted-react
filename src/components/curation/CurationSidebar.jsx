@@ -403,40 +403,6 @@ export default function CurationSideBar({ commonData, segments, setSegments, mar
         </>
       )}
 
-
-
-
-
-      {/* <FacilitySelector
-        key={facilityKey}
-        selected={selectedFacilities}
-        setSelected={setSelectedFacilities}
-        // version={facilitiesVersion}
-      /> */}
-      {/* <label className="block mb-1 font-medium text-gray-700 mt-4">내용 (볼거리, 주의사항 등)</label>
-      <div className="bg-white border border-gray-300 rounded overflow-hidden mb-4">
-        <ReactQuill
-          key={quillKey}
-          value={segmentContent}
-          onChange={setSegmentContent}
-          className="editor-container"
-          style={{ height: '300px' }}
-        />
-      </div> */}
-
-      {/* <div
-        ref={dropRef}
-        onDrop={handleDrop}
-        onDragOver={(e) => e.preventDefault()}
-        onClick={() => dropRef.current.querySelector('input').click()}
-        className="border-2 border-dashed border-gray-400 p-6 text-center rounded cursor-pointer mb-4"
-      >
-        <p className="text-gray-500">이미지 또는 영상(mp4)을 드래그하거나 클릭하세요</p>
-        <input type="file" accept="image/*,video/mp4" multiple onChange={handleFileSelect} className="hidden" />
-      </div>
-
-      <MediaPreview files={segmentFiles} onRemove={removeFile} /> */}
-
       <div className="flex justify-end space-x-3 mt-4">
         <button type="button" onClick={handleSaveClick} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">
           이 구간 저장
