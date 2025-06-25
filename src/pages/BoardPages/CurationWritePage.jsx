@@ -5,7 +5,7 @@ import CurationSideBar from '../../components/curation/CurationSidebar';
 import MapPolyLine from '../../components/mapForCuration/MapPolyLine';
 import CurationPreview from '../../components/curation/CurationPreview';
 import useMarkerInfo from '../../hooks/map/useMarkerInfo';
-
+import transformForMongoDB from '../../hooks/DBPreprocess/transformForMongoDB.js';
 export default function CurationWritePage() {
   const navigate = useNavigate();
 
@@ -78,70 +78,89 @@ export default function CurationWritePage() {
         5: { order: 5, segmentMode: 'pointer', ... },
       }
    */
-  
 
-  const [currentSegmentKey, setCurrentSegmentKey] = useState(''); // 포인터면 단일 정수, 구간이면 "정수1-정수2" 형태
-  
-  // point는 marketListRef.current.length로 / 
-  const handlePointers = (orderKey, newGeoJson) => {
-    setSegments((prev) => ({
-      ...prev,
-      [orderKey]: {
-        ...prev[orderKey], // 기존 segment 복사
-        geoJson: newGeoJson, // geoJson만 업데이트
-      },
-    }));
-  };
-  
+  // 최종 제출 -> common 사항은 MySQL로 보냄 -> 이후에 오는 PrimaryKey 받아서 이거까지 반영한 데이터를 MongoDB로 보내기
 
   const handleSubmit = async () => {
-    const formData = new FormData();
 
-    const finalPost = {
-      ...commonData,
-      boardId: parseInt(commonData.boardId, 10),
-      segments: {},
-    };
-
-    Object.entries(segments).forEach(([key, value]) => {
-      finalPost.segments[key] = {
-        content: value.content,
-        route: value.route,
-        mountainName: value.mountainName,
-        pointerFrom: value.pointerFrom,
-        pointerTo: value.pointerTo,
-        facilities: value.facilities,
-      };
-
-      (value.media || []).forEach((file, idx) => {
-        formData.append(`media-${key}-${idx}`, file.file || file);
-      });
-    });
-
-    formData.append('post', new Blob([JSON.stringify(finalPost)], { type: 'application/json' }));
+    // 여기선 MySQL로 공통 사항 보내기
+    // curationInsert 백 api 만들 예정 -> insert와 동시에 해당 프라이머리키 보내줘야
 
     try {
-      const res = await fetch('http://localhost:8080/posts/insert', {
+      // 1. MYSQL 글 공통 먼저 전송
+      const sqlPost = {
+        userId: commonData.userId,
+        nickname: commonData.nickname,
+        boardId: parseInt(commonData.boardId, 10),
+        type: commonData.type,
+        title: commonData.title,
+        mountainName: commonData.mountainName
+      };
+
+      const sqlRes = await fetch('http://localhost:8080/posts/curationInsert', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type' : 'application/json',
+        },
+        body: JSON.stringify(sqlPost),
         credentials: 'include',
       });
 
-      const result = await res.text();
-      alert(`응답: ${result}`);
-    } catch (e) {
-      console.error(e);
-      alert('글 등록 실패');
+      if(!sqlRes.ok) throw new Error('MySQL 등록 실패');
+
+      const PrimaryKeyOfDB = await sqlRes.text(); // 프라이머리 키로 받을건데 text로 받아서 나중에 변환할듯
+      alert(`글 등록이 성공했습니다. 글 ID :`, PrimaryKeyOfDB);
+
+      // 2. mongoDB로 보내기
+      const mongoSegments = transformForMongoDB(segments);
+      
+      // 2-1 FormData 생성
+      const mongoFormData = new FormData();
+
+      // 2-2 segments(JSON)을 하나의 필드로 담기
+      mongoFormData.append(
+        'segments',
+        new Blob([JSON.stringify(mongoSegments)], {type: 'application/json'})
+      );
+
+      // 2-3 curationId 도 함께 전송
+      mongoFormData.append('curationId', PrimaryKeyOfDB);
+
+      // 2-4 각 segment별 media도 FormData에 첨부
+      Object.entries(segments).forEach(([segmentKey, segment]) => {
+        (segment.media || []).forEach((fileObj, idx) => {
+          const file = fileObj.file || fileObj; // ReactQuill 이미지면 file만 남는다고?
+          mongoFormData.append(`media-${segmentKey}-${idx}`,file)
+        });
+      });
+
+      // 2-5 백으로 요청 전송
+
+      const mongoRes = await fetch('http://localhost:8080/mongo/curationSegments',{
+        method: 'POST',
+        body: mongoFormData,
+        credentials: 'include',
+      });
+
+      if(!mongoRes.ok) throw new Error('MongoDB 저장 실패')
+
+    } catch (error) {
+      console.error(error);
+      alert('글 등록이 실패했습니다.');    
     }
-  };
+
+  }
+  
+
+
 
   // 세부 수정할 구간 정하기
 
   useEffect(() => {
-  console.log('🧩 segments 업데이트됨:', segments);
-}, [segments]);
+    console.log('🧩 segments 업데이트됨:', segments);
+  }, [segments]);
 
-  // mapPolyLine에서 좌표 받아와서 해당 seg네 넣기
+  // mapPolyLine에서 좌표 받아와서 해당 seg에 넣기
 
   const handleSetGeoForSegment = (segmentKey, coords) => {
     setSegments((prev) => ({
@@ -153,9 +172,6 @@ export default function CurationWritePage() {
     }));
   };
 
-
-
-
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex w-full lg:flex-row">
@@ -163,6 +179,7 @@ export default function CurationWritePage() {
         <div className="bg-gray-100 w-full lg:w-[450px]">
           <CurationSideBar
             commonData={commonData} // 사이드바에서 한 번만 입력하면 되는 공통 부분
+            setCommonData = {setCommonData}
             segments={segments}
             setSegments = {setSegments}
             markerCounts = {markerCounts}
@@ -196,3 +213,45 @@ export default function CurationWritePage() {
     </div>
   );
 }
+
+
+  // const handleSubmit = async () => {
+  //   const formData = new FormData();
+
+  //   const finalPost = {
+  //     ...commonData,
+  //     boardId: parseInt(commonData.boardId, 10),
+  //     segments: {},
+  //   };
+
+  //   Object.entries(segments).forEach(([key, value]) => {
+  //     finalPost.segments[key] = {
+  //       content: value.content,
+  //       route: value.route,
+  //       mountainName: value.mountainName,
+  //       pointerFrom: value.pointerFrom,
+  //       pointerTo: value.pointerTo,
+  //       facilities: value.facilities,
+  //     };
+
+  //     (value.media || []).forEach((file, idx) => {
+  //       formData.append(`media-${key}-${idx}`, file.file || file);
+  //     });
+  //   });
+
+  //   formData.append('post', new Blob([JSON.stringify(finalPost)], { type: 'application/json' }));
+
+  //   try {
+  //     const res = await fetch('http://localhost:8080/posts/insert', {
+  //       method: 'POST',
+  //       body: formData,
+  //       credentials: 'include',
+  //     });
+
+  //     const result = await res.text();
+  //     alert(`응답: ${result}`);
+  //   } catch (e) {
+  //     console.error(e);
+  //     alert('글 등록 실패');
+  //   }
+  // };
