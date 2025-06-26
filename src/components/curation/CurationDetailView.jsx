@@ -13,12 +13,12 @@ export default function CurationDetailView({ segments }) {
 
   return (
     <div className="relative ml-5">
-      <div className="absolute top-4 bottom-0 left-3 w-1 bg-green-400 z-0" />
       <div className="space-y-10">
         {[...Array(Math.max(0, pointersCount - 1))].map((_, idx) => {
           const [key] = entries[idx];
           const pointerName = segments[2 * Number(key) - 1]?.pointerName;
           const section = segments[2 * Number(key)];
+          console.log("CurationDetailView에서 Seg", section);
           return (
             <PointerSection
               key={key}

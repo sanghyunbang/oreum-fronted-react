@@ -4,28 +4,34 @@ export default function PointerSection({ index, keyId, pointerName, section }) {
   if (!section) return null;
 
   return (
-    <div key={keyId} className="relative flex items-start space-x-4 z-10">
-      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-500 text-white font-bold flex items-center justify-center shadow">
-        {index + 1}
+    <div className="relative pl-10 pb-12">
+      {/* 각 섹션마다 줄 추가 */}
+      {/* <div className="absolute top-5 left-5 bottom-0 w-0.5 bg-gradient-to-b from-green-300 to-blue-300" /> */}
+
+      {/* 포인터 동그라미 */}
+      <div className="absolute left-2 top-0 z-10">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-green-500 to-emerald-400 shadow-lg flex items-center justify-center text-white font-bold text-lg border-2 border-white">
+          {index + 1}
+        </div>
       </div>
 
-      <div className="flex-1 border-l-4 border-green-400 pl-4">
-        <h4 className="text-md font-bold text-green-700 mb-2">
-          포인터 {keyId} {pointerName && `: ${pointerName}`}
-        </h4>
+      {/* 본문 */}
+      <div className="ml-6 bg-white rounded-xl shadow-md p-4 border border-gray-200 z-10 relative">
+        {pointerName && (
+          <h4 className="text-lg font-semibold text-gray-800 mb-2">
+            📍 {pointerName}
+          </h4>
+        )}
 
         {section.description && (
           <div
-            className="text-sm text-gray-800 mb-2"
+            className="text-sm text-gray-700 leading-relaxed mb-3"
             dangerouslySetInnerHTML={{ __html: section.description }}
           />
         )}
 
         {Array.isArray(section.media) && section.media.length > 0 && (
-          <>
-            <MediaDisplay media={section.media} />
-            <p className="text-xs text-gray-500">첨부 파일: {section.media.length}개</p>
-          </>
+          <MediaDisplay media={section.media} />
         )}
       </div>
     </div>
