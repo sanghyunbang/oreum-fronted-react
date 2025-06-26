@@ -9,6 +9,9 @@ import JoinPage from '../pages/Join_Page';
 import FindPw from '../pages/Find_Pw';
 import FindUserid from '../pages/Find_Userid';
 
+import WritePostPage from '../pages/BoardPages/WritePostPage';
+
+
 import OAuth2RedirectPage from '../pages/Auth/OAuth2RedirectPage';
 import GoodsPage from '../pages/GoodsPages/GoodsPage';
 import GoodsDetail from '../pages/GoodsPages/GoodsDetail';
@@ -61,6 +64,7 @@ const AppRoutes = () => (
         {/* 게시판 기능 */}
 
         <Route path='post/:postId' element = {<BoardDetailPage />}/>
+        <Route path="feed/write" element={<WritePostPage />} />
 
         {/* <Route path="post/:postId" element={<BoardDetail />} /> */}
         <Route path="mainboard" element={<MainBoard />} />
