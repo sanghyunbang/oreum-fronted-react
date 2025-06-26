@@ -238,24 +238,6 @@ CREATE TABLE order_items (
   FOREIGN KEY (goods_options_id) REFERENCES GoodsOptions(id) ON DELETE CASCADE
 );
 
---
-
-INSERT INTO Goods (name, category, brand, price, salePercent, description, img)
-VALUES 
-('베이직 반팔 티셔츠', '상의', '무신사 스탠다드', 19000, 0, '편안한 착용감의 베이직 반팔 티셔츠입니다.', '["img/tshirt1.jpg","img/jeans1.jpg"]'),
-('슬림핏 데님 팬츠', '하의', '리바이스', 59000, 20, '스타일리시한 슬림핏 데님 팬츠입니다.', '["img/jeans1.jpg"]');
--- 베이직 반팔 티셔츠 (goods_id = 1)
-INSERT INTO GoodsOptions (goods_id, option_name, stock_qty)
-VALUES 
-(1, 'S', 20),
-(1, 'M', 35),
-(1, 'L', 15);
-
-INSERT INTO GoodsOptions (goods_id, option_name, stock_qty)
-VALUES 
-(2, 'red', 10),
-(2, 'black', 12),
-(2, 'blue', 7);
 
 
 
@@ -305,3 +287,33 @@ ADD COLUMN isUpward BOOLEAN NOT NULL DEFAULT TRUE;
 ALTER TABLE posts
 MODIFY content TEXT NULL;
 
+
+-- [orders 테이블 수정]
+
+-- 1. status ENUM 값 변경
+ALTER TABLE orders 
+MODIFY COLUMN status ENUM('결제대기', '결제완료', '배송중', '배송완료', '결제취소') DEFAULT '결제대기';
+
+-- 2. status_updated_at 기본값 추가
+ALTER TABLE orders 
+MODIFY COLUMN status_updated_at DATETIME DEFAULT CURRENT_TIMESTAMP;
+
+-- [order_items 테이블 수정]
+-- 3. review_written 컬럼 추가
+ALTER TABLE order_items 
+ADD COLUMN review_written BOOLEAN DEFAULT FALSE;
+
+-- [reviews 테이블 추가]
+CREATE TABLE reviews (
+  review_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  order_item_id INT NOT NULL,
+  order_id INT NOT NULL,
+  rating INT NOT NULL,
+  content TEXT,
+  image_url TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+  FOREIGN KEY (order_item_id) REFERENCES order_items(order_item_id) ON DELETE CASCADE,
+  FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
+);
