@@ -18,6 +18,9 @@ export default function transformForMongoDB(segments) {
       };
     }
 
+    // media를 문자열 키로만 치환
+    const media = (value.media || []).map((_, idx) => `media-${key}-${idx}`);
+
     result.push({
         segmentKey: key,
         order: value.order,
@@ -26,7 +29,7 @@ export default function transformForMongoDB(segments) {
         caution: value.caution || '',
         facilities: value.facility || [],
         description: value.description || '',
-        media: (value.media || []).map(m => (m.file || m)), // S3 URL or File
+        media, // S3 URL or File
         geometry, // null일 수도 있음
     });
 
