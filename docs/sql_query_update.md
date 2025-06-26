@@ -263,42 +263,45 @@ VALUES
 
 -- [0625 수정을 위한 쿼리문]
 
--- boards테이블 수정
+-- [boards테이블 수정]
+
 USE oreum_test;
--- [1. name 컬럼 제거]
+-- 1. name 컬럼 제거
 ALTER TABLE boards DROP COLUMN name;
 
--- [2. title 컬럼에 UNIQUE 제약 조건 추가]
+-- 2. title 컬럼에 UNIQUE 제약 조건 추가
 ALTER TABLE boards ADD CONSTRAINT unique_title UNIQUE (title);
 
--- curation_detail 테이블 수정
+-- [curation_detail 테이블 수정]
 
-SHOW CREATE TABLE curation_details; -- 외래키 제약 찾기
-ALTER TABLE curation_details DROP FOREIGN KEY curation_details_ibfk_1; -- 외래키 제약 일단 제거
+SHOW CREATE TABLE curation_details; -- 1. 외래키 제약 찾기
+ALTER TABLE curation_details DROP FOREIGN KEY curation_details_ibfk_1; -- 2. 외래키 제약 일단 제거
 ALTER TABLE curation_details DROP PRIMARY KEY;--기존 pk 제거
 
--- 새로운 cruation_id 추가
+-- 3.새로운 cruation_id 추가
 ALTER TABLE curation_details
 ADD COLUMN curation_id INT AUTO_INCREMENT PRIMARY KEY FIRST;
 
--- post_id unique키로하고 다시 제약
+-- 4. post_id unique키로하고 다시 제약
 ALTER TABLE curation_details
 ADD CONSTRAINT unique_post_id UNIQUE (post_id),
 ADD CONSTRAINT fk_post_id FOREIGN KEY (post_id) REFERENCES posts(post_id) ON DELETE CASCADE;
 
--- mongoDB로 보낸것들은 날리기
+-- 5. ongoDB로 보낸것들은 날리기
 ALTER TABLE curation_details
 DROP COLUMN route_description,
 DROP COLUMN caution,
 DROP COLUMN nearby_attractions,
 DROP COLUMN geo_json;
 
--- 상행 하행 추가
+-- 6. 상행 하행 추가
 ALTER TABLE curation_details
 ADD COLUMN isUpward BOOLEAN NOT NULL DEFAULT TRUE;
 
 
---[3. posts NOT NULL 조건 삭제]
+-- [posts 테이블]
+
+-- posts NOT NULL 조건 삭제
 ALTER TABLE posts
 MODIFY content TEXT NULL;
 
