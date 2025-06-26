@@ -15,7 +15,7 @@ cursor-based 페이지 네이션 하기
 facility가 안보임 (아예 MongoDB가 못받음)
 
 Caution / Facility / Difficulty 내용 컴포넌트 만들기
-MapPolyLine 컴포넌트화 리펙토링 -> 맵 보여주는 컴포넌트 만들기
+MapPolyLine 컴포넌트화 리펙토링 -> 맵 보여주는 컴포넌트 만들기 -> "" 오른쪽에 스크롤 따라서 움직이게 ""
 
 2) 맵에 프로필 플로팅 관련
 
