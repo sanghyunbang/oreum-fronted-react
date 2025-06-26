@@ -15,8 +15,6 @@ export default function CurationWritePage() {
     boardId: '',
     type: 'curation',
     title: '',
-    mountainName: '',
-    isUpward:true
   });
 
   const segObj = {
@@ -28,7 +26,9 @@ export default function CurationWritePage() {
     pointerName:'',
     description:'',
     media:[],
-    isEmpty:false
+    isEmpty:false,
+    isUpward:true,
+    mountainName: '',
   };
 
 
@@ -115,7 +115,7 @@ export default function CurationWritePage() {
       if(!sqlRes.ok) throw new Error('MySQL 등록 실패');
 
       const result = await sqlRes.json(); // 백에서 이런식 -> { message: "...", postId: ..., curationId: ... }
-      const PrimaryKeyOfDB = result.curationId;
+      const PrimaryKeyOfDB = result.postId;
       alert(`글 등록이 성공했습니다. 아이디: ${PrimaryKeyOfDB}`);
 
       // 2. mongoDB로 보내기
@@ -131,7 +131,8 @@ export default function CurationWritePage() {
       );
 
       // 2-3 curationId 도 함께 전송
-      mongoFormData.append('curationId', PrimaryKeyOfDB);
+      mongoFormData.append('postId', PrimaryKeyOfDB);
+
 
       // 2-4 각 segment별 media도 FormData에 첨부
       Object.entries(segments).forEach(([segmentKey, segment]) => {
@@ -143,7 +144,6 @@ export default function CurationWritePage() {
       });
 
       // 2-5 백으로 요청 전송
-
       const mongoRes = await fetch('http://localhost:8080/mongo/curationSegments',{
         method: 'POST',
         body: mongoFormData,
@@ -159,9 +159,6 @@ export default function CurationWritePage() {
 
   }
   
-
-
-
   // 세부 수정할 구간 정하기
 
   useEffect(() => {
@@ -221,45 +218,3 @@ export default function CurationWritePage() {
     </div>
   );
 }
-
-
-  // const handleSubmit = async () => {
-  //   const formData = new FormData();
-
-  //   const finalPost = {
-  //     ...commonData,
-  //     boardId: parseInt(commonData.boardId, 10),
-  //     segments: {},
-  //   };
-
-  //   Object.entries(segments).forEach(([key, value]) => {
-  //     finalPost.segments[key] = {
-  //       content: value.content,
-  //       route: value.route,
-  //       mountainName: value.mountainName,
-  //       pointerFrom: value.pointerFrom,
-  //       pointerTo: value.pointerTo,
-  //       facilities: value.facilities,
-  //     };
-
-  //     (value.media || []).forEach((file, idx) => {
-  //       formData.append(`media-${key}-${idx}`, file.file || file);
-  //     });
-  //   });
-
-  //   formData.append('post', new Blob([JSON.stringify(finalPost)], { type: 'application/json' }));
-
-  //   try {
-  //     const res = await fetch('http://localhost:8080/posts/insert', {
-  //       method: 'POST',
-  //       body: formData,
-  //       credentials: 'include',
-  //     });
-
-  //     const result = await res.text();
-  //     alert(`응답: ${result}`);
-  //   } catch (e) {
-  //     console.error(e);
-  //     alert('글 등록 실패');
-  //   }
-  // };

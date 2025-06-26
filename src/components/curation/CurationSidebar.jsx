@@ -185,7 +185,7 @@ export default function CurationSideBar({ commonData, setCommonData, segments, s
             <label className="block mb-1 font-medium text-gray-700">[공통 정보] 상행/하행</label>
             <select
               value={commonData.boardId}
-              onChange={(e) => setCommonData({ ...commonData, isUpward: e.target.value })}
+              onChange={(e) => setSectionData({ ...sectionData, isUpward: e.target.value })}
               className="w-full border border-gray-300 rounded px-3 py-2"
             >
               <option value="">선택하세요</option>
@@ -202,8 +202,8 @@ export default function CurationSideBar({ commonData, setCommonData, segments, s
             <label className="block mb-1 font-medium text-gray-700">[공통 정보] 산이름</label>
             <input
               type="text"
-              value={commonData.mountainName}
-              onChange={(e) => setCommonData({ ...commonData, mountainName: e.target.value })}
+              value={sectionData.mountainName}
+              onChange={(e) => setSectionData({ ...sectionData, mountainName: e.target.value })}
               className="w-full border border-gray-300 rounded px-3 py-2"
             />
           </div>

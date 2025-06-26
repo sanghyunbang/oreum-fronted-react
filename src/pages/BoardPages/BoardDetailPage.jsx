@@ -10,6 +10,9 @@ import CommentList from "../../components/posts/CommentList";
 import PostControls from "../../components/posts/PostControls";
 import usePostDetail from "../../hooks/post/usePostDetail";
 
+import CurationDetailView from "../../components/curation/CurationDetailView";
+
+
 function BoardDetailPage() {
 
   const { postId } = useParams();
@@ -25,6 +28,36 @@ function BoardDetailPage() {
     handleShare,
   } = usePostDetail(postId);
 
+  const [segments, setSegments] = useState({});
+
+  useEffect(() => {
+    if (post?.type === "curation") {
+      const getMongoSegments = async () => {
+        try {
+          const response = await fetch(`http://localhost:8080/mongo/curationSegments/${postId}`, {
+            method: 'GET',
+            credentials: 'include',
+          });
+
+          if (!response.ok) throw new Error("Mongo fetch 실패");
+
+          const rawSegments = await response.json();
+          const segmentMap = {};
+          rawSegments.forEach(seg => {
+            segmentMap[seg.segmentKey] = seg;
+          });
+
+          setSegments(segmentMap);
+        } catch (err) {
+          console.error("🧨 MongoDB segments 가져오기 실패:", err);
+        }
+      };
+
+      getMongoSegments();
+    }
+  }, [post?.type, postId]);
+
+
 
   if (!post) return <div className="p-10 text-center">불러오는 중...</div>;
 
@@ -37,8 +70,16 @@ function BoardDetailPage() {
         onToggleFavorite={handleToggleFavorite}
       />
       <h1 className="text-2xl font-bold mb-4">{post.title}</h1>
-      <PostMedia mediaList={post.mediaList} />
-      <PostContent content={post.content} />
+
+      {post.type === "curation" ? (
+        <CurationDetailView segments={segments} />
+      ) : (
+        <>
+          <PostMedia mediaList={post.mediaList} />
+          <PostContent content={post.content} />
+        </>
+      )}
+
       <PostActions
         post={post}
         onLike={handleLike}
