@@ -1,6 +1,5 @@
 // src/pages/Home.jsx
 import React from 'react';
-import PostFeed from '../components/posts/PostFeed';
 import MainBoard from '../components/board/MainBoard';
 
 const Home = () => {

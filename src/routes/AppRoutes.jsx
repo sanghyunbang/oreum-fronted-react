@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from '../components/common/Layout';
 import Home from '../pages/Home';
+
 import MapPage from '../pages/MapPage';
 import BoardPage from '../pages/BoardPage';
 import LoginPage from '../pages/LoginPage';
@@ -8,9 +9,6 @@ import JoinPage from '../pages/Join_Page';
 import FindPw from '../pages/Find_Pw';
 import FindUserid from '../pages/Find_Userid';
 
-import MainFeedPage from '../pages/BoardPages/MainFeedPage';
-import PostDetailPage from '../pages/BoardPages/PostDetailPage';
-import WritePostPage from '../pages/BoardPages/WritePostPage';
 import OAuth2RedirectPage from '../pages/Auth/OAuth2RedirectPage';
 import GoodsPage from '../pages/GoodsPages/GoodsPage';
 import GoodsDetail from '../pages/GoodsPages/GoodsDetail';
@@ -34,6 +32,8 @@ import CommunityPage from '../pages/CommunityPages/CommunityPage';
 
 // curation 글쓰기 전용 페이지
 import CurationWritePage from '../pages/BoardPages/CurationWritePage';
+import BoardDetailPage from '../pages/BoardPages/BoardDetailPage';
+
 
 const AppRoutes = () => (
   <Router>
@@ -59,11 +59,10 @@ const AppRoutes = () => (
 
         <Route path="mypage" element={<Mypage />} />
         {/* 게시판 기능 */}
-        <Route path="feed" element={<MainFeedPage />} />
-        <Route path="feed/:id" element={<PostDetailPage />} />
-        <Route path="feed/write" element={<WritePostPage />} />
 
-        <Route path="post/:postId" element={<BoardDetail />} />
+        <Route path='post/:postId' element = {<BoardDetailPage />}/>
+
+        {/* <Route path="post/:postId" element={<BoardDetail />} /> */}
         <Route path="mainboard" element={<MainBoard />} />
         <Route path="minidisplay" element={<MiniDisplay />} />
         <Route path="writepost" element={<WritePost />} />
