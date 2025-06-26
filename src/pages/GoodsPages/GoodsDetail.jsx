@@ -211,7 +211,9 @@ const GoodsDetail = () => {
     doOptionList();
     doReview();
   }, [id]);
+  
   return (
+    <>
     <div className="max-w-3xl min-w-[600px] mx-auto p-5 font-sans">
       <header className="flex items-center justify-between px-4 py-2 mb-[80px]">
       <div className="text-2xl cursor-pointer z-10 mr-5" onClick={()=>navigate(-1)}>{"<"}</div>
@@ -259,8 +261,7 @@ const GoodsDetail = () => {
 
           <div className="bg-gray-50 p-4 rounded-lg mb-5">
             <div>
-              <strong>배송비:</strong> 3000원 (
-              30000원 이상 무료)
+              <strong>배송비:</strong> 무료
             </div>
             <div>
               <strong>배송일:</strong> 영업일 기준 2-3일 이내
@@ -268,9 +269,8 @@ const GoodsDetail = () => {
           </div>
 
           <div className="flex items-center mb-5 gap-3">
-            <label className="w-16">사이즈:</label>
-            <select name="size" onChange={addOption} className="border border-gray-300 rounded p-2" value="">
-              <option value="">사이즈 선택</option>
+            <select name="size" onChange={addOption} className="ml-[200px] w-[150px] mx-auto border border-gray-300 rounded p-2" value="">
+              <option value="">상품 옵션</option>
               {Array.isArray(goodsOpt) &&
                 goodsOpt.map((opt) => (
                   <option key={opt.id} value={JSON.stringify({ id: opt.id, option_name: opt.optionName })}>
@@ -363,7 +363,7 @@ const GoodsDetail = () => {
         <div className="py-8">
           {activeTab === "details" && (
             <div>
-              <h3 className="text-xl font-bold mb-4">상품 상세정보</h3>
+              <h3 className="text-xl font-bold mb-10 text-center">상품 상세정보</h3>
               <div className="mb-4 leading-relaxed text-gray-800" dangerouslySetInnerHTML={{ __html: goods.description ?? "설명이 없습니다." }} />
             </div>
           )}
@@ -448,6 +448,20 @@ const GoodsDetail = () => {
         </div>
       </div>
     </div>
+    <style>
+      {`
+        .ql-align-center {
+          text-align: center;
+        }
+        .ql-align-right {
+          text-align: right;
+        }
+        .ql-align-left {
+          text-align: left;
+        }
+      `}
+    </style>
+    </>
   )
 }
 

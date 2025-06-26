@@ -8,7 +8,7 @@ const GoodsOrder = () => {
     addressname: "", addressnumber: "", zipcode: "",
     addressbasic: "", addressdetail: "", request: "",
     maxPoints: 0, // 보유 포인트
-    points: 0,  // 사용할 포인트
+    point: 0,  // 사용할 포인트
     total: "0"
   });
   const [selectedMethod, setSelectedMethod] = useState({ pg: "kakaopay.TC0ONETIME", method: "kakaopay", label: "카카오페이" });
@@ -29,7 +29,7 @@ const GoodsOrder = () => {
   //폼데이터로 저장
   const doChange = (e) => {
     const { name, value } = e.target;
-    if (name === "points") {
+    if (name === "point") {
       const cleanValue = value.replace(/^0+(?=\d)/, ""); // 앞자리 0 제거
       setTempPoints(Math.max(0, Number(cleanValue)));
     } else {
@@ -55,13 +55,13 @@ const GoodsOrder = () => {
 
   //포인트 포함된 총결제 금액 계산
   useEffect(() => {
-    const newTotal = calculateTotalDiscounted() - Number.parseInt(formData.points || "0");
+    const newTotal = calculateTotalDiscounted() - Number.parseInt(formData.point || "0");
     setFormData((prev) => {
       return prev.total !== newTotal
         ? { ...prev, total: newTotal }
         : prev; // 변경 없으면 그대로 반환 (불필요한 렌더링 방지)
     });
-  }, [formData.points, items, calculateTotalDiscounted]);
+  }, [formData.point, items, calculateTotalDiscounted]);
 
   //할인 금액 계산
   const calculateSavings = () => {
@@ -130,8 +130,8 @@ const GoodsOrder = () => {
       merchant_uid: "order_" + new Date().getTime(),
       name: items.map((cart) => cart.goods_name).join(", "),
       amount: parseInt(formData.total || "0"), // total은 points가 차감된 값
-      buyer_email: "tester@example.com",
-      buyer_name: "홍길동",
+      buyer_email: userInfo.email,
+      buyer_name: userInfo.nickname,
       buyer_tel: "010-1234-5678",
       buyer_addr: formData.addressbasic + " " + formData.addressdetail,
       buyer_postcode: formData.zipcode,
@@ -147,6 +147,7 @@ const GoodsOrder = () => {
 
   //결제하기
   const doPayment = async (e) => {
+    console.log(formData);
     if (!formData.addressname || !formData.addressnumber || !formData.zipcode || !formData.addressbasic || !formData.addressdetail) {
       alert("모든 필수 배송 정보를 입력해주세요.");
       return;
@@ -219,7 +220,7 @@ const GoodsOrder = () => {
   // ✅ 포인트 전액 사용 버튼
   const doPoint = () => {
     const usable = Math.min(tempPoints, formData.maxPoints);
-    setFormData(prev => ({ ...prev, points: usable }));
+    setFormData(prev => ({ ...prev, point: usable }));
     setTempPoints(usable);
   };
 
@@ -252,7 +253,7 @@ const GoodsOrder = () => {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">연락처</label>
-              <input type="number" name="addressnumber" value={formData.addressnumber} onChange={doChange} placeholder="ex) 010-1234-5678" required
+              <input type="number" name="addressnumber" value={formData.addressnumber} onChange={doChange} placeholder="ex) 01012345678" required
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -295,40 +296,65 @@ const GoodsOrder = () => {
 
           <div className="space-y-4">
             {items.length ? (
-              items.map((cart, idx) => (
-                <div key={idx} className="flex items-center gap-4 border-b pb-4 last:border-b-0">
-                  <div className="w-20 h-20 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
-                    <img src={cart.img || "/placeholder.svg"} alt={cart.goods_name} className="w-full h-full object-cover cursor-pointer" onClick={()=>navigate(`/Goods/GoodsDetail/${cart.goods_id}`)}/>
-                  </div>
+              items.map((cart, idx) => {
+                let imgSrc = "/placeholder.svg";
+                try {
+                  const parsed = JSON.parse(cart.img);
+                  if (Array.isArray(parsed) && parsed.length > 0) {
+                    imgSrc = `http://localhost:8080${parsed[0]}`;
+                  }
+                } catch (e) {
+                  if (typeof cart.img === "string" && cart.img.startsWith("/img/")) {
+                    imgSrc = `http://localhost:8080${cart.img}`;
+                  }
+                }
 
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium text-gray-900 cursor-pointer" onClick={()=>navigate(`/Goods/GoodsDetail/${cart.goods_id}`)}>{cart.goods_name}</h3>
-                        <p className="text-sm text-gray-500">
-                          {cart.brand} | {cart.option_name || "옵션없음"} | {cart.qty}개
-                        </p>
-                      </div>
+                return (
+                  <div key={idx} className="flex items-center gap-4 border-b pb-4 last:border-b-0">
+                    <div className="w-20 h-20 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
+                      <img
+                        src={imgSrc}
+                        alt={cart.goods_name}
+                        className="w-full h-full object-cover cursor-pointer"
+                        onClick={() => navigate(`/Goods/GoodsDetail/${cart.goods_id}`)}
+                        onError={(e) => {
+                          e.currentTarget.src = "/placeholder.svg";
+                        }}
+                      />
+                    </div>
 
-                      <div className="text-right">
-                        {cart.salePercent ? (
-                          <>
-                            <p className="line-through text-sm text-gray-400">
-                              {(cart.price * cart.qty).toLocaleString()}원
-                            </p>
-                            <p className="font-bold text-red-600 flex items-center justify-end">
-                              {cart.salePercent}<FaPercent className="mr-1" size={12} /> 할인
-                            </p>
-                            <p className="font-bold">{(getDiscountedPrice(cart) * cart.qty).toLocaleString()}원</p>
-                          </>
-                        ) : (
-                          <p className="font-bold">{(cart.price * cart.qty).toLocaleString()}원</p>
-                        )}
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium text-gray-900 cursor-pointer" onClick={() => navigate(`/Goods/GoodsDetail/${cart.goods_id}`)}>
+                            {cart.goods_name}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            {cart.brand} | {cart.option_name || "옵션없음"} | {cart.qty}개
+                          </p>
+                          <p className="text-sm text-gray-500">배송비: 무료</p>
+                        </div>
+
+                        <div className="text-right">
+                          {cart.salePercent ? (
+                            <>
+                              <p className="line-through text-sm text-gray-400">
+                                {(cart.price * cart.qty).toLocaleString()}원
+                              </p>
+                              <p className="font-bold text-red-600 flex items-center justify-end">
+                                {cart.salePercent}<FaPercent className="mr-1" size={12} /> 할인
+                              </p>
+                              <p className="font-bold">{(getDiscountedPrice(cart) * cart.qty).toLocaleString()}원</p>
+                            </>
+                          ) : (
+                            <p className="font-bold">{(cart.price * cart.qty).toLocaleString()}원</p>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="text-center py-8 text-gray-500">선택된 상품이 없습니다.</div>
             )}
@@ -343,7 +369,7 @@ const GoodsOrder = () => {
 
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <input type="number" name="points" value={tempPoints.toString().replace(/^0+(?=\d)/, "")} onChange={doChange} placeholder="사용할 포인트"
+              <input type="number" name="point" value={tempPoints.toString().replace(/^0+(?=\d)/, "")} onChange={doChange} placeholder="사용할 포인트"
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
               <button
@@ -384,14 +410,14 @@ const GoodsOrder = () => {
 
             <div className="flex justify-between py-1">
               <span className="text-gray-600">포인트 사용</span>
-              <span>-{Number.parseInt(formData.points || "0").toLocaleString()}원</span>
+              <span>-{Number.parseInt(formData.point || "0").toLocaleString()}원</span>
             </div>
 
             <div className="border-t mt-2 pt-3">
               <div className="flex justify-between font-bold text-lg">
                 <span>최종 결제금액</span>
                 <span className="text-green-600">
-                  {(calculateTotalDiscounted() - Number.parseInt(formData.points || "0")).toLocaleString()}원
+                  {(calculateTotalDiscounted() - Number.parseInt(formData.point || "0")).toLocaleString()}원
                 </span>
               </div>
             </div>

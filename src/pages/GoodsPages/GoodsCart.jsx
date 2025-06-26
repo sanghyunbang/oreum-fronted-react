@@ -3,6 +3,15 @@ import { useNavigate } from "react-router-dom";
 import { FaHome, FaArrowLeft } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
+const parseImage = (img) => {
+    try {
+        const parsed = Array.isArray(img) ? img : JSON.parse(img || "[]");
+        return parsed.length > 0 ? `http://localhost:8080${parsed[0]}` : "/placeholder.png";
+    } catch {
+        return "/placeholder.png";
+    }
+};
+
 const GoodsCart = () => {
     const [checkedAll, setCheckedAll] = useState(true);
     const [selectedGoods, setSelectedGoods] = useState([]);
@@ -10,7 +19,6 @@ const GoodsCart = () => {
     const userInfo = useSelector((state) => state.user.userInfo);
     const navigate = useNavigate();
 
-    //유저의 장바구니 리스트
     useEffect(() => {
         window.scrollTo(0, 0);
         const CartData = async () => {
@@ -29,35 +37,31 @@ const GoodsCart = () => {
         CartData();
     }, [userInfo, navigate]);
 
-    //처음 화면 로딩시 전체 선택되게끔
     useEffect(() => {
         const checked = true;
         setCheckedAll(checked);
         setSelectedGoods(checked ? Goods.map(item => item.cart_id) : []);
     }, [Goods]);
-    
-    //전체 선택
+
     const selectAll = (e) => {
         const checked = e.target.checked;
         setCheckedAll(checked);
         setSelectedGoods(checked ? Goods.map(item => item.cart_id) : []);
     };
 
-    //개별 선택
     const doSelect = (e, id) => {
         const updated = e.target.checked ? [...selectedGoods, id] : selectedGoods.filter(i => i !== id);
         setSelectedGoods(updated);
         setCheckedAll(updated.length === Goods.length);
     };
 
-    //삭제 함수(여러개)
     const doDelete = async () => {
         if (window.confirm("선택한 상품을 삭제하시겠습니까?")) {
             const res = await fetch("http://localhost:8080/api/goods/selRemoveCart",{
                 method:"POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
-                body: JSON.stringify({ id: selectedGoods }),  // 배열 전송
+                body: JSON.stringify({ id: selectedGoods }),
             })
             if(!res.ok){ alert("삭제 실패"); return; };
             setGoods(prev => prev.filter(item => !selectedGoods.includes(item.cart_id)));
@@ -67,7 +71,6 @@ const GoodsCart = () => {
         }
     };
 
-    //삭제 함수(단일)
     const removeOption = async (cart) => {
         if (window.confirm("삭제하시겠습니까?")) {
             const res = await fetch("http://localhost:8080/api/goods/removeCart",{
@@ -88,13 +91,11 @@ const GoodsCart = () => {
         }
     };
 
-    //할인 가격
     const getDiscountedPrice = (item) => {
         const discount = item.salePercent ? (1 - item.salePercent / 100) : 1;
         return Math.floor(item.price * discount);
     };
 
-    //총 가격
     const total = Goods.reduce((acc, item) => {
         if (selectedGoods.includes(item.cart_id)) {
             const discounted = getDiscountedPrice(item);
@@ -103,10 +104,10 @@ const GoodsCart = () => {
         return acc;
     }, 0);
 
-    //선택한 상품 구매 이동
     const doOrder = () => {
         const selectedItems = Goods.filter(item => selectedGoods.includes(item.cart_id)).map(item => ({
-        ...item, goods_options_id: item.goods_options_id ?? item.option_id,}));;
+            ...item, goods_options_id: item.goods_options_id ?? item.option_id,
+        }));
         navigate("/Goods/GoodsOrder", { state: { items: selectedItems } });
     };
 
@@ -139,7 +140,7 @@ const GoodsCart = () => {
                     {Goods.map((cart) => (
                         <div key={cart.cart_id} className="flex items-center gap-4 border-t py-4">
                             <input type="checkbox" className="scale-100" checked={selectedGoods.includes(cart.cart_id)} onChange={(e) => doSelect(e, cart.cart_id)} />
-                            <img src={cart.img} alt={cart.goods_name} onClick={()=>navigate(`/Goods/GoodsDetail/${cart.goods_id}`)} className="w-[80px] h-[80px] object-cover rounded-md cursor-pointer" />
+                            <img src={parseImage(cart.img)} alt={cart.goods_name} onClick={()=>navigate(`/Goods/GoodsDetail/${cart.goods_id}`)} className="w-[80px] h-[80px] object-cover rounded-md cursor-pointer" onError={(e) => (e.currentTarget.src = "/placeholder.png")} />
                             <div className="flex-1">
                                 <div className="flex justify-between items-center mb-2">
                                     <span className="font-semibold cursor-pointer" onClick={()=>navigate(`/Goods/GoodsDetail/${cart.goods_id}`)}>{cart.goods_name}</span>

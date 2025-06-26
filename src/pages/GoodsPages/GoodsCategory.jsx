@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const GoodsCategory = ({ product }) => {
+const GoodsCategory = ({ product, soldOutIds = [] }) => {
   const navigate = useNavigate();
   const filters = ["전체", "상의", "하의", "신발", "기타"];
   const [activeFilter, setActiveFilter] = useState("전체");
@@ -17,7 +17,7 @@ const GoodsCategory = ({ product }) => {
 
   return (
     <div className="w-full max-w-screen-xl mx-auto px-4">
-      {/* 필터 버튼들 */}
+      {/* 필터 버튼 */}
       <div className="flex flex-wrap justify-center gap-3 mb-6">
         {filters.map((filter) => (
           <button
@@ -34,16 +34,15 @@ const GoodsCategory = ({ product }) => {
         ))}
       </div>
 
-      {/* 상품 표시 */}
+      {/* 상품 리스트 */}
       {filteredProducts.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {filteredProducts.map((product) => {
-            // 이미지 파싱 및 추출
             let imgSrc = "/placeholder.svg";
             try {
-              const parsed = JSON.parse(product.img);  // 문자열을 배열로 파싱
+              const parsed = JSON.parse(product.img);
               if (Array.isArray(parsed) && parsed.length > 0) {
-                imgSrc = `http://localhost:8080${parsed[0]}`; // 절대경로로 접근 (Spring 이미지 핸들러 활용)
+                imgSrc = `http://localhost:8080${parsed[0]}`;
               }
             } catch (e) {
               if (typeof product.img === "string" && product.img.startsWith("/img/")) {
@@ -51,12 +50,25 @@ const GoodsCategory = ({ product }) => {
               }
             }
 
+            const isSoldOut = soldOutIds.includes(product.id);
+
             return (
               <div
                 key={product.id}
-                className="bg-white border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 cursor-pointer"
+                className={`relative bg-white border border-gray-200 overflow-hidden shadow-sm transition-shadow duration-200 ${
+                  isSoldOut
+                    ? "opacity-50 cursor-pointer" // 👈 pointer-events 제거, 클릭 가능
+                    : "hover:shadow-md cursor-pointer"
+                }`}
                 onClick={() => productsClick(product)}
               >
+                {/* 품절 배지 */}
+                {isSoldOut && (
+                  <div className="absolute top-2 left-2 bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded z-10">
+                    품절
+                  </div>
+                )}
+
                 <div className="aspect-square bg-gray-100 relative overflow-hidden">
                   <img
                     src={imgSrc}
@@ -83,9 +95,7 @@ const GoodsCategory = ({ product }) => {
                         {(product.price * (1 - product.salePercent / 100)).toLocaleString()}원
                       </>
                     ) : (
-                      <>
-                        {product.price.toLocaleString()}원
-                      </>
+                      <>{product.price.toLocaleString()}원</>
                     )}
                   </div>
                 </div>
@@ -95,21 +105,6 @@ const GoodsCategory = ({ product }) => {
         </div>
       ) : (
         <div className="text-center py-20 text-gray-500">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-            <svg
-              className="w-8 h-8 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2M4 13h2m13-8l-4 4m0 0l-4-4m4 4V3"
-              />
-            </svg>
-          </div>
           <p className="text-lg">해당 카테고리에 상품이 없습니다.</p>
         </div>
       )}
