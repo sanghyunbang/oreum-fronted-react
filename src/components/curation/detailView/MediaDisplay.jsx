@@ -1,26 +1,45 @@
 export default function MediaDisplay({ media }) {
-  return (
-    <div className="flex flex-wrap gap-3 mb-2">
-      {media.map((file, idx) => {
-        const type = file.type || file.file?.type || "";
-        const url = file.url || (file.file && URL.createObjectURL(file.file));
-        if (!url) return null;
+  if (!Array.isArray(media) || media.length === 0) return null;
 
-        return type.startsWith("image/") ? (
-          <img
-            key={idx}
-            src={url}
-            alt={`image-${idx}`}
-            className="w-36 h-24 object-cover rounded border border-gray-300"
-          />
-        ) : type === "video/mp4" ? (
-          <video
-            key={idx}
-            src={url}
-            controls
-            className="w-36 h-24 object-cover rounded border border-gray-300"
-          />
-        ) : null;
+  return (
+    <div className="flex flex-wrap gap-4 mb-4">
+      {media.map((url, idx) => {
+        const lowerUrl = url.toLowerCase();
+
+        const commonClass =
+          "w-72 h-48 object-cover rounded-xl border border-gray-300 shadow-sm"; // 디자인 반영
+
+        if (
+          lowerUrl.endsWith(".jpg") ||
+          lowerUrl.endsWith(".jpeg") ||
+          lowerUrl.endsWith(".png") ||
+          lowerUrl.endsWith(".gif") ||
+          lowerUrl.endsWith(".webp")
+        ) {
+          return (
+            <img
+              key={idx}
+              src={url}
+              alt={`image-${idx}`}
+              className={commonClass}
+            />
+          );
+        } else if (
+          lowerUrl.endsWith(".mp4") ||
+          lowerUrl.endsWith(".webm") ||
+          lowerUrl.endsWith(".ogg")
+        ) {
+          return (
+            <video
+              key={idx}
+              src={url}
+              controls
+              className={commonClass}
+            />
+          );
+        } else {
+          return null;
+        }
       })}
     </div>
   );
