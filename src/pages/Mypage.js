@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import profile_imageReact, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Form, useNavigate } from 'react-router-dom';
 
@@ -26,6 +26,10 @@ const [userPosts, setUserPosts] = useState([]);
 const [userComments, setUserComments] = useState([]);
 const [likedPosts, setLikedPosts] = useState([]);
 const [bookmarkedPosts, setBookmarkedPosts] = useState([]);
+const [showImageModal, setShowImageModal] = useState(false);
+const [modalImageSrc, setModalImageSrc] = useState('');
+const [editImageUrl, setEditImageUrl] = useState('');
+const [showEditImageModal, setShowEditImageModal] = useState(false);
 
 const stripHtml = (html) => html.replace(/<[^>]+>/g, '');
 const paginate = (data) => {
@@ -82,10 +86,11 @@ const fetchTabData = (tab) => {
           ...prev,
           name: res.data.name || '',
           address: res.data.address || '',
-          profile_image: res.data.profile_image || '',
+          profile_image: res.data.profileImage || '',
           points: res.data.points || 0
         }));
         setUserData(formData)
+        console.log("프로필 이미지 : ",formData.profile_image)
       })
       .catch((err) => {
         console.error('사용자 정보 불러오기 실패', err);
@@ -106,7 +111,11 @@ const fetchTabData = (tab) => {
   };
 
   const handleSave = () => {
-    axios.put('http://localhost:8080/api/user/details', formData, { withCredentials: true })
+    const fixedFormData = {
+    ...formData,
+    profileImage: formData.profile_image, // 키 이름 변환
+  };
+    axios.put('http://localhost:8080/api/user/details', fixedFormData, { withCredentials: true })
       .then((res) => {
         alert('정보가 업데이트 되었습니다!');
         setUserData(res.data);
@@ -141,6 +150,32 @@ const fetchTabData = (tab) => {
     });
 };
 
+const handleProfileMediaUpload = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const uformData = new FormData();
+  uformData.append("file", file);
+  uformData.append("userId", formData.userId);
+
+  try {
+    const response = await fetch("http://localhost:8080/api/user/upload/media", {
+      method: "POST",
+      credentials: "include",
+      body: uformData
+    });
+
+    if (!response.ok) throw new Error("업로드 실패");
+
+    const result = await response.json(); // { mediaUrl, mediaType }
+    setEditImageUrl(result.mediaUrl); // 이미지 미리보기용
+  } catch (error) {
+    console.error("프로필 이미지 업로드 오류:", error);
+    alert("파일 업로드에 실패했습니다.");
+  }
+};
+
+
 const Pagination = ({ totalItems }) => {
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -160,6 +195,11 @@ const Pagination = ({ totalItems }) => {
     </div>
   );
 };
+const handleImageClick = (src) => {
+  setModalImageSrc(src);
+  setShowImageModal(true);
+};
+
 
 
   if (loading) return <p className="text-center text-gray-500 mt-10">로딩중...</p>;
@@ -172,6 +212,14 @@ const Pagination = ({ totalItems }) => {
           src={formData.profile_image || '/images/profile.jfif'}
           alt="프로필 이미지"
           className="w-10 h-10 rounded-full object-cover border mr-2"
+          onClick={() => {
+          if (editMode) {
+            setEditImageUrl(formData.profile_image || '');
+            setShowEditImageModal(true);
+          } else {
+            handleImageClick(formData.profile_image || '/images/profile.jfif');
+          }
+        }}
         />
         <h2 className="text-xl font-bold text-gray-800">마이 페이지</h2>
       </div>
@@ -355,6 +403,65 @@ const Pagination = ({ totalItems }) => {
       </div>
       </div>
       )}
+
+      {showImageModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50" onClick={() => setShowImageModal(false)}>
+    <div className="relative bg-white p-4 rounded-lg" onClick={(e) => e.stopPropagation()}>
+      <img
+        src={modalImageSrc}
+        alt="확대된 프로필"
+        className="max-w-full max-h-[80vh] rounded"
+      />
+      <button
+        onClick={() => setShowImageModal(false)}
+        className="absolute top-2 right-2 bg-gray-700 text-white px-2 py-1 text-sm rounded hover:bg-gray-800"
+      >
+        닫기
+      </button>
+    </div>
+  </div>
+)}
+
+{showEditImageModal && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={() => setShowEditImageModal(false)}>
+    <div className="bg-white p-6 rounded shadow-md w-96" onClick={e => e.stopPropagation()}>
+      <h3 className="text-lg font-bold mb-4">프로필 이미지 변경</h3>
+
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleProfileMediaUpload}
+        className="mb-4"
+      />
+
+
+      {editImageUrl && (
+        <img src={editImageUrl} alt="미리보기" className="w-32 h-32 object-cover rounded-full mx-auto mb-4 border" />
+      )}
+
+      <div className="flex justify-end space-x-2">
+        <button
+          className="bg-gray-400 text-white px-3 py-1 rounded"
+          onClick={() => setShowEditImageModal(false)}
+        >
+          취소
+        </button>
+        <button
+          className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+          onClick={() => {
+            setFormData(prev => ({ ...prev, profile_image: editImageUrl }));
+            setShowEditImageModal(false);
+          }}
+        >
+          적용
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
     </div>
   );
 }

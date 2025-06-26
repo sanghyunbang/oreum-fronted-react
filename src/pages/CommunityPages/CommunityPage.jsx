@@ -14,7 +14,6 @@ const CommunityPage = () => {
   const [openComments, setOpenComments] = useState({});
   const navigate = useNavigate();
 
-
   // 시간 포맷
   const formatTimeSince = (createdAt) => {
     const now = new Date();
