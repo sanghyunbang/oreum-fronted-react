@@ -31,7 +31,9 @@ const [modalImageSrc, setModalImageSrc] = useState('');
 const [editImageUrl, setEditImageUrl] = useState('');
 const [showEditImageModal, setShowEditImageModal] = useState(false);
 
-const stripHtml = (html) => html.replace(/<[^>]+>/g, '');
+const stripHtml = (html) => {
+  if (!html) return ''; html.replace(/<[^>]+>/g, '');
+};
 const paginate = (data) => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   return data.slice(startIndex, startIndex + itemsPerPage);
