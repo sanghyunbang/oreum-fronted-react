@@ -147,7 +147,6 @@ const GoodsOrder = () => {
 
   //결제하기
   const doPayment = async (e) => {
-    console.log(formData);
     if (!formData.addressname || !formData.addressnumber || !formData.zipcode || !formData.addressbasic || !formData.addressdetail) {
       alert("모든 필수 배송 정보를 입력해주세요.");
       return;
@@ -200,7 +199,7 @@ const GoodsOrder = () => {
   setTimeout(() => clearInterval(checkIMP), 10000);
   }, []);
   
-
+  //유저 포인트 불러오기
   useEffect(()=>{
     const doUser = async() =>{
       const res = await fetch("http://localhost:8080/api/goods/getUserPoints",{
@@ -217,11 +216,23 @@ const GoodsOrder = () => {
     doUser();
   },[userInfo])
 
-  // ✅ 포인트 전액 사용 버튼
+  // 포인트 사용 버튼
   const doPoint = () => {
     const usable = Math.min(tempPoints, formData.maxPoints);
     setFormData(prev => ({ ...prev, point: usable }));
     setTempPoints(usable);
+  };
+  
+  // 이미지 파싱 함수 (S3 절대 경로 지원)
+  const parseImage = (img) => {
+    try {
+      const parsed = Array.isArray(img) ? img : JSON.parse(img || "[]");
+      return parsed.length > 0
+        ? parsed[0].startsWith("http") ? parsed[0] : `http://localhost:8080${parsed[0]}`
+        : "/placeholder.png";
+    } catch {
+      return "/placeholder.png";
+    }
   };
 
   return (
@@ -297,23 +308,12 @@ const GoodsOrder = () => {
           <div className="space-y-4">
             {items.length ? (
               items.map((cart, idx) => {
-                let imgSrc = "/placeholder.svg";
-                try {
-                  const parsed = JSON.parse(cart.img);
-                  if (Array.isArray(parsed) && parsed.length > 0) {
-                    imgSrc = `http://localhost:8080${parsed[0]}`;
-                  }
-                } catch (e) {
-                  if (typeof cart.img === "string" && cart.img.startsWith("/img/")) {
-                    imgSrc = `http://localhost:8080${cart.img}`;
-                  }
-                }
 
                 return (
                   <div key={idx} className="flex items-center gap-4 border-b pb-4 last:border-b-0">
                     <div className="w-20 h-20 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
                       <img
-                        src={imgSrc}
+                        src={parseImage(cart.img)}
                         alt={cart.goods_name}
                         className="w-full h-full object-cover cursor-pointer"
                         onClick={() => navigate(`/Goods/GoodsDetail/${cart.goods_id}`)}
@@ -457,7 +457,7 @@ const GoodsOrder = () => {
         </section>
 
         {/* Payment Button */}
-        <button type="button" onClick={doPayment}
+        <button type="button" onClick={doIamportPayment}
           className="w-full bg-green-500 hover:bg-green-600 text-white py-4 rounded-md text-lg font-bold transition-colors"
           >
           {parseInt(formData.total || "0").toLocaleString()}원 결제하기 ({selectedMethod.label})

@@ -4,12 +4,14 @@ import { FaHome, FaArrowLeft } from "react-icons/fa";
 import { useSelector } from "react-redux";
 
 const parseImage = (img) => {
-    try {
-        const parsed = Array.isArray(img) ? img : JSON.parse(img || "[]");
-        return parsed.length > 0 ? `http://localhost:8080${parsed[0]}` : "/placeholder.png";
-    } catch {
-        return "/placeholder.png";
-    }
+  try {
+    const parsed = Array.isArray(img) ? img : JSON.parse(img || "[]");
+    return parsed.length > 0
+      ? parsed[0].startsWith("http") ? parsed[0] : `http://localhost:8080${parsed[0]}`
+      : "/placeholder.png";
+  } catch {
+    return "/placeholder.png";
+  }
 };
 
 const GoodsCart = () => {

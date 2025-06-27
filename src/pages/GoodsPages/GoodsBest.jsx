@@ -9,12 +9,15 @@ const GoodsBest = ({ product, rank }) => {
     3: "bg-orange-500 border-orange-200",
   };
 
-  // ✅ 이미지 경로 파싱 처리
+  // ✅ S3 절대 URL 대응 이미지 파싱
   let imgSrc = "/placeholder.svg";
   try {
-    const parsed = JSON.parse(product.img);
+    const parsed = Array.isArray(product.img)
+      ? product.img
+      : JSON.parse(product.img || "[]");
+
     if (Array.isArray(parsed) && parsed.length > 0) {
-      imgSrc = `http://localhost:8080${parsed[0]}`;
+      imgSrc = parsed[0]; // 절대 URL이거나 상대경로
     }
   } catch (e) {
     if (typeof product.img === "string" && product.img.startsWith("/img/")) {

@@ -112,7 +112,10 @@ const Goods = () => {
             >
               <div className="relative">
                 {soldOut && (
-                  <div className="absolute top-2 left-2 bg-gray-800 text-white text-xs px-2 py-1 rounded z-10">품절</div>
+                  <div className="absolute inset-0 flex items-center justify-center z-10 rounded"
+                      style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+                    <span className="text-white text-lg font-bold">품절</span>
+                  </div>
                 )}
                 <GoodsBest product={p} rank={index + 1} />
               </div>

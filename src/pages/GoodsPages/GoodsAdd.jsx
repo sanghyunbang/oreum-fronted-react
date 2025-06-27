@@ -101,21 +101,18 @@ const GoodsAdd = () => {
     try {
       const formData = new FormData();
       imageInputs.forEach((input) => {
-        if (input.file) formData.append("images", input.file);
+        if (input.file) formData.append("media", input.file);
       });
-      const uploadRes = await fetch("http://localhost:8080/api/goods/upload", {
+
+      formData.append("goods", new Blob([JSON.stringify(Goods)], { type: "application/json" }));
+
+      const res = await fetch("http://localhost:8080/api/goods/insert", {
         method: "POST",
         body: formData,
-      });
-      const imgPaths = await uploadRes.json();
-      const goodsData = { ...Goods, img: JSON.stringify(imgPaths) };
-      const goodsRes = await fetch("http://localhost:8080/api/goods/addGoods", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(goodsData),
       });
-      const result = await goodsRes.json();
+
+      const result = await res.json();
       if (result.id) {
         const optionData = options.map((opt) => ({ ...opt, goodsId: result.id }));
         await fetch("http://localhost:8080/api/goods/addGoodsItem", {
@@ -125,12 +122,14 @@ const GoodsAdd = () => {
           body: JSON.stringify(optionData),
         });
         alert("굿즈가 성공적으로 추가되었습니다.");
+        navigate("/Goods");
       }
     } catch (err) {
       console.error(err);
       alert("추가 중 오류 발생");
     }
   };
+
 
   return (
     <div className="p-6 max-w-2xl mx-auto text-gray-800">
@@ -168,13 +167,13 @@ const GoodsAdd = () => {
 
         <div>
           <label htmlFor="price" className="block font-medium">가격</label>
-          <input id="price" name="price" value={Goods.price} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.price ? "border-red-500" : "border-gray-300"}`} />
+          <input id="price" name="price" value={Goods.price.toString().replace(/^0+(?=\d)/, "")} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.price ? "border-red-500" : "border-gray-300"}`} />
           {errors.price && <p className="text-sm text-red-500 mt-1">{errors.price}</p>}
         </div>
 
         <div>
           <label htmlFor="salePercent" className="block font-medium">할인율 (%)</label>
-          <input id="salePercent" name="salePercent" value={Goods.salePercent} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.salePercent ? "border-red-500" : "border-gray-300"}`} />
+          <input id="salePercent" name="salePercent" value={Goods.salePercent.toString().replace(/^0+(?=\d)/, "")} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.salePercent ? "border-red-500" : "border-gray-300"}`} />
           {errors.salePercent && <p className="text-sm text-red-500 mt-1">{errors.salePercent}</p>}
         </div>
 

@@ -317,3 +317,9 @@ CREATE TABLE reviews (
   FOREIGN KEY (order_item_id) REFERENCES order_items(order_item_id) ON DELETE CASCADE,
   FOREIGN KEY (order_id) REFERENCES orders(order_id) ON DELETE CASCADE
 );
+
+-- [0627 수정을 위한 쿼리문]
+
+-- [goods 테이블 수정]
+-- description TEXT -> LONGTEXT 변경
+ALTER TABLE goods MODIFY description LONGTEXT;

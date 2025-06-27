@@ -4,10 +4,11 @@ import { FaArrowLeft, FaHome, FaTrash } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import Slider from "react-slick";
 
+// ✅ S3 절대 URL 대응 이미지 파싱 함수
 const parseImage = (img) => {
   try {
     const parsed = Array.isArray(img) ? img : JSON.parse(img || "[]");
-    return parsed.length > 0 ? `http://localhost:8080${parsed[0]}` : "/placeholder.png";
+    return parsed.length > 0 ? parsed[0] : "/placeholder.png";
   } catch {
     return "/placeholder.png";
   }
@@ -51,7 +52,6 @@ const GoodsDelivery = () => {
       const data = await response.text();
       if (data === "1") {
         alert("주문이 취소되었습니다.");
-        // 백엔드가 status를 변경해서 응답해야 UI가 반영됨
         setFormData(prev => prev.map(o => o.order_id === id ? { ...o, status: "결제취소" } : o));
       } else {
         alert("취소 처리 실패");

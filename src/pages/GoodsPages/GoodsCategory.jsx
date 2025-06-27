@@ -42,12 +42,10 @@ const GoodsCategory = ({ product, soldOutIds = [] }) => {
             try {
               const parsed = JSON.parse(product.img);
               if (Array.isArray(parsed) && parsed.length > 0) {
-                imgSrc = `http://localhost:8080${parsed[0]}`;
+                imgSrc = parsed[0]; // ✅ S3 또는 CloudFront 절대 URL
               }
             } catch (e) {
-              if (typeof product.img === "string" && product.img.startsWith("/img/")) {
-                imgSrc = `http://localhost:8080${product.img}`;
-              }
+              imgSrc = "/placeholder.svg";
             }
 
             const isSoldOut = soldOutIds.includes(product.id);
@@ -57,15 +55,16 @@ const GoodsCategory = ({ product, soldOutIds = [] }) => {
                 key={product.id}
                 className={`relative bg-white border border-gray-200 overflow-hidden shadow-sm transition-shadow duration-200 ${
                   isSoldOut
-                    ? "opacity-50 cursor-pointer" // 👈 pointer-events 제거, 클릭 가능
+                    ? "opacity-50 cursor-pointer"
                     : "hover:shadow-md cursor-pointer"
                 }`}
                 onClick={() => productsClick(product)}
               >
                 {/* 품절 배지 */}
                 {isSoldOut && (
-                  <div className="absolute top-2 left-2 bg-gray-800 text-white text-xs font-bold px-2 py-1 rounded z-10">
-                    품절
+                  <div className="absolute inset-0 flex items-center justify-center z-10 rounded"
+                      style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+                    <span className="text-white text-lg font-bold">품절</span>
                   </div>
                 )}
 
