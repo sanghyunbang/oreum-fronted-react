@@ -10,6 +10,7 @@ import {
   FaMinus
 } from "react-icons/fa";
 import CurationBanner from "./CurationBanner";
+import CustomFeedModal from "./CustomFeedModal";
 
 const mountainEmojis = [
   { label: "🏞️", value: "🏞️" },
@@ -25,6 +26,11 @@ const Sidebar = () => {
   const recentMountains = ["지리산", "설악산", "한라산"];
   const [communities, setCommunities] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showFeedModal, setShowFeedModal] = useState(false);
+  const handleFeedCreated = () => {
+  
+  setShowFeedModal(false);
+};
 
   // form states
   const [title, setTitle] = useState("");
@@ -205,9 +211,16 @@ const Sidebar = () => {
 
       <div>
         <h4 className="text-gray-700 font-semibold mb-2">나만의 피드</h4>
-        <div className="flex items-center gap-2 text-blue-600 cursor-pointer hover:underline">
+        <div className="flex items-center gap-2 text-blue-600 cursor-pointer hover:underline"
+        onClick={() => setShowFeedModal(true)}>
           <FaPlus size={12} /> <span>맞춤 피드 만들기</span>
         </div>
+        {showFeedModal && (
+        <CustomFeedModal
+          onClose={() => setShowFeedModal(false)}
+          onSuccess={handleFeedCreated}
+        />
+      )}
       </div>
 
       <div>
@@ -224,6 +237,7 @@ const Sidebar = () => {
           ))}
         </ul>
       </div>
+      
     </aside>
   );
 };

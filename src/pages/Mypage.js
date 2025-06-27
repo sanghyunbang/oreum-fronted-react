@@ -32,7 +32,8 @@ const [editImageUrl, setEditImageUrl] = useState('');
 const [showEditImageModal, setShowEditImageModal] = useState(false);
 
 const stripHtml = (html) => {
-  if (!html) return ''; html.replace(/<[^>]+>/g, '');
+  if (!html) return ''; 
+  html.replace(/<[^>]+>/g, '');
 };
 const paginate = (data) => {
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -92,7 +93,6 @@ const fetchTabData = (tab) => {
           points: res.data.points || 0
         }));
         setUserData(formData)
-        console.log("프로필 이미지 : ",formData.profile_image)
       })
       .catch((err) => {
         console.error('사용자 정보 불러오기 실패', err);
