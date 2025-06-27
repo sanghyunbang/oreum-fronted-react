@@ -11,6 +11,7 @@ import PostControls from "../../components/posts/PostControls";
 import usePostDetail from "../../hooks/post/usePostDetail";
 
 import CurationDetailView from "../../components/curation/CurationDetailView";
+import CurationMapFloating from "../../components/mapForCuration/CurationMapFloating";
 
 
 function BoardDetailPage() {
@@ -79,6 +80,20 @@ function BoardDetailPage() {
           <PostContent content={post.content} />
         </>
       )}
+      
+      {post.type === "curation" && (() => {
+        const segmentList = Object.values(segments)
+          .filter((seg) => seg.geometry?.type === "LineString")
+          .sort((a, b) => Number(a.segmentKey) - Number(b.segmentKey)); // 키 순 정렬
+
+        const lastSegment = segmentList.at(-1); // 제일 마지막 segment
+
+        return lastSegment ? (
+          <CurationMapFloating coordinates={lastSegment.geometry.coordinates} />
+        ) : null;
+      })()}
+
+
 
       <PostActions
         post={post}
