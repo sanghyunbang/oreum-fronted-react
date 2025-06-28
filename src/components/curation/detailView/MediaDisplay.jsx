@@ -7,7 +7,7 @@ export default function MediaDisplay({ media }) {
         const lowerUrl = url.toLowerCase();
 
         const commonClass =
-          "w-72 h-48 object-cover rounded-xl border border-gray-300 shadow-sm"; // 디자인 반영
+          "w-[90%] h-[90%] mx-auto object-cover rounded-xl border border-gray-300 shadow-sm"; // 디자인 반영
 
         if (
           lowerUrl.endsWith(".jpg") ||

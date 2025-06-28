@@ -63,7 +63,7 @@ function BoardDetailPage() {
   if (!post) return <div className="p-10 text-center">불러오는 중...</div>;
 
   return (
-    <div className="relative max-w-3xl mx-auto p-6 bg-white border rounded-lg shadow">
+    <div className="relative w-[75%] ml-4 p-6 bg-white border rounded-lg shadow">
       <PostHeader
         post={post}
         userInfo={userInfo}
