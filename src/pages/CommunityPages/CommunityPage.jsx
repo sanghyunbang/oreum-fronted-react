@@ -103,7 +103,7 @@ const CommunityPage = () => {
   if (!community) return <p>Loading...</p>;
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
+    <div className="max-w-3xl mx-auto p-4">
       <CommunityHeader community={community} />
       <CommunityStats community={community} />
 
@@ -148,7 +148,7 @@ const CommunityPage = () => {
                         key={idx}
                         src={media.mediaUrl}
                         alt={`media-${idx}`}
-                        className="w-full h-48 object-cover rounded"
+                        className="w-[95%] h-[95%] mx-auto object-cover rounded"
                       />
                     ) : (
                       <video
@@ -158,7 +158,7 @@ const CommunityPage = () => {
                         loop
                         muted
                         playsInline
-                        className="w-full h-48 object-cover rounded"
+                        className="w-[95%] mx-auto h-[95%] object-cover rounded"
                       />
                     )
                   )}

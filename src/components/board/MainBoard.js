@@ -138,7 +138,7 @@ function MainBoard() {
 
   return (
     <div className="max-w-2xl mx-auto p-5">
-      <h2 className="text-xl font-bold mb-4">게시글</h2>
+      <h2 className="text-xl font-bold mb-4">홈 게시글</h2>
       {postlist.slice(0, visibleCount).map((post, idx) => {
         const isLast = idx === visibleCount - 1;
         return(
@@ -180,7 +180,7 @@ function MainBoard() {
                     key={idx}
                     src={media.mediaUrl}
                     alt={`media-${idx}`}
-                    className="w-full h-48 object-cover rounded mb-2"
+                    className="w-[95%] h-[95%] mx-auto object-cover rounded mb-2"
                   />
                 ) : (
                   <video
@@ -190,7 +190,7 @@ function MainBoard() {
                     loop
                     muted
                     playsInline
-                    className="w-full h-full object-cover rounded mb-2"
+                    className="w-[95%] h-[95%] mx-auto object-cover rounded mb-2"
                   />
                 )
               )}

@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Draggable from "react-draggable";
 
+// 카테고리 버튼 목록
 const categories = [
   { label: "음식점", keyword: "음식점" },
   { label: "카페", keyword: "카페" },
@@ -11,23 +12,25 @@ const categories = [
 ];
 
 export default function CurationMapFloating({ coordinates }) {
-  const mapRef = useRef(null);
-  const mapInstanceRef = useRef(null);
-  const markerRef = useRef([]);
-  const infoWindowRef = useRef([]);
-  const markerClusterRef = useRef(null);
-  const kakaoKey = process.env.REACT_APP_KAKAO_MAP_KEY;
+  const mapRef = useRef(null); // 지도 컨테이너 참조
+  const mapInstanceRef = useRef(null); // kakao map 객체 참조
+  const markerRef = useRef([]); // 생성된 마커들
+  const infoWindowRef = useRef([]); // 생성된 정보창들
+  const markerClusterRef = useRef(null); // 클러스터러 객체
 
-  //  마커 및 오버레이 초기화 함수
+  const kakaoKey = process.env.REACT_APP_KAKAO_MAP_KEY;
+  const [isCollapsed, setIsCollapsed] = useState(false); // 지도 접힘 여부
+
+  // 마커 및 정보창 초기화
   const clearMarkers = () => {
     markerRef.current.forEach((m) => m.setMap(null));
     infoWindowRef.current.forEach((win) => win.setMap(null));
-    markerClusterRef.current?.clear(); // 클러스터러 마커 제거
+    markerClusterRef.current?.clear();
     markerRef.current = [];
     infoWindowRef.current = [];
   };
 
-  //  카테고리 검색 핸들러
+  // 카테고리 검색 실행
   const handleCategorySearch = (keyword) => {
     const map = mapInstanceRef.current;
     if (!map || !window.kakao.maps.services) return;
@@ -36,6 +39,7 @@ export default function CurationMapFloating({ coordinates }) {
     const center = map.getCenter();
     const level = map.getLevel();
 
+    // 줌 레벨에 따라 반경 설정
     let radius;
     if (level <= 4) radius = 300;
     else if (level <= 6) radius = 700;
@@ -60,11 +64,9 @@ export default function CurationMapFloating({ coordinates }) {
             </div>
           `;
 
-          const infowindow = new window.kakao.maps.InfoWindow({
-            content,
-            removable: true,
-          });
+          const infowindow = new window.kakao.maps.InfoWindow({ content, removable: true });
 
+          // 클릭 시 정보창 열기
           window.kakao.maps.event.addListener(marker, "click", () => {
             infoWindowRef.current.forEach((win) => win.close());
             infowindow.open(map, marker);
@@ -85,7 +87,7 @@ export default function CurationMapFloating({ coordinates }) {
     );
   };
 
-  //  Kakao Map 초기화 함수
+  // 지도 초기화
   const initializeMap = () => {
     const centerCoord = coordinates[Math.floor(coordinates.length / 2)];
     const center = new window.kakao.maps.LatLng(centerCoord[1], centerCoord[0]);
@@ -103,6 +105,7 @@ export default function CurationMapFloating({ coordinates }) {
       minLevel: 7,
     });
 
+    // 경로 표시
     const path = coordinates.map(
       ([lng, lat]) => new window.kakao.maps.LatLng(lat, lng)
     );
@@ -116,6 +119,7 @@ export default function CurationMapFloating({ coordinates }) {
       strokeStyle: "solid",
     });
 
+    // 각 위치마다 숫자 오버레이 표시
     coordinates.forEach(([lng, lat], index) => {
       const position = new window.kakao.maps.LatLng(lat, lng);
       const overlayContent = `
@@ -146,7 +150,7 @@ export default function CurationMapFloating({ coordinates }) {
     });
   };
 
-  //  최초 한 번만 Kakao Maps SDK 로드
+  // Kakao Maps SDK 로딩 및 초기화
   useEffect(() => {
     if (!coordinates || coordinates.length === 0) return;
 
@@ -163,7 +167,6 @@ export default function CurationMapFloating({ coordinates }) {
       };
       document.head.appendChild(script);
     } else {
-      // 스크립트는 이미 있는데 아직 로드 안된 상태
       const waitForLoad = setInterval(() => {
         if (window.kakao && window.kakao.maps && window.kakao.maps.load) {
           clearInterval(waitForLoad);
@@ -173,39 +176,62 @@ export default function CurationMapFloating({ coordinates }) {
     }
   }, [coordinates]);
 
-  //  렌더링
+  // 접기 상태가 풀릴 때 지도 리사이징
+  useEffect(() => {
+    if (!isCollapsed) {
+      setTimeout(() => {
+        mapInstanceRef.current?.relayout();
+      }, 300); // transition 끝난 후 relayout 호출
+    }
+  }, [isCollapsed]);
+
   return (
     <Draggable handle=".drag-handle">
       <div
-        className="fixed top-[150px] right-8 w-[28%] h-[35%] z-50 bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200"
-        style={{ backdropFilter: "blur(6px)", transition: "all 0.3s ease-in-out" }}
+        className={`fixed top-[150px] right-8 w-[28%] z-50 bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200
+        transition-all duration-300
+        ${isCollapsed ? "h-12" : "h-[35%]"}`}
+        style={{ backdropFilter: "blur(6px)" }}
       >
         <div className="w-full h-full relative">
-          {/* drag 영역을 따로 지정 */}
-          <div className="drag-handle cursor-move absolute top-0 left-0 right-0 h-6 bg-gray-100 text-xs text-center leading-6 font-semibold z-40 border-b border-gray-300">
-            🟰 지도이동
+          {/* 드래그 가능한 상단 바 */}
+          <div className="drag-handle cursor-move absolute top-0 left-0 right-0 h-6 bg-green-300 text-xs text-gray-700 text-center leading-6 font-semibold z-40 border-b border-gray-300">
+            경로
           </div>
 
-          <div ref={mapRef} className="w-full h-full pt-6" /> {/* 드래그 영역 높이 확보 */}
-
-          {/* 버튼 영역 */}
-          <div className="absolute bottom-2 left-1 right-1 flex flex-wrap justify-center gap-2 bg-white/80 p-2 rounded-xl shadow-md z-30">
-            {categories.map(({ label, keyword }) => (
-              <button
-                key={label}
-                onClick={() => handleCategorySearch(keyword)}
-                className="text-xs px-3 py-1 bg-white hover:bg-gray-100 border rounded-full shadow-sm"
-              >
-                {label}
-              </button>
-            ))}
+          {/* 지도 접기/펼치기 토글 버튼 */}
+          <div className="absolute top-1 right-2 z-50">
             <button
-              onClick={clearMarkers}
-              className="text-xs px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 border rounded-full shadow-sm"
-            >
-              초기화
+              onClick={() => setIsCollapsed(prev => !prev)}
+              className="text-[11px] px-3 py-[3px]  text-gray-600 hover:bg-gray-200 transition rounded-full shadow-sm"
+              >
+              {isCollapsed ? "펼치기" : "접기"}
             </button>
           </div>
+
+          {/* 지도 컨테이너 */}
+          <div ref={mapRef} className="w-full h-full pt-6" />
+
+          {/* 카테고리 검색 버튼들 (접혔을 땐 숨김) */}
+          {!isCollapsed && (
+            <div className="absolute bottom-2 left-1 right-1 flex flex-wrap justify-center gap-2 bg-white/80 p-2 rounded-xl shadow-md z-30">
+              {categories.map(({ label, keyword }) => (
+                <button
+                  key={label}
+                  onClick={() => handleCategorySearch(keyword)}
+                  className="text-xs px-3 py-1 bg-white hover:bg-gray-100 border rounded-full shadow-sm"
+                >
+                  {label}
+                </button>
+              ))}
+              <button
+                onClick={clearMarkers}
+                className="text-xs px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 border rounded-full shadow-sm"
+              >
+                초기화
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </Draggable>

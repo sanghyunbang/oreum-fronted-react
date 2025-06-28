@@ -27,7 +27,7 @@ export default function transformForMongoDB(segments) {
         pointerName: value.pointerName || '',
         difficulty: value.difficulty || '',
         caution: value.caution || '',
-        facilities: value.facility || [],
+        facility: value.facility || [],
         description: value.description || '',
         media, // S3 URL or File
         geometry, // null일 수도 있음

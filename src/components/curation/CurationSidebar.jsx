@@ -114,7 +114,6 @@ export default function CurationSideBar({ commonData, setCommonData, segments, s
 
     const newSegment = {
       ...sectionData,
-      description: segmentContent,
       facility: [...selectedFacilities],
       media: filesWithUrl,
     };
@@ -293,8 +292,8 @@ export default function CurationSideBar({ commonData, setCommonData, segments, s
                 <div className="bg-white border border-gray-300 rounded overflow-hidden mb-4">
                   <ReactQuill
                     key={quillKey}
-                    value={segmentContent}
-                    onChange={setSegmentContent}
+                    value={sectionData.description || ""}
+                    onChange={(value) => setSectionData({ ...sectionData, description: value })}
                     className="editor-container"
                     style={{ height: '300px' }}
                   />
@@ -380,8 +379,8 @@ export default function CurationSideBar({ commonData, setCommonData, segments, s
           <div className="bg-white border border-gray-300 rounded overflow-hidden mb-4">
             <ReactQuill
               key={quillKey}
-              value={segmentContent}
-              onChange={setSegmentContent}
+              value={sectionData.description || ""}
+              onChange={(value) => setSectionData({ ...sectionData, description: value })}
               className="editor-container"
               style={{ height: '300px' }}
             />

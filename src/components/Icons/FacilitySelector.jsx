@@ -14,36 +14,40 @@ import {
   SummitIcon,
   DescentPathIcon,
   DangerZoneIcon,
-} from "./icons"; // 아이콘 export 한 파일
+} from "./icons"; // 아이콘 함수 import
 
-const facilityOptions = [
-  { value: "observatory", label: "전망대", icon: ObservatoryIcon },
-  { value: "store", label: "편의점", icon: StoreIcon },
-  { value: "parking", label: "주차장", icon: ParkingIcon },
-  { value: "info", label: "안내소", icon: InfoIcon },
-  { value: "restroom", label: "화장실", icon: RestroomIcon },
-  { value: "shelter", label: "정자/쉼터", icon: ShelterIcon },
-  { value: "water", label: "급수대", icon: WaterFountainIcon },
-  { value: "mapboard", label: "종합안내도", icon: MapBoardIcon },
-  { value: "aed", label: "AED", icon: AedIcon },
-  { value: "photo", label: "사진명소", icon: PhotoSpotIcon },
-  { value: "summit", label: "정상", icon: SummitIcon },
-  { value: "descent", label: "하산길", icon: DescentPathIcon },
-  { value: "danger", label: "위험구간", icon: DangerZoneIcon },
+// 각 시설 옵션 목록 (아이콘은 함수형 컴포넌트로 JSX로 표시)
+export const facilityOptions = [
+  { value: "observatory", label: "전망대", icon: <ObservatoryIcon /> },
+  { value: "store", label: "편의점", icon: <StoreIcon /> },
+  { value: "parking", label: "주차장", icon: <ParkingIcon /> },
+  { value: "info", label: "안내소", icon: <InfoIcon /> },
+  { value: "restroom", label: "화장실", icon: <RestroomIcon /> },
+  { value: "shelter", label: "정자/쉼터", icon: <ShelterIcon /> },
+  { value: "water", label: "급수대", icon: <WaterFountainIcon /> },
+  { value: "mapboard", label: "종합안내도", icon: <MapBoardIcon /> },
+  { value: "aed", label: "AED", icon: <AedIcon /> },
+  { value: "photo", label: "사진명소", icon: <PhotoSpotIcon /> },
+  { value: "summit", label: "정상", icon: <SummitIcon /> },
+  { value: "descent", label: "하산길", icon: <DescentPathIcon /> },
+  { value: "danger", label: "위험구간", icon: <DangerZoneIcon /> },
 ];
 
-// 아이콘 포함 커스텀 렌더링
-const formatOptionLabel = ({ label, icon }) => (
+// 커스텀 옵션 라벨 렌더링: 아이콘 + 텍스트
+export const formatOptionLabel = ({ label, icon }) => (
   <div className="flex items-center gap-2">
     {icon}
     <span>{label}</span>
   </div>
 );
 
-
+// 빠른 조회용 facilityMap 생성
+export const facilityMap = facilityOptions.reduce((map, option) => {
+  map[option.value] = option;
+  return map;
+}, {});
 
 export default function FacilitySelector({ selected, setSelected }) {
-  // selected = ["store", "parking"] 와 같은 string 배열
   const selectedOptions = facilityOptions.filter(opt => selected.includes(opt.value));
 
   return (

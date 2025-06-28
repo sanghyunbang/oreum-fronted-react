@@ -110,21 +110,30 @@ export default function MapFromKakao({ trails, center, minDistance = 0 }) {
 
           let coords;
           try {
-            coords = geom.replace('LINESTRING(', '').replace(')', '').split(',').map((pt) => {
-              const [x, y] = pt.trim().split(/\s+/).map(Number);
-              return new window.kakao.maps.LatLng(y, x);
-            });
-          } catch {
+            coords = geom
+              .replace('LINESTRING(', '')
+              .replace(')', '')
+              .split(',')
+              .map((pt) => {
+                const [x, y] = pt.trim().split(/\s+/).map(Number);
+                return new window.kakao.maps.LatLng(y, x);
+              });
+            console.log(`trail[${idx}] 좌표 수: ${coords.length}`, coords);
+          } catch (e) {
+            console.error(`좌표 파싱 실패:`, e);
             return;
           }
 
-          if (coords.length < 2) return;
+          if (coords.length < 2) {
+            console.warn(`[!] trail[${idx}] 좌표가 너무 적음`);
+            return;
+          }
 
           const polyline = new window.kakao.maps.Polyline({
             path: coords,
-            strokeWeight: 5,
+            strokeWeight: 4,
             strokeColor: getColorByCatNam(trail.cat_nam),
-            strokeOpacity: 0.8,
+            strokeOpacity: 0.9,
             strokeStyle: 'solid',
           });
 
@@ -160,8 +169,13 @@ export default function MapFromKakao({ trails, center, minDistance = 0 }) {
             content: `<div style="padding:3px; font-size:12px;">${trail.mntn_nm || `등산로 ${idx + 1}`}</div>`,
           });
 
-          window.kakao.maps.event.addListener(polyline, 'mouseover', () => tooltip.open(map, polyline));
-          window.kakao.maps.event.addListener(polyline, 'mouseout', () => tooltip.close());
+          window.kakao.maps.event.addListener(polyline, 'mouseover', () => {
+            tooltip.setPosition(mid);
+            tooltip.open(map);
+          });
+          window.kakao.maps.event.addListener(polyline, 'mouseout', () => {
+            tooltip.close();
+          });
         });
       });
     };
