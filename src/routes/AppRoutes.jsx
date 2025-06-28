@@ -28,6 +28,7 @@ import MainBoard from '../components/board/MainBoard';
 import MountainDetailPage from '../components/board/MountainDetailPage';
 import Mypage from '../pages/Mypage';
 import PostEditPage from '../components/board/PostEditPage';
+import MyFeedPages from '../pages/CommunityPages/MyFeedPasges';
 
 // 💡 (선택) 로그인 상태 초기화용 컴포넌트
 import AuthInit from './AuthInit'; // useEffect로 localStorage 확인하는 컴포넌트
@@ -76,6 +77,7 @@ const AppRoutes = () => (
         <Route path="mountaindetail" element={<MountainDetailPage />} />
 
         <Route path="community/:communityName" element={<CommunityPage/>}/>
+        <Route path="/feed/:feedname" element={<MyFeedPages/>}/>
       </Route>
 
       {/* 소셜 로그인 후 리다이렉션 경로 (Layout 없이 따로 렌더링) */}

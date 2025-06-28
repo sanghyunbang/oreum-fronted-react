@@ -69,7 +69,10 @@ const Sidebar = () => {
   useEffect(() => {
     fetchCommunities();
     fetchFeeds();
+    console.log(myFeeds)
   }, []);
+
+  
 
   const handleAddCommunity = async () => {
     if (!title.trim()) return alert("제목을 입력하세요");
