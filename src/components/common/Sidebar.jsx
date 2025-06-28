@@ -22,6 +22,7 @@ const mountainEmojis = [
 
 const Sidebar = () => {
   const navigate = useNavigate();
+  const [myFeeds, setMyFeeds] = useState([]);
 
   const recentMountains = ["지리산", "설악산", "한라산"];
   const [communities, setCommunities] = useState([]);
@@ -50,9 +51,24 @@ const Sidebar = () => {
       console.error(error);
     }
   };
+  const fetchFeeds = async () => {
+  try {
+    const res = await fetch("http://localhost:8080/api/community/myfeeds", {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("피드 불러오기 실패");
+    const data = await res.json();
+    setMyFeeds(data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 
   useEffect(() => {
     fetchCommunities();
+    fetchFeeds();
   }, []);
 
   const handleAddCommunity = async () => {
@@ -221,6 +237,17 @@ const Sidebar = () => {
           onSuccess={handleFeedCreated}
         />
       )}
+      <ul className="mt-2 space-y-1 text-blue-700">
+        {myFeeds.map((feed) => (
+          <li
+            key={feed.id}
+            className="cursor-pointer hover:text-blue-900"
+            onClick={() => navigate(`/feed/${feed.feedname}`)}
+          >
+            📌 {feed.feedname}
+          </li>
+        ))}
+      </ul>
       </div>
 
       <div>
