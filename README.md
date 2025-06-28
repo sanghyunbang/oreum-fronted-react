@@ -34,6 +34,10 @@ npm install react-select
 // 미리 보기 관련[0625 추가]
 npm install -D @tailwindcss/line-clamp
 
+// 큐레이션 클 지도 드레그 기능 구현 관련 
+npm install react-draggable [0628 추가]
+
+
 
 
 # commit convention(커밋 메시지 규칙)
