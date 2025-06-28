@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Slider from "react-slick";
-import { FaHeart, FaRegHeart, FaShare, FaStar, FaHome, FaShoppingCart } from "react-icons/fa";
+import { FaHeart, FaRegHeart, FaShare, FaStar, FaHome, FaShoppingCart, FaArrowLeft } from "react-icons/fa";
 import { useNavigate, useParams } from "react-router-dom";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -23,8 +23,6 @@ const GoodsDetail = () => {
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    customPaging: () => <div className="w-2 h-2 rounded-full bg-gray-300 mx-1" />,
-    dotsClass: "slick-dots custom-dots",
   };
 
   const addOption = (e) => {
@@ -153,7 +151,6 @@ const GoodsDetail = () => {
   }, [userInfo, goods.id]);
 
   useEffect(() => {
-    window.scrollTo(0, 0);
     const doList = async () => {
       const res = await fetch(`http://localhost:8080/api/goods/detailList?id=${id}`, {
         method: "GET",
@@ -193,9 +190,9 @@ const GoodsDetail = () => {
     <>
       <div className="max-w-3xl min-w-[600px] mx-auto p-5 font-sans">
         <header className="flex items-center justify-between px-4 py-2 mb-[80px]">
-          <div className="text-2xl cursor-pointer z-10 mr-5" onClick={() => navigate(-1)}>
-            {"<"}
-          </div>
+          <button onClick={() => navigate(-1)} className="flex items-center text-gray-700 hover:text-gray-900">
+            <FaArrowLeft className="mr-2" /> 뒤로
+          </button>
           <h5 className="text-center flex-1 text-2xl font-bold -ml-1">{goods.name}</h5>
           <div className="text-2xl cursor-pointer z-10 mr-5" onClick={() => navigate("/Goods")}>
             <FaHome />
@@ -235,8 +232,9 @@ const GoodsDetail = () => {
                 </>
               )}
             </div>
+            <hr></hr>
 
-            <div className="bg-gray-50 p-4 rounded-lg mb-5">
+            <div className=" p-4 rounded-lg mb-5">
               <div>
                 <strong>배송비:</strong> 무료
               </div>
@@ -245,9 +243,9 @@ const GoodsDetail = () => {
               </div>
             </div>
 
-            <div className="flex items-center mb-5 gap-3">
+            <div className="flex justify-end mb-5">
               {allSoldOut ? (<></>):(
-              <select onChange={addOption} value="" className="ml-[200px] w-[150px] border border-gray-300 rounded p-2">
+              <select onChange={addOption} value="" className="w-auto max-w-[200px] border border-gray-300 rounded p-2">
                 <option value="">상품 옵션</option>
                 {Array.isArray(goodsOpt) &&
                   goodsOpt.map((opt) => (
@@ -266,13 +264,15 @@ const GoodsDetail = () => {
 
             {selectedOption.map((opt, idx) => (
               <div key={idx} className="border border-gray-200 mb-1">
-                <span className="ml-5 mr-[100px]">
-                  {opt.option_name}{" "}
-                  {opt.stock_qty <= 10 ? <span className="text-red-500">(재고 {opt.stock_qty}개)</span> : ""}
-                </span>
-                <button className="text-red-500" onClick={() => removeOption(opt.id)}>
-                  X
-                </button>
+                <div className="flex items-center border rounded-md overflow-hidden">
+                  <span className="ml-5 mr-[100px]">
+                    {opt.option_name}{" "}
+                    {opt.stock_qty <= 10 ? <span className="text-red-500">(재고 {opt.stock_qty}개)</span> : ""}
+                  </span>
+                  <button className="text-red-500 ml-auto mr-3" onClick={() => removeOption(opt.id)}>
+                    X
+                  </button>
+                </div>
                 <div className="flex items-center border rounded-md overflow-hidden">
                   <button
                     className="w-10 h-9 bg-gray-100"
@@ -299,7 +299,7 @@ const GoodsDetail = () => {
                   >
                     +
                   </button>
-                  <p>{(goods.price * (1 - goods.salePercent / 100) * opt.qty)?.toLocaleString()}원</p>
+                  <p className="ml-auto mr-5">{Math.floor(goods.price * (1 - goods.salePercent / 100))?.toLocaleString()}원</p>
                 </div>
               </div>
             ))}
@@ -307,7 +307,7 @@ const GoodsDetail = () => {
             <div className="mt-6 mb-6">
               <div className="flex justify-between items-center border-t pt-2 text-lg font-semibold">
                 <span>총 결제금액</span>
-                <span className="text-emerald-500 text-xl">{totalPrice.toLocaleString()}원</span>
+                <span className="text-emerald-500 text-xl">{Math.floor(totalPrice.toLocaleString())?.toLocaleString()}원</span>
               </div>
             </div>
 

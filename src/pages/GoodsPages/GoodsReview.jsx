@@ -61,7 +61,7 @@ const GoodsReview = () => {
         })
       });
       if (!res.ok) throw new Error();
-      alert("리뷰가 등록되었습니다.\n+50 POINTS");
+      alert("리뷰가 등록되었습니다.\n+75 POINTS");
       navigate("/Goods/GoodsDelivery");
     } catch {
       alert("리뷰 작성에 실패했습니다. 잠시후 다시 시도해주십시오.");

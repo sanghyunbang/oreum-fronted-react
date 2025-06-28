@@ -58,7 +58,17 @@ const GoodsAdd = () => {
     const { name, value } = e.target;
     let val = value;
     if (["price", "salePercent"].includes(name)) {
-      val = value.replace(/\D/g, "");
+      val = value.replace(/^0+(?=\d)/, "");
+      if (name === "salePercent") {
+        if (val === "") {
+          val = "0"; // 빈 값이면 0 고정
+        } else {
+          let num = parseInt(val);
+          if (num < 0) num = 0;
+          if (num > 100) num = 100;
+          val = num.toString();
+        }
+      }
     }
     setGoods((prev) => ({ ...prev, [name]: val }));
   };
@@ -167,13 +177,13 @@ const GoodsAdd = () => {
 
         <div>
           <label htmlFor="price" className="block font-medium">가격</label>
-          <input id="price" name="price" value={Goods.price.toString().replace(/^0+(?=\d)/, "")} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.price ? "border-red-500" : "border-gray-300"}`} />
+          <input id="price" type="number" name="price" value={Goods.price || 0} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.price ? "border-red-500" : "border-gray-300"}`} />
           {errors.price && <p className="text-sm text-red-500 mt-1">{errors.price}</p>}
         </div>
 
         <div>
           <label htmlFor="salePercent" className="block font-medium">할인율 (%)</label>
-          <input id="salePercent" name="salePercent" value={Goods.salePercent.toString().replace(/^0+(?=\d)/, "")} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.salePercent ? "border-red-500" : "border-gray-300"}`} />
+          <input id="salePercent" type="number" name="salePercent" value={Goods.salePercent || 0} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.salePercent ? "border-red-500" : "border-gray-300"}`} />
           {errors.salePercent && <p className="text-sm text-red-500 mt-1">{errors.salePercent}</p>}
         </div>
 

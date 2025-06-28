@@ -25,6 +25,7 @@ const GoodsDelivery = () => {
 
   useEffect(() => {
     const doDelivery = async () => {
+      if (!userInfo) { alert("로그인이 필요합니다."); navigate(-1); return; }
       const res = await fetch("http://localhost:8080/api/goods/deliveryList", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -141,7 +142,7 @@ const GoodsDelivery = () => {
                   {addr.items.map((item, index) => (
                     <li key={index} className="border-b pb-1 flex justify-between items-center">
                       <span>
-                        <strong>{item.goods_name}</strong> ({item.option_name}) - {item.qty}개 / {(item.item_price * item.qty).toLocaleString()}원
+                        <strong className="cursor-pointer" onClick={()=>navigate(`/Goods/GoodsDetail/${item.goods_id}`)}>{item.goods_name} ({item.option_name})</strong> - {item.qty}개 / {(item.item_price * item.qty).toLocaleString()}원
                       </span>
                       {addr.status === "배송완료" &&
                         (item.reviewWritten ? (

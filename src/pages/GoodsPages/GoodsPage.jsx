@@ -4,9 +4,10 @@ import "slick-carousel/slick/slick-theme.css";
 import GoodsCategory from "./GoodsCategory";
 import GoodsBest from "./GoodsBest";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const Goods = () => {
+  const isDragging = useRef(false);
   const [Goods, setGoods] = useState([]);
   const [GoodsOptions, setGoodsOptions] = useState([]);
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Goods = () => {
     infinite: true,
     speed: 500,
     slidesToShow: 2,
+    slidesToScroll: 2, 
     swipe: true,
     draggable: true,
     autoplay: true,
@@ -30,6 +32,8 @@ const Goods = () => {
     variableWidth: true,
     swipe: true,
     draggable: true,
+    centerMode: true,         // ✅ 가운데 정렬
+    centerPadding: "40px",    // ✅ 패딩. 필요 없으면 "0px"
   };
 
   const products1 = [
@@ -39,6 +43,18 @@ const Goods = () => {
     { id: 4, img: "/Goods_img/header3.jpeg" },
     { id: 5, img: "/Goods_img/header4.jpeg" },
   ];
+
+  const handleMouseDown = () => {
+    isDragging.current = false;
+  };
+  const handleMouseMove = () => {
+    isDragging.current = true;
+  };
+  const handleMouseUp = (p) => {
+    if (!isDragging.current) {
+      campaignClick(p); // 진짜 클릭만 실행
+    }
+  };
 
   useEffect(() => {
     const doListAll = async () => {
@@ -83,24 +99,35 @@ const Goods = () => {
 
   return (
     <div className="w-full max-w-3xl min-w-[600px] mx-auto px-4 border border-gray-200">
-      <header className="text-center text-3xl my-5 font-semibold">스토어
-        <button className="mx-10" onClick={() => navigate("/Goods/GoodsCart")}>장바구니</button>
-        <button className="mx-10" onClick={() => navigate("/Goods/GoodsAdd")}>상품추가</button>
-        <button onClick={() => navigate("/Goods/GoodsDelivery")}>주문내역</button>
+      <header className="flex items-center justify-between px-8 py-3 border-b bg-white">
+        {/* 왼쪽: 로고 */}
+        <div className="text-4xl font-bold">
+          Oreum Store
+        </div>
+
+        {/* 중앙: 메뉴 */}
+        <nav className="ml-auto flex space-x-8 text-sm font-semibold">
+          <button onClick={() => navigate("/Goods/GoodsAdd")} className="hover:text-blue-600">상품 추가</button>
+          <button onClick={() => navigate("/Goods/GoodsDelivery")} className="hover:text-blue-600">주문내역</button>
+          <button onClick={() => navigate("/Goods/GoodsCart")} className="hover:text-blue-600">장바구니</button>
+        </nav>
       </header>
-      <hr className="my-8" />
+      <hr className="mb-8" />
 
       <div className="w-full max-w-[700px] mx-auto bg-white mb-[50px] padding 0 5px">
         <Slider {...HeaderSettings}>
           {products1.map((p, idx) => (
-            <div key={idx} className="aspect-ratio:16/9 position: relative" onClick={() => campaignClick(p)}>
+            <div key={idx} className="aspect-ratio:16/9 position: relative" 
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={() => handleMouseUp(p)}>
               <img src={p.img} alt={`slide-${idx}`} className="w-full h-full object-contain" />
             </div>
           ))}
         </Slider>
       </div>
 
-      <header className="text-2xl font-semibold">OREUM 인기 상품</header>
+      <header className="text-2xl font-semibold text-center mb-5">OREUM 인기 상품</header>
       <Slider {...BestSettings}>
         {Goods.slice(0, 3).map((p, index) => {
           const soldOut = isSoldOut(p.id);
