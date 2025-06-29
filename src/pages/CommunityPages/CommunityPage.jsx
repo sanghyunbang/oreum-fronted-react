@@ -14,6 +14,9 @@ const CommunityPage = () => {
   const [openComments, setOpenComments] = useState({});
   const navigate = useNavigate();
 
+  // 필터 부분 추가
+  const [selectedFilter, setSelectedFilter] = useState('all');
+
   // 시간 포맷
   const formatTimeSince = (createdAt) => {
     const now = new Date();
@@ -28,41 +31,6 @@ const CommunityPage = () => {
     if (diffMin >= 1) return `${diffMin}분 전`;
     return `방금 전`;
   };
-
-  // useEffect(() => {
-  //   const fetchCommunityAndPosts = async () => {
-  //     try {
-  //       const communityRes = await axios.get(
-  //         `http://localhost:8080/api/community/${communityName}`,
-  //         { withCredentials: true }
-  //       );
-  //       setCommunity(communityRes.data);
-
-  //       const boardId = communityRes.data.boardId;
-  //       const postsRes = await axios.get(
-  //         `http://localhost:8080/posts/board/${boardId}`,
-  //         { withCredentials: true }
-  //       );
-  //       setPosts(postsRes.data);
-  //     } catch (err) {
-  //       console.error("커뮤니티 또는 게시글 정보를 불러오는 데 실패했습니다.", err);
-  //     }
-  //   };
-
-  //   const getUserInfo = async () => {
-  //     try {
-  //       const res = await axios.get("http://localhost:8080/api/user", {
-  //         withCredentials: true,
-  //       });
-  //       setUserId(res.data.userId);
-  //     } catch (err) {
-  //       console.error("유저 정보 가져오기 실패", err);
-  //     }
-  //   };
-
-  //   fetchCommunityAndPosts();
-  //   getUserInfo();
-  // }, [communityName]);
 
   useEffect(() => {
     const fetchBookmarks = async () => {
@@ -107,7 +75,6 @@ const CommunityPage = () => {
   useEffect(() => {
     const fetchCommunityAndPosts = async () => {
       try {
-        // 항상 커뮤니티 정보 먼저 받아오기
         const communityRes = await axios.get(
           `http://localhost:8080/api/community/${communityName}`,
           { withCredentials: true }
@@ -115,20 +82,22 @@ const CommunityPage = () => {
         setCommunity(communityRes.data);
         const boardId = communityRes.data.boardId;
   
-        // 이후에 검색어 여부에 따라 게시글 분기
-        if (query) {
-          const searchRes = await axios.get(
-            `http://localhost:8080/search/feedSearch/${communityName}?query=${encodeURIComponent(query)}`,
-            { withCredentials: true }
-          );
-          setPosts(searchRes.data);
-        } else {
-          const postsRes = await axios.get(
-            `http://localhost:8080/posts/board/${boardId}`,
-            { withCredentials: true }
-          );
-          setPosts(postsRes.data);
-        }
+        const mode =
+          selectedFilter === "mysql"
+            ? "general"
+            : selectedFilter === "mongo"
+            ? "curation"
+            : "all";
+  
+        const baseUrl = `http://localhost:8080/posts/board/${boardId}/${mode}`;
+  
+        const postsRes = await axios.get(
+          query
+            ? `${baseUrl}?query=${encodeURIComponent(query)}`
+            : baseUrl,
+          { withCredentials: true }
+        );
+        setPosts(postsRes.data);
       } catch (err) {
         console.error("커뮤니티 또는 게시글 정보를 불러오는 데 실패했습니다.", err);
       }
@@ -147,15 +116,9 @@ const CommunityPage = () => {
   
     fetchCommunityAndPosts();
     getUserInfo();
-  }, [communityName, query]);
+  }, [communityName, query, selectedFilter]);
   
-
-
-
-
-
-
-
+  
 
 //  수정된 조건문
 if (!community) return <p>Loading...</p>;
@@ -164,6 +127,13 @@ if (!community) return <p>Loading...</p>;
     <div className="max-w-3xl mx-auto p-4">
       <CommunityHeader community={community} />
       <CommunityStats community={community} />
+
+      <div className="flex gap-4 my-4">
+        <button onClick={() => setSelectedFilter("all")} className={selectedFilter === "all" ? "font-bold" : ""}>전체 글</button>
+        <button onClick={() => setSelectedFilter("mysql")} className={selectedFilter === "mysql" ? "font-bold" : ""}>일반 게시글</button>
+        <button onClick={() => setSelectedFilter("mongo")} className={selectedFilter === "mongo" ? "font-bold" : ""}>큐레이션 글</button>
+      </div>
+
 
       <div className="space-y-6 mt-8">
         {posts.length === 0 ? (
