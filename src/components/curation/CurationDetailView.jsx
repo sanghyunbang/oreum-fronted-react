@@ -25,7 +25,7 @@ export default function CurationDetailView({ segments }) {
             <PointerSection
               key={sectionKey}
               index={idx}
-              keyId={sectionKey}
+              // keyId={sectionKey}
               pointerName={pointer?.pointerName || ''}
               section={section}
               pointer={pointer} // ✅ pointer도 넘겨야 함

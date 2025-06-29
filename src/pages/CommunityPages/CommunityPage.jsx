@@ -1,4 +1,4 @@
-import { useNavigate,useParams } from "react-router-dom";
+import { useNavigate,useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -29,40 +29,40 @@ const CommunityPage = () => {
     return `방금 전`;
   };
 
-  useEffect(() => {
-    const fetchCommunityAndPosts = async () => {
-      try {
-        const communityRes = await axios.get(
-          `http://localhost:8080/api/community/${communityName}`,
-          { withCredentials: true }
-        );
-        setCommunity(communityRes.data);
+  // useEffect(() => {
+  //   const fetchCommunityAndPosts = async () => {
+  //     try {
+  //       const communityRes = await axios.get(
+  //         `http://localhost:8080/api/community/${communityName}`,
+  //         { withCredentials: true }
+  //       );
+  //       setCommunity(communityRes.data);
 
-        const boardId = communityRes.data.boardId;
-        const postsRes = await axios.get(
-          `http://localhost:8080/posts/board/${boardId}`,
-          { withCredentials: true }
-        );
-        setPosts(postsRes.data);
-      } catch (err) {
-        console.error("커뮤니티 또는 게시글 정보를 불러오는 데 실패했습니다.", err);
-      }
-    };
+  //       const boardId = communityRes.data.boardId;
+  //       const postsRes = await axios.get(
+  //         `http://localhost:8080/posts/board/${boardId}`,
+  //         { withCredentials: true }
+  //       );
+  //       setPosts(postsRes.data);
+  //     } catch (err) {
+  //       console.error("커뮤니티 또는 게시글 정보를 불러오는 데 실패했습니다.", err);
+  //     }
+  //   };
 
-    const getUserInfo = async () => {
-      try {
-        const res = await axios.get("http://localhost:8080/api/user", {
-          withCredentials: true,
-        });
-        setUserId(res.data.userId);
-      } catch (err) {
-        console.error("유저 정보 가져오기 실패", err);
-      }
-    };
+  //   const getUserInfo = async () => {
+  //     try {
+  //       const res = await axios.get("http://localhost:8080/api/user", {
+  //         withCredentials: true,
+  //       });
+  //       setUserId(res.data.userId);
+  //     } catch (err) {
+  //       console.error("유저 정보 가져오기 실패", err);
+  //     }
+  //   };
 
-    fetchCommunityAndPosts();
-    getUserInfo();
-  }, [communityName]);
+  //   fetchCommunityAndPosts();
+  //   getUserInfo();
+  // }, [communityName]);
 
   useEffect(() => {
     const fetchBookmarks = async () => {
@@ -100,7 +100,65 @@ const CommunityPage = () => {
     }
   };
 
-  if (!community) return <p>Loading...</p>;
+  // 쿼리 파라미터 검색
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get("query");
+
+  useEffect(() => {
+    const fetchCommunityAndPosts = async () => {
+      try {
+        // 항상 커뮤니티 정보 먼저 받아오기
+        const communityRes = await axios.get(
+          `http://localhost:8080/api/community/${communityName}`,
+          { withCredentials: true }
+        );
+        setCommunity(communityRes.data);
+        const boardId = communityRes.data.boardId;
+  
+        // 이후에 검색어 여부에 따라 게시글 분기
+        if (query) {
+          const searchRes = await axios.get(
+            `http://localhost:8080/search/feedSearch/${communityName}?query=${encodeURIComponent(query)}`,
+            { withCredentials: true }
+          );
+          setPosts(searchRes.data);
+        } else {
+          const postsRes = await axios.get(
+            `http://localhost:8080/posts/board/${boardId}`,
+            { withCredentials: true }
+          );
+          setPosts(postsRes.data);
+        }
+      } catch (err) {
+        console.error("커뮤니티 또는 게시글 정보를 불러오는 데 실패했습니다.", err);
+      }
+    };
+  
+    const getUserInfo = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/api/user", {
+          withCredentials: true,
+        });
+        setUserId(res.data.userId);
+      } catch (err) {
+        console.error("유저 정보 가져오기 실패", err);
+      }
+    };
+  
+    fetchCommunityAndPosts();
+    getUserInfo();
+  }, [communityName, query]);
+  
+
+
+
+
+
+
+
+
+//  수정된 조건문
+if (!community) return <p>Loading...</p>;
 
   return (
     <div className="max-w-3xl mx-auto p-4">

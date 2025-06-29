@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../../redux/userSlice';
 import LoginPage from '../../pages/LoginPage';
@@ -70,6 +70,26 @@ const Header = () => {
   const [showWriteModal, setShowWriteModal] = useState(false);
 
 
+  // 검색 기능 구현하기
+  // 1단계: 검색 인풋값 담아두는 곳
+
+  const [ searchInput, setSearchInput ] = useState('');
+  const location = useLocation();
+
+  const handleSearch = () => {
+    if (searchInput.trim() === "") return;
+
+    const currentPath = location.pathname; // 예: /community/himedia_title
+    const searchParam = `?query=${encodeURIComponent(searchInput)}`;
+    navigate(`${currentPath}${searchParam}`);
+  };
+
+
+
+
+
+
+
   return (
     <header className="bg-blue-400 text-white px-6 py-3 flex justify-between items-center shadow h-16 relative">
       {/* 로고 */}
@@ -86,10 +106,14 @@ const Header = () => {
       <div className="bg-white w-2/3 py-1 rounded-[20px] flex justify-around">
         <input
           type="text"
-          placeholder="  내가 관심있는 산을 검색해보세요!"
+          placeholder=" 오름에서 검색해보세요!"
           className="w-[90%] py-2 rounded-[20px] text-black text-sm indent-4"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
         />
-        <button className="bg-green-500 text-white px-4 py-2 rounded-full text-sm hover:bg-green-600">
+        <button 
+        onClick={handleSearch}
+        className="bg-green-500 text-white px-4 py-2 rounded-full text-sm hover:bg-green-600">
           🔍
         </button>
       </div>
