@@ -124,7 +124,7 @@ const GoodsOrder = () => {
     document.body.appendChild(script);
   }, []);
 
-  const doIamportPayment = () => {
+  const doIamportPayment = async () => {
     const newErrors = {};
     if (!formData.addressname.trim())
       newErrors.addressname = "수령인을 입력해주세요.";
@@ -158,6 +158,11 @@ const GoodsOrder = () => {
       return;
     }
 
+    if(formData.total===0){
+      await doPayment();
+      alert("결제 성공! 주문을 완료합니다.");
+      return;
+    }
     const { IMP } = window;
     IMP.init("imp02018483");
 
@@ -167,7 +172,7 @@ const GoodsOrder = () => {
         pay_method: selectedMethod.method,
         merchant_uid: "order_" + new Date().getTime(),
         name: items.map((cart) => cart.goods_name).join(", "),
-        amount: parseInt(formData.total || "0"),
+        amount: parseInt(formData.total || 0),
         buyer_email: userInfo.email,
         buyer_name: userInfo.nickname,
         buyer_tel: "010-1234-5678",

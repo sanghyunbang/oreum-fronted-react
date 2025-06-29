@@ -38,7 +38,30 @@ const GoodsDelivery = () => {
       }
     };
     doDelivery();
-  }, [userInfo]);
+  }, [userInfo,navigate]);
+
+  const deleteDelivery = async (id) => {
+    if(!window.confirm("정말 삭제하시겠습니까?"))return;
+    try{
+      const response = await fetch("http://localhost:8080/api/goods/deleteOrder",{
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ order_id: id, reason: cancelReason }),
+      })
+      if(response.ok){
+        const data = await response.text();
+        if(data==="1"){
+          alert("결제내역이 삭제되었습니다.");
+          setFormData(prev => prev.filter(o => o.order_id !== id)); //삭제시 화면에 바로 반영
+        }else{
+          alert("취소되었습니다.")
+        }
+      }
+    } catch {
+      alert("결제내역 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주십시오.");
+    }
+  }
 
   const handleCancelSubmit = async (id) => {
     if (!cancelReason) return;
@@ -157,12 +180,13 @@ const GoodsDelivery = () => {
                             리뷰달기
                             <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-[11px] font-semibold">+75P</span>
                           </button>
-                        ))}
+                        ))
+                      }
                     </li>
                   ))}
                 </ul>
 
-                <div className="flex flex-col items-end space-y-2 pt-4">
+                <div className="flex flex-col justify-between items-end h-full min-h-[120px]">
                   <span
                     className={`text-sm font-bold px-3 py-1 rounded-full ${
                       addr.status === "결제완료"
@@ -178,9 +202,14 @@ const GoodsDelivery = () => {
                   >
                     {addr.status}
                   </span>
-
                   {addr.status === "결제취소" && (
-                    <div className="text-sm text-red-500">이 주문은 취소되었습니다.</div>
+                    <>
+                      <div className="text-sm mt-3 text-gray-500">이 주문은 취소되었습니다.</div>
+                      <button onClick={()=> deleteDelivery(addr.order_id)}
+                        className="self-end mt-auto text-red-500 hover:text-red-700 text-sm">
+                        내역 삭제
+                      </button>
+                    </>
                   )}
 
                   {addr.status === "결제완료" && (
@@ -225,6 +254,12 @@ const GoodsDelivery = () => {
                         결제취소 <FaTrash />
                       </button>
                     )
+                  )}
+                  {addr.status === "배송완료" && (
+                    <button onClick={()=> deleteDelivery(addr.order_id)}
+                      className="self-end mt-auto text-red-500 hover:text-red-700 text-sm">
+                      내역 삭제
+                    </button>
                   )}
                 </div>
               </div>
