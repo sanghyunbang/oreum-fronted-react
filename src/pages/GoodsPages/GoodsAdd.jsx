@@ -7,7 +7,7 @@ import "react-quill/dist/quill.snow.css";
 const GoodsAdd = () => {
   const navigate = useNavigate();
   const dropRef = useRef(null);
-  const [Goods, setGoods] = useState({ name: "", brand: "", category: "상의", price: "", salePercent: 0, description: ""});
+  const [Goods, setGoods] = useState({ name: "", brand: "", category: "상의", price: "", salePercent: 0, description: "" });
   const [options, setOptions] = useState([{ optionName: "", stockQty: "" }]);
   const [imageInputs, setImageInputs] = useState([]);
   const [errors, setErrors] = useState({});
@@ -142,99 +142,115 @@ const GoodsAdd = () => {
 
 
   return (
-    <div className="p-6 max-w-2xl mx-auto text-gray-800">
-      <header className="flex items-center justify-between border-b pb-4 mb-6">
-        <button onClick={() => navigate(-1)} className="flex items-center text-sm hover:text-black">
-          <FaArrowLeft className="mr-1" /> 뒤로
-        </button>
-        <h1 className="text-2xl font-bold">굿즈 등록</h1>
-        <button onClick={() => navigate("/Goods")} className="text-xl">
-          <FaHome />
-        </button>
-      </header>
+    <>
+      <style>
+        {`
+        .ql-editor .ql-align-center {
+          text-align: center;
+        }
+        .ql-editor .ql-align-center img {
+          display: inline-block;
+          margin: 0 auto;
+          float: none;
+          max-width: 100%;
+          width: auto !important;
+        }
+      `}
+      </style>
+      <div className="p-6 max-w-2xl mx-auto text-gray-800">
+        <header className="flex items-center justify-between border-b pb-4 mb-6">
+          <button onClick={() => navigate(-1)} className="flex items-center text-sm hover:text-black">
+            <FaArrowLeft className="mr-1" /> 뒤로
+          </button>
+          <h1 className="text-2xl font-bold">굿즈 등록</h1>
+          <button onClick={() => navigate("/Goods")} className="text-xl">
+            <FaHome />
+          </button>
+        </header>
 
-      <div className="space-y-5">
-        <div>
-          <label htmlFor="name" className="block font-medium">상품명</label>
-          <input id="name" name="name" value={Goods.name} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.name ? "border-red-500" : "border-gray-300"}`} />
-          {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
-        </div>
-        <div>
-          <label htmlFor="brand" className="block font-medium">브랜드</label>
-          <input id="brand" name="brand" value={Goods.brand} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.brand ? "border-red-500" : "border-gray-300"}`} />
-          {errors.brand && <p className="text-sm text-red-500 mt-1">{errors.brand}</p>}
-        </div>
-
-        <div>
-          <label className="block font-medium">카테고리</label>
-          <select name="category" value={Goods.category} onChange={doChange} className="mt-1 w-full border p-2 rounded border-gray-300">
-            <option value="상의">상의</option>
-            <option value="하의">하의</option>
-            <option value="신발">신발</option>
-            <option value="기타">기타</option>
-          </select>
-        </div>
-
-        <div>
-          <label htmlFor="price" className="block font-medium">가격</label>
-          <input id="price" type="number" name="price" value={Goods.price || 0} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.price ? "border-red-500" : "border-gray-300"}`} />
-          {errors.price && <p className="text-sm text-red-500 mt-1">{errors.price}</p>}
-        </div>
-
-        <div>
-          <label htmlFor="salePercent" className="block font-medium">할인율 (%)</label>
-          <input id="salePercent" type="number" name="salePercent" value={Goods.salePercent || 0} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.salePercent ? "border-red-500" : "border-gray-300"}`} />
-          {errors.salePercent && <p className="text-sm text-red-500 mt-1">{errors.salePercent}</p>}
-        </div>
-
-        <div>
-          <label className="block font-medium">상품 설명</label>
-          <div className={`mt-1 ${errors.description ? "border border-red-500" : ""}`}>
-            <ReactQuill value={Goods.description} onChange={handleDescriptionChange} modules={modules} formats={formats} className="h-[500px] mb-2" />
+        <div className="space-y-5">
+          <div>
+            <label htmlFor="name" className="block font-medium">상품명</label>
+            <input id="name" name="name" value={Goods.name} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.name ? "border-red-500" : "border-gray-300"}`} />
+            {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
           </div>
-          {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
-        </div>
-
-        <div>
-          <label className="block font-medium mt-[65px]">상품 이미지</label>
-          <div ref={dropRef} onDrop={handleDrop} onDragOver={handleDragOver} className="border-2 border-dashed border-gray-300 p-6 rounded text-center cursor-pointer" onClick={() => dropRef.current.querySelector("input").click()}>
-            <p className="text-gray-600">클릭하거나 이미지를 드래그해서 업로드하세요.</p>
-            <input type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
+          <div>
+            <label htmlFor="brand" className="block font-medium">브랜드</label>
+            <input id="brand" name="brand" value={Goods.brand} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.brand ? "border-red-500" : "border-gray-300"}`} />
+            {errors.brand && <p className="text-sm text-red-500 mt-1">{errors.brand}</p>}
           </div>
-          {errors.img && <p className="text-sm text-red-500 mt-1">{errors.img}</p>}
-          <div className="flex flex-wrap gap-3 mt-3">
-            {imageInputs.map((img, index) => (
-              <div key={index} className="relative w-24 h-24">
-                <img src={img.preview} alt={`미리보기 ${index + 1}`} className="w-full h-full object-cover rounded" />
-                <button onClick={() => removeImage(index)} title="이미지 삭제" className="absolute top-0 right-0 bg-black bg-opacity-50 hover:bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                  <FaTimes className="w-2 h-2" />
-                </button>
+
+          <div>
+            <label className="block font-medium">카테고리</label>
+            <select name="category" value={Goods.category} onChange={doChange} className="mt-1 w-full border p-2 rounded border-gray-300">
+              <option value="상의">상의</option>
+              <option value="하의">하의</option>
+              <option value="신발">신발</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="price" className="block font-medium">가격</label>
+            <input id="price" type="number" name="price" value={Goods.price || 0} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.price ? "border-red-500" : "border-gray-300"}`} />
+            {errors.price && <p className="text-sm text-red-500 mt-1">{errors.price}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="salePercent" className="block font-medium">할인율 (%)</label>
+            <input id="salePercent" type="number" name="salePercent" value={Goods.salePercent || 0} onChange={doChange} className={`mt-1 w-full border p-2 rounded ${errors.salePercent ? "border-red-500" : "border-gray-300"}`} />
+            {errors.salePercent && <p className="text-sm text-red-500 mt-1">{errors.salePercent}</p>}
+          </div>
+
+          <div>
+            <label className="block font-medium">상품 설명</label>
+            <div className={`mt-1 ${errors.description ? "border border-red-500" : ""}`}>
+              <ReactQuill value={Goods.description} onChange={handleDescriptionChange} modules={modules} formats={formats} className="h-[500px] mb-2" />
+            </div>
+            {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
+          </div>
+
+          <div>
+            <label className="block font-medium mt-[65px]">상품 이미지</label>
+            <div ref={dropRef} onDrop={handleDrop} onDragOver={handleDragOver} className="border-2 border-dashed border-gray-300 p-6 rounded text-center cursor-pointer" onClick={() => dropRef.current.querySelector("input").click()}>
+              <p className="text-gray-600">클릭하거나 이미지를 드래그해서 업로드하세요.</p>
+              <input type="file" multiple accept="image/*" onChange={handleFileChange} className="hidden" />
+            </div>
+            {errors.img && <p className="text-sm text-red-500 mt-1">{errors.img}</p>}
+            <div className="flex flex-wrap gap-3 mt-3">
+              {imageInputs.map((img, index) => (
+                <div key={index} className="relative w-24 h-24">
+                  <img src={img.preview} alt={`미리보기 ${index + 1}`} className="w-full h-full object-cover rounded" />
+                  <button onClick={() => removeImage(index)} title="이미지 삭제" className="absolute top-0 right-0 bg-black bg-opacity-50 hover:bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                    <FaTimes className="w-2 h-2" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="font-bold mb-2">상품 옵션</h2>
+            {options.map((opt, i) => (
+              <div key={i} className="flex items-start gap-2 mb-3">
+                <div className="flex-1">
+                  <input id={`optName${i}`} placeholder="옵션명" value={opt.optionName} onChange={(e) => handleOptionChange(i, "optionName", e.target.value)} className={`w-full border p-2 rounded ${errors[`optName${i}`] ? "border-red-500" : "border-gray-300"}`} />
+                  {errors[`optName${i}`] && <p className="text-sm text-red-500 mt-1">{errors[`optName${i}`]}</p>}
+                </div>
+                <div className="w-28">
+                  <input id={`optQty${i}`} placeholder="수량" value={opt.stockQty} onChange={(e) => handleOptionChange(i, "stockQty", e.target.value)} className={`w-full border p-2 rounded ${errors[`optQty${i}`] ? "border-red-500" : "border-gray-300"}`} />
+                  {errors[`optQty${i}`] && <p className="text-sm text-red-500 mt-1">{errors[`optQty${i}`]}</p>}
+                </div>
+                {options.length > 1 && <button onClick={() => removeOption(i)} className="text-red-500 text-sm mt-2">삭제</button>}
               </div>
             ))}
+            <button onClick={addOption} className="text-blue-600 hover:underline text-sm">+ 옵션 추가</button>
           </div>
-        </div>
 
-        <div>
-          <h2 className="font-bold mb-2">상품 옵션</h2>
-          {options.map((opt, i) => (
-            <div key={i} className="flex items-start gap-2 mb-3">
-              <div className="flex-1">
-                <input id={`optName${i}`} placeholder="옵션명" value={opt.optionName} onChange={(e) => handleOptionChange(i, "optionName", e.target.value)} className={`w-full border p-2 rounded ${errors[`optName${i}`] ? "border-red-500" : "border-gray-300"}`} />
-                {errors[`optName${i}`] && <p className="text-sm text-red-500 mt-1">{errors[`optName${i}`]}</p>}
-              </div>
-              <div className="w-28">
-                <input id={`optQty${i}`} placeholder="수량" value={opt.stockQty} onChange={(e) => handleOptionChange(i, "stockQty", e.target.value)} className={`w-full border p-2 rounded ${errors[`optQty${i}`] ? "border-red-500" : "border-gray-300"}`} />
-                {errors[`optQty${i}`] && <p className="text-sm text-red-500 mt-1">{errors[`optQty${i}`]}</p>}
-              </div>
-              {options.length > 1 && <button onClick={() => removeOption(i)} className="text-red-500 text-sm mt-2">삭제</button>}
-            </div>
-          ))}
-          <button onClick={addOption} className="text-blue-600 hover:underline text-sm">+ 옵션 추가</button>
+          <button onClick={doSubmit} className="w-full bg-black text-white py-3 rounded-lg mt-6 hover:bg-gray-900 font-medium">굿즈 등록하기</button>
         </div>
-
-        <button onClick={doSubmit} className="w-full bg-black text-white py-3 rounded-lg mt-6 hover:bg-gray-900 font-medium">굿즈 등록하기</button>
       </div>
-    </div>
+    </>
   );
 };
 

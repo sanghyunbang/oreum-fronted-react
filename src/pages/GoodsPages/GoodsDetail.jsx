@@ -244,21 +244,21 @@ const GoodsDetail = () => {
             </div>
 
             <div className="flex justify-end mb-5">
-              {allSoldOut ? (<></>):(
-              <select onChange={addOption} value="" className="w-auto max-w-[200px] border border-gray-300 rounded p-2">
-                <option value="">상품 옵션</option>
-                {Array.isArray(goodsOpt) &&
-                  goodsOpt.map((opt) => (
-                    <option
-                      key={opt.id}
-                      value={JSON.stringify({ id: opt.id, option_name: opt.optionName, stockQty: opt.stockQty })}
-                      disabled={opt.stockQty === 0}
-                      style={{ color: opt.stockQty === 0 ? "#999" : "#000" }}
-                    >
-                      {opt.optionName} {opt.stockQty === 0 ? "(품절)" : opt.stockQty <= 10 ? `(재고 ${opt.stockQty}개)` : ""}
-                    </option>
-                  ))}
-              </select>
+              {allSoldOut ? (<></>) : (
+                <select onChange={addOption} value="" className="w-auto max-w-[200px] border border-gray-300 rounded p-2">
+                  <option value="">상품 옵션</option>
+                  {Array.isArray(goodsOpt) &&
+                    goodsOpt.map((opt) => (
+                      <option
+                        key={opt.id}
+                        value={JSON.stringify({ id: opt.id, option_name: opt.optionName, stockQty: opt.stockQty })}
+                        disabled={opt.stockQty === 0}
+                        style={{ color: opt.stockQty === 0 ? "#999" : "#000" }}
+                      >
+                        {opt.optionName} {opt.stockQty === 0 ? "(품절)" : opt.stockQty <= 10 ? `(재고 ${opt.stockQty}개)` : ""}
+                      </option>
+                    ))}
+                </select>
               )}
             </div>
 
@@ -334,7 +334,7 @@ const GoodsDetail = () => {
                 </>
               )}
 
-              <button onClick={()=>{navigator.clipboard.writeText(window.location.href); alert("URL이 복사되었습니다."); }} className="w-10 h-10 bg-white border border-gray-300 rounded-lg flex items-center justify-center">
+              <button onClick={() => { navigator.clipboard.writeText(window.location.href); alert("URL이 복사되었습니다."); }} className="w-10 h-10 bg-white border border-gray-300 rounded-lg flex items-center justify-center">
                 <FaShare />
               </button>
             </div>
@@ -346,9 +346,8 @@ const GoodsDetail = () => {
             {["details", "reviews", "qna"].map((tab) => (
               <button
                 key={tab}
-                className={`py-4 px-8 border-b-2 ${
-                  activeTab === tab ? "border-blue-600 text-blue-600 font-bold" : "border-transparent"
-                }`}
+                className={`py-4 px-8 border-b-2 ${activeTab === tab ? "border-blue-600 text-blue-600 font-bold" : "border-transparent"
+                  }`}
                 onClick={() => setActiveTab(tab)}
               >
                 {tab === "details" ? "상세정보" : tab === "reviews" ? `제품후기(${reviews?.length || 0})` : "제품문의"}
@@ -410,6 +409,13 @@ const GoodsDetail = () => {
       </div>
       <style>{`
         .ql-align-center { text-align: center; }
+        .ql-align-center img {
+          display: inline-block;
+          margin: 0 auto;
+          float: none;
+          width: auto !important;
+          max-width: 100%;
+        }
         .ql-align-right { text-align: right; }
         .ql-align-left { text-align: left; }
       `}</style>
