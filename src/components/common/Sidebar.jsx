@@ -11,6 +11,7 @@ import {
 } from "react-icons/fa";
 import CurationBanner from "./CurationBanner";
 import CustomFeedModal from "./CustomFeedModal";
+import { useSelector } from "react-redux";
 
 const mountainEmojis = [
   { label: "🏞️", value: "🏞️" },
@@ -28,10 +29,12 @@ const Sidebar = () => {
   const [communities, setCommunities] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [showFeedModal, setShowFeedModal] = useState(false);
-  const handleFeedCreated = () => {
-  
+  const handleFeedCreated = () => {  
   setShowFeedModal(false);
 };
+
+const user = useSelector((state) => state.user.userInfo);
+const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 
   // form states
   const [title, setTitle] = useState("");
@@ -65,12 +68,19 @@ const Sidebar = () => {
   }
 };
 
-
   useEffect(() => {
     fetchCommunities();
     fetchFeeds();
     console.log(myFeeds)
   }, []);
+  useEffect(() => {
+  if (isLoggedIn) {
+    fetchFeeds();     // 로그인 시 피드 불러오기
+  } else {
+    setMyFeeds([]);   // 로그아웃 시 피드 비우기
+  }
+}, [isLoggedIn]);
+
 
   
 

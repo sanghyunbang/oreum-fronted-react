@@ -9,7 +9,6 @@ function MainBoard() {
   const [visibleCount, setVisibleCount] = useState(10);
   const observerRef = useRef(null);
 
-
   const navigate = useNavigate();
 
   const getUserInfo = async () => {
@@ -136,6 +135,46 @@ function MainBoard() {
     return `방금 전`;
   };
 
+  const handleLike = async (postId) => {
+  if (!userId) {
+    alert("로그인이 필요합니다.");
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:8080/posts/like", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        postId,
+        userId,
+      }),
+    });
+
+    if (!res.ok) throw new Error("좋아요 처리 실패");
+
+    const result = await res.json();
+
+    setPostlist((prev) =>
+      prev.map((post) =>
+        post.postId === postId
+          ? {
+              ...post,
+              likeCount: post.likeCount + (result.liked ? 1 : -1),
+            }
+          : post
+      )
+    );
+  } catch (err) {
+    console.error("좋아요 처리 오류:", err);
+    alert("좋아요 처리 중 오류가 발생했습니다.");
+  }
+};
+
+
   return (
     <div className="max-w-2xl mx-auto p-5">
       <h2 className="text-xl font-bold mb-4">홈 게시글</h2>
@@ -209,7 +248,7 @@ function MainBoard() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                console.log("좋아요");
+                handleLike(post.postId);
               }}
               className="hover:text-red-500"
             >

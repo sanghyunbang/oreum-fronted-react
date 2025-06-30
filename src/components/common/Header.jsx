@@ -22,7 +22,7 @@ const Header = () => {
         credentials: "include",
       });
       dispatch(logout());
-      navigate("/");
+      window.location.reload();
     } catch (error) {
       console.error("Logout failed", error);
     }

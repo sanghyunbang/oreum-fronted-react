@@ -73,7 +73,7 @@ const LoginPage = ({ onClose }) => {
       // 변경 4: localStorage 저장 제거 (JWT는 쿠키에 저장됨, localStorage는 선택)
       alert("로그인 성공!");
       onClose();
-      navigate("/");
+      window.location.reload();
     } catch (error) {
       console.error("로그인 실패:", error);
       alert("이메일 또는 비밀번호가 일치하지 않습니다.");

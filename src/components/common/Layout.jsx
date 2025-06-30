@@ -14,7 +14,6 @@ const Layout = () => {
   const [loading, setLoading] = useState(true); // 로그인 복원 대기용
   const dispatch = useDispatch();
 
-
   // 여기에 curation 모드도 추가할 예정
   useEffect(() => {
     setIsMapPage(location.pathname === '/map' || location.pathname === '/writeForCuration');

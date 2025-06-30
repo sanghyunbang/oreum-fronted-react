@@ -29,7 +29,7 @@ const MyFeedPages = () => {
     const fetchfeedsAndPosts = async () => {
       try {
         const FeedRes = await axios.get(
-          `http://localhost:8080//api/community/feeds/${feedname}`,
+          `http://localhost:8080/api/community/feeds/${feedname}`,
           { withCredentials: true }
         );
         setPosts(FeedRes.data);
@@ -51,7 +51,7 @@ const MyFeedPages = () => {
 
     fetchfeedsAndPosts();
     getUserInfo();
-  }, []);
+  }, [feedname]);
 
   useEffect(() => {
     const fetchBookmarks = async () => {
@@ -68,6 +68,7 @@ const MyFeedPages = () => {
     };
 
     fetchBookmarks();
+    console.log(feedname);
   }, [userId]);
 
   const toggleBookmark = async (postId) => {

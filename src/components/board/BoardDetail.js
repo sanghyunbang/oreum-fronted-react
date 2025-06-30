@@ -345,7 +345,7 @@ function BoardDetail() {
       </div>
     ));
   };
-
+  //좋아요 클릭시 postId와 userId를 서버로 보내주고, 서버에서 해당 값을 가지는 postLike 테이블을 조회, 참/거짓을 리턴
   const handleLike = async () => {
     if (!userInfo) {
       alert("로그인이 필요합니다.");
@@ -369,7 +369,7 @@ function BoardDetail() {
 
       const result = await response.json();
 
-      // 서버 응답이 { liked: true } or { liked: false } 형태라고 가정
+      // Post에 liked 값이 참/거짓일 경우를 판변에 값을 넣고 계산.
       setPost((prev) => ({
         ...prev,
         likeCount: prev.likeCount + (result.liked ? 1 : -1),
