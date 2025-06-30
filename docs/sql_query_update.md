@@ -326,6 +326,13 @@ ALTER TABLE goods MODIFY description LONGTEXT;
 
 -- [0630 posts 테이블 수정 : searchGeo 칼럼 추가]
 
+ALTER TABLE orders
+ADD COLUMN imp_uid VARCHAR(255) NULL,
+ADD COLUMN merchant_uid VARCHAR(255) NULL;
+
+-- [0701 orders 테이블 수정 : imp_uid , merchant_uid 칼럼 추가]
+
+
 USE OREUM_TEST;
 
 ALTER TABLE posts
