@@ -19,6 +19,7 @@ import GoodsOrder from '../pages/GoodsPages/GoodsOrder';
 import GoodsCart from '../pages/GoodsPages/GoodsCart';
 import GoodsDelivery from '../pages/GoodsPages/GoodsDelivery';
 import GoodsReview from '../pages/GoodsPages/GoodsReview';
+import GoodsLike from '../pages/GoodsPages/GoodsLike';
 import GoodsAdd from '../pages/GoodsPages/GoodsAdd';
 
 import BoardDetail from '../components/board/BoardDetail';
@@ -59,7 +60,8 @@ const AppRoutes = () => (
         <Route path="Goods/GoodsOrder" element={<GoodsOrder />} />
         <Route path="Goods/GoodsCart" element={<GoodsCart />} />
         <Route path="Goods/GoodsDelivery/" element={<GoodsDelivery />} />
-        <Route path="Goods/GoodsReview" element={<GoodsReview />}/>
+        <Route path="Goods/GoodsReview" element={<GoodsReview />} />
+        <Route path="Goods/GoodsLike" element={<GoodsLike />} />
 
         <Route path="mypage" element={<Mypage />} />
         {/* 게시판 기능 */}

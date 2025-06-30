@@ -17,7 +17,7 @@ const Goods = () => {
     infinite: true,
     speed: 500,
     slidesToShow: 2,
-    slidesToScroll: 2, 
+    slidesToScroll: 2,
     swipe: true,
     draggable: true,
     autoplay: true,
@@ -108,6 +108,7 @@ const Goods = () => {
         {/* 중앙: 메뉴 */}
         <nav className="ml-auto flex space-x-8 text-sm font-semibold">
           <button onClick={() => navigate("/Goods/GoodsAdd")} className="hover:text-blue-600">상품 추가</button>
+          <button onClick={() => navigate("/Goods/GoodsLike")} className="hover:text-blue-600">좋아요</button>
           <button onClick={() => navigate("/Goods/GoodsDelivery")} className="hover:text-blue-600">주문내역</button>
           <button onClick={() => navigate("/Goods/GoodsCart")} className="hover:text-blue-600">장바구니</button>
         </nav>
@@ -117,7 +118,7 @@ const Goods = () => {
       <div className="w-full max-w-[700px] mx-auto bg-white mb-[50px] padding 0 5px">
         <Slider {...HeaderSettings}>
           {products1.map((p, idx) => (
-            <div key={idx} className="aspect-ratio:16/9 position: relative" 
+            <div key={idx} className="aspect-ratio:16/9 position: relative"
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={() => handleMouseUp(p)}>
@@ -140,7 +141,7 @@ const Goods = () => {
               <div className="relative">
                 {soldOut && (
                   <div className="absolute inset-0 flex items-center justify-center z-10 rounded"
-                      style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
+                    style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}>
                     <span className="text-white text-lg font-bold">품절</span>
                   </div>
                 )}
