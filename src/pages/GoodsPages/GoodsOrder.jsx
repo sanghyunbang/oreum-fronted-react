@@ -76,14 +76,6 @@ const GoodsOrder = () => {
     return calculateTotalOriginal() - calculateTotalDiscounted();
   };
 
-  useEffect(() => {
-    const newTotal =
-      calculateTotalDiscounted() - Number.parseInt(formData.point || "0");
-    setFormData((prev) => {
-      return prev.total !== newTotal ? { ...prev, total: newTotal } : prev;
-    });
-  }, [formData.point, items, calculateTotalDiscounted]);
-
   const DeliveryAddress = () => {
     if (!window.daum?.Postcode) {
       alert("주소 검색 로딩 중입니다. 잠시 후 다시 시도해주세요.");
@@ -101,6 +93,14 @@ const GoodsOrder = () => {
       },
     }).open();
   };
+
+  useEffect(() => {
+    const newTotal =
+      calculateTotalDiscounted() - Number.parseInt(formData.point || "0");
+    setFormData((prev) => {
+      return prev.total !== newTotal ? { ...prev, total: newTotal } : prev;
+    });
+  }, [formData.point, items, calculateTotalDiscounted]);
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -158,7 +158,7 @@ const GoodsOrder = () => {
       return;
     }
 
-    if(formData.total===0){
+    if (formData.total === 0) {
       await doPayment();
       alert("결제 성공! 주문을 완료합니다.");
       return;
@@ -240,16 +240,8 @@ const GoodsOrder = () => {
   };
 
   useEffect(() => {
-    const checkIMP = setInterval(() => {
-      if (window.IMP) {
-        setImpReady(true);
-        clearInterval(checkIMP);
-      }
-    }, 100);
-    setTimeout(() => clearInterval(checkIMP), 10000);
-  }, []);
-
-  useEffect(() => {
+    const scrollDiv = document.getElementById('root').scrollTo(0, 0);
+    if (scrollDiv) scrollDiv.scrollTo(0, 0);
     const doUser = async () => {
       const res = await fetch(
         "http://localhost:8080/api/goods/getUserPoints",
@@ -318,9 +310,8 @@ const GoodsOrder = () => {
               <label className="block mb-1">수령인</label>
               <input ref={addressnameRef} type="text" name="addressname" value={formData.addressname}
                 onChange={doChange} placeholder="수령인 이름"
-                className={`w-full px-3 py-2 border ${
-                  errors.addressname ? "border-red-500" : "border-gray-300"
-                } rounded-md`}
+                className={`w-full px-3 py-2 border ${errors.addressname ? "border-red-500" : "border-gray-300"
+                  } rounded-md`}
               />
               {errors.addressname && (
                 <p className="text-red-500 text-sm">{errors.addressname}</p>
@@ -331,9 +322,8 @@ const GoodsOrder = () => {
               <label className="block mb-1">연락처</label>
               <input ref={addressnumberRef} type="text" name="addressnumber" value={formData.addressnumber}
                 onChange={doChange} placeholder="ex) 01012345678"
-                className={`w-full px-3 py-2 border ${
-                  errors.addressnumber ? "border-red-500" : "border-gray-300"
-                } rounded-md`}
+                className={`w-full px-3 py-2 border ${errors.addressnumber ? "border-red-500" : "border-gray-300"
+                  } rounded-md`}
               />
               {errors.addressnumber && (
                 <p className="text-red-500 text-sm">{errors.addressnumber}</p>
@@ -345,9 +335,8 @@ const GoodsOrder = () => {
               <div className="flex gap-2 mb-2">
                 <input ref={zipcodeRef} type="text" name="zipcode" value={formData.zipcode}
                   readOnly placeholder="우편번호"
-                  className={`w-1/3 px-3 py-2 border ${
-                    errors.zipcode ? "border-red-500" : "border-gray-300"
-                  } rounded-md bg-gray-100`}
+                  className={`w-1/3 px-3 py-2 border ${errors.zipcode ? "border-red-500" : "border-gray-300"
+                    } rounded-md bg-gray-100`}
                 />
                 <button type="button" onClick={DeliveryAddress}
                   className="px-4 py-2 bg-green-500 text-white rounded-md"
@@ -360,9 +349,8 @@ const GoodsOrder = () => {
               )}
               <input ref={addressbasicRef} type="text" name="addressbasic" value={formData.addressbasic}
                 readOnly placeholder="기본 주소"
-                className={`w-full px-3 py-2 mb-2 border ${
-                  errors.addressbasic ? "border-red-500" : "border-gray-300"
-                } rounded-md bg-gray-100`}
+                className={`w-full px-3 py-2 mb-2 border ${errors.addressbasic ? "border-red-500" : "border-gray-300"
+                  } rounded-md bg-gray-100`}
               />
               {errors.addressbasic && (
                 <p className="text-red-500 text-sm -mt-2 mb-3">{errors.addressbasic}</p>
@@ -370,9 +358,8 @@ const GoodsOrder = () => {
 
               <input ref={addressdetailRef} type="text" name="addressdetail" value={formData.addressdetail}
                 onChange={doChange} placeholder="상세 주소"
-                className={`w-full px-3 py-2 border ${
-                  errors.addressdetail ? "border-red-500" : "border-gray-300"
-                } rounded-md`}
+                className={`w-full px-3 py-2 border ${errors.addressdetail ? "border-red-500" : "border-gray-300"
+                  } rounded-md`}
               />
               {errors.addressdetail && (
                 <p className="text-red-500 text-sm">{errors.addressdetail}</p>
@@ -519,12 +506,11 @@ const GoodsOrder = () => {
           <div className="grid grid-cols-3 gap-2">
             {paymentMethods.map((method, idx) => (
               <button key={idx} type="button" onClick={() => setSelectedMethod(method)}
-                className={`border py-3 rounded-md text-center ${
-                  selectedMethod.method === method.method &&
-                  selectedMethod.pg === method.pg
+                className={`border py-3 rounded-md text-center ${selectedMethod.method === method.method &&
+                    selectedMethod.pg === method.pg
                     ? "bg-green-100"
                     : "hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 {method.label}
               </button>

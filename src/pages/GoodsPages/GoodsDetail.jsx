@@ -159,6 +159,8 @@ const GoodsDetail = () => {
       });
       const data = await res.json();
       setGoods(data[0]);
+      const scrollDiv = document.getElementById('root').scrollTo(0, 0);
+      if (scrollDiv) scrollDiv.scrollTo(0, 0);
     };
     const doOptionList = async () => {
       const res = await fetch(`http://localhost:8080/api/goods/detailListOpt?id=${id}`, {

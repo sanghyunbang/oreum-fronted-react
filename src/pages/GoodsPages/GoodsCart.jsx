@@ -22,7 +22,8 @@ const GoodsCart = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        window.scrollTo(0, 0);
+        const scrollDiv = document.getElementById('root').scrollTo(0, 0);
+    if (scrollDiv) scrollDiv.scrollTo(0, 0);
         const CartData = async () => {
             if (!userInfo) { alert("로그인이 필요합니다."); navigate(-1); return; }
             const response = await fetch(`http://localhost:8080/api/goods/cartList`, {

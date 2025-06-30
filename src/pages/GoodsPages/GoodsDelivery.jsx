@@ -26,6 +26,8 @@ const GoodsDelivery = () => {
   useEffect(() => {
     const doDelivery = async () => {
       if (!userInfo) { alert("로그인이 필요합니다."); navigate(-1); return; }
+      const scrollDiv = document.getElementById('root').scrollTo(0, 0);
+      if (scrollDiv) scrollDiv.scrollTo(0, 0);
       const res = await fetch("http://localhost:8080/api/goods/deliveryList", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -38,20 +40,20 @@ const GoodsDelivery = () => {
       }
     };
     doDelivery();
-  }, [userInfo,navigate]);
+  }, [userInfo, navigate]);
 
   const deleteDelivery = async (id) => {
-    if(!window.confirm("정말 삭제하시겠습니까?"))return;
-    try{
-      const response = await fetch("http://localhost:8080/api/goods/deleteOrder",{
+    if (!window.confirm("정말 삭제하시겠습니까?")) return;
+    try {
+      const response = await fetch("http://localhost:8080/api/goods/deleteOrder", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify({ order_id: id, reason: cancelReason }),
       })
-      if(response.ok){
-          alert("결제내역이 삭제되었습니다.");
-          setFormData(prev => prev.filter(o => o.order_id !== id)); //삭제시 화면에 바로 반영
+      if (response.ok) {
+        alert("결제내역이 삭제되었습니다.");
+        setFormData(prev => prev.filter(o => o.order_id !== id)); //삭제시 화면에 바로 반영
       }
     } catch {
       alert("결제내역 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주십시오.");
@@ -112,9 +114,8 @@ const GoodsDelivery = () => {
         {formData.map((addr) => (
           <div
             key={addr.order_id}
-            className={`border rounded p-4 shadow-md transition-all duration-300 ${
-              addr.status === "결제취소" ? "bg-gray-100 opacity-60" : "bg-white"
-            }`}
+            className={`border rounded p-4 shadow-md transition-all duration-300 ${addr.status === "결제취소" ? "bg-gray-100 opacity-60" : "bg-white"
+              }`}
           >
             <div className="flex flex-col md:flex-row gap-6 items-start">
               <div className="w-full md:w-[300px]">
@@ -160,7 +161,7 @@ const GoodsDelivery = () => {
                   {addr.items.map((item, index) => (
                     <li key={index} className="border-b pb-1 flex justify-between items-center">
                       <span>
-                        <strong className="cursor-pointer" onClick={()=>navigate(`/Goods/GoodsDetail/${item.goods_id}`)}>{item.goods_name} ({item.option_name})</strong> - {item.qty}개 / {(item.item_price * item.qty).toLocaleString()}원
+                        <strong className="cursor-pointer" onClick={() => navigate(`/Goods/GoodsDetail/${item.goods_id}`)}>{item.goods_name} ({item.option_name})</strong> - {item.qty}개 / {(item.item_price * item.qty).toLocaleString()}원
                       </span>
                       {addr.status === "배송완료" &&
                         (item.reviewWritten ? (
@@ -183,24 +184,23 @@ const GoodsDelivery = () => {
 
                 <div className="flex flex-col justify-between items-end h-full min-h-[120px]">
                   <span
-                    className={`text-sm font-bold px-3 py-1 rounded-full ${
-                      addr.status === "결제완료"
+                    className={`text-sm font-bold px-3 py-1 rounded-full ${addr.status === "결제완료"
                         ? "bg-yellow-100 text-yellow-800"
                         : addr.status === "배송중"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : addr.status === "배송완료"
-                        ? "bg-green-100 text-green-800"
-                        : addr.status === "결제취소"
-                        ? "bg-gray-200 text-gray-600"
-                        : "bg-gray-100 text-gray-500"
-                    }`}
+                          ? "bg-yellow-100 text-yellow-800"
+                          : addr.status === "배송완료"
+                            ? "bg-green-100 text-green-800"
+                            : addr.status === "결제취소"
+                              ? "bg-gray-200 text-gray-600"
+                              : "bg-gray-100 text-gray-500"
+                      }`}
                   >
                     {addr.status}
                   </span>
                   {addr.status === "결제취소" && (
                     <>
                       <div className="text-sm mt-3 text-gray-500">이 주문은 취소되었습니다.</div>
-                      <button onClick={()=> deleteDelivery(addr.order_id)}
+                      <button onClick={() => deleteDelivery(addr.order_id)}
                         className="self-end mt-auto text-red-500 hover:text-red-700 text-sm">
                         내역 삭제
                       </button>
@@ -251,7 +251,7 @@ const GoodsDelivery = () => {
                     )
                   )}
                   {addr.status === "배송완료" && (
-                    <button onClick={()=> deleteDelivery(addr.order_id)}
+                    <button onClick={() => deleteDelivery(addr.order_id)}
                       className="self-end mt-auto text-red-500 hover:text-red-700 text-sm">
                       내역 삭제
                     </button>

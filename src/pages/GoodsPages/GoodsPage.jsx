@@ -57,6 +57,8 @@ const Goods = () => {
   };
 
   useEffect(() => {
+    const scrollDiv = document.getElementById('root').scrollTo(0, 0);
+    if (scrollDiv) scrollDiv.scrollTo(0, 0);
     const doListAll = async () => {
       try {
         const response = await fetch("http://localhost:8080/api/goods/listAll", {

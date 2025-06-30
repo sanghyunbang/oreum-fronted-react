@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaArrowLeft, FaHome, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import ReactQuill from "react-quill";
@@ -140,6 +140,10 @@ const GoodsAdd = () => {
     }
   };
 
+  useEffect(() => {
+    const scrollDiv = document.getElementById('root').scrollTo(0, 0);
+    if (scrollDiv) scrollDiv.scrollTo(0, 0);
+  }, [])
 
   return (
     <>

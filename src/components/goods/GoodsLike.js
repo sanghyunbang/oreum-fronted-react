@@ -22,6 +22,8 @@ const GoodsLiked = () => {
 
     useEffect(() => {
         if (!userInfo) return;
+        const scrollDiv = document.getElementById('root').scrollTo(0, 0);
+        if (scrollDiv) scrollDiv.scrollTo(0, 0);
 
         const fetchData = async () => {
             // 1. 상품목록 불러오기

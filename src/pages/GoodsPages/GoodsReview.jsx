@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaArrowLeft, FaHome, FaStar } from "react-icons/fa";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -67,6 +67,11 @@ const GoodsReview = () => {
       alert("리뷰 작성에 실패했습니다. 잠시후 다시 시도해주십시오.");
     }
   };
+
+  useEffect(()=>{
+    const scrollDiv = document.getElementById('root').scrollTo(0, 0);
+    if (scrollDiv) scrollDiv.scrollTo(0, 0);
+  },[])
 
   return (
     <div className="max-w-2xl mx-auto p-6 font-sans text-gray-800">
