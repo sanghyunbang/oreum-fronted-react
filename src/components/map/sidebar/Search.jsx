@@ -44,6 +44,7 @@ const Search = ({onSearchResult}) => {
 
   const handleSearch = async () => {
     const trimmed = inputText.trim();
+    console.log("🔍 trimmed:", trimmed);
     if (!trimmed) return;
 
     try {
@@ -56,10 +57,11 @@ const Search = ({onSearchResult}) => {
 
       if (results.length > 0) {
         const matched = results[0];
+        console.log(" 무슨 값을 onSearchResult로 전해주나??", matched);
         onSearchResult(matched);
         await fetchWeatherByMountainNum(matched.mountainNum);
       } else {
-        alert("해당 산을 찾을 수 없습니다.");
+        alert("해당 산을 찾을 수 없습니다."); // 이 부분 수정해야 -> onSearchResult에 검색하는 검색명을 넘기고 카카오가 center찾도록
       }
     } catch (err) {
       console.error("[X] 검색 중 오류 발생:", err);

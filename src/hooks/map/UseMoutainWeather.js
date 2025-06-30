@@ -7,7 +7,7 @@ export default function useMountainWeather() {
   const fetchWeatherByMountainNum = async (mountainNum) => {
     const backendUrl = `http://localhost:8080/weather/summit?mountainNum=${mountainNum}`;
     try {
-      console.clear();
+      // console.clear();
       console.log("🟢 mountainNum으로 날씨 요청:", mountainNum);
 
       setError(null);

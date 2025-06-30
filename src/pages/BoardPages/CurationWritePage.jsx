@@ -83,18 +83,55 @@ export default function CurationWritePage() {
 
   const handleSubmit = async () => {
 
+    console.log("Segments전체 검사: ", segments);
+
     // 여기선 MySQL로 공통 사항 보내기
     // curationInsert 백 api 만들 예정 -> insert와 동시에 해당 프라이머리키 보내줘야
 
     try {
-      // 1. MYSQL 글 공통 먼저 전송
+
+      // [0630] 검색좌표 추가 -> segments에서 제일 마지막에 좌표가 누적적으로 있고, 그 좌표를 평균으로 한걸 대표값
+      const lastKey = Math.max(...Object.keys(segments).map(Number)); // 가장 높은 숫자 키 구하기
+
+      console.log(" lastKey:", lastKey);
+      console.log(" segments[lastKey]:", segments[lastKey]);
+      const accGeoList = segments[lastKey]?.geoJson;
+      console.log(" accGeoList (좌표 리스트):", accGeoList);
+
+      // const geoNum = accGeoList.length;
+
+      let accLat = 0;
+      let accLng = 0;
+      let validCount = 0;
+
+      for (let i = 0; i < accGeoList.length; i++) {
+        const coord = accGeoList[i];
+        if (coord && typeof coord.lat === "number" && typeof coord.lng === "number") {
+          accLat += coord.lat;
+          accLng += coord.lng;
+          validCount++;
+        } else {
+          console.warn("좌표 포맷이 잘못됨:", coord);
+        }
+      }
+
+
+      const searchLat = accLat / validCount;
+      const searchLng = accLng / validCount;
+
+
+      // const searchGeo = [searchLat, searchLng];
+
+
+      // 1. MYSQL 글 공통 먼저 전송 + [0630] searchGeo추가
       const sqlPost = {
         userId: commonData.userId,
         nickname: commonData.nickname,
         boardId: parseInt(commonData.boardId, 10),
         type: commonData.type,
         title: commonData.title,
-        mountainName: commonData.mountainName
+        mountainName: commonData.mountainName,
+        searchGeo:  `${searchLat},${searchLng}`
       };
 
       // 1-1. insert가 FormData형식을 받는걸로 돼 있어서 파일이 없더라도 FormData로 보내야

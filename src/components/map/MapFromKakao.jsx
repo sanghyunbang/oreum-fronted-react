@@ -17,75 +17,145 @@ export default function MapFromKakao({ trails, center, minDistance = 0 }) {
     return null;
   };
 
-  const initializeProfileCustomOverlays = (map, centerCoord) => {
-    const generateRandomLatLng = (center, radiusInMeters) => {
-      const rd = radiusInMeters / 111300;
-      const u = Math.random();
-      const v = Math.random();
-      const w = rd * Math.sqrt(u);
-      const t = 2 * Math.PI * v;
-      const x = w * Math.cos(t);
-      const y = w * Math.sin(t);
-      return { lat: center.lat + y, lng: center.lng + x };
-    };
+const initializeProfileCustomOverlays = (map, centerCoord) => {
+  // 중심 좌표 기준으로 랜덤 좌표 생성 (테스트용)
+  const generateRandomLatLng = (center, radiusInMeters) => {
+    const rd = radiusInMeters / 111300;
+    const u = Math.random();
+    const v = Math.random();
+    const w = rd * Math.sqrt(u);
+    const t = 2 * Math.PI * v;
+    const x = w * Math.cos(t);
+    const y = w * Math.sin(t);
+    return { lat: center.lat + y, lng: center.lng + x };
+  };
 
-    const getRandomColor = () => {
-      const letters = '0123456789ABCDEF';
-      return '#' + Array.from({ length: 6 }, () => letters[Math.floor(Math.random() * 16)]).join('');
-    };
+  // 무작위 색상 생성 (프로필 마커 외곽선에 사용)
+  const getRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    return '#' + Array.from({ length: 6 }, () => letters[Math.floor(Math.random() * 16)]).join('');
+  };
 
-    const addAnimationStyle = () => {
-      if (document.getElementById('floating-style')) return;
-      const style = document.createElement('style');
-      style.id = 'floating-style';
-      style.innerHTML = `
-        @keyframes float {
-          0% { transform: translate(-50%, -50%) translateY(0); }
-          50% { transform: translate(-50%, -50%) translateY(-8px); }
-          100% { transform: translate(-50%, -50%) translateY(0); }
-        }
-        .floating-marker {
-          animation: float 3s ease-in-out infinite;
-        }
-      `;
-      document.head.appendChild(style);
-    };
+  // 마커에 부드러운 떠오름 애니메이션을 부여하는 CSS 추가 (중복 삽입 방지)
+  const addAnimationStyle = () => {
+    if (document.getElementById('floating-style')) return;
+    const style = document.createElement('style');
+    style.id = 'floating-style';
+    style.innerHTML = `
+      @keyframes float {
+        0% { transform: translate(-50%, -50%) translateY(0); }
+        50% { transform: translate(-50%, -50%) translateY(-8px); }
+        100% { transform: translate(-50%, -50%) translateY(0); }
+      }
+      .floating-marker {
+        animation: float 3s ease-in-out infinite;
+      }
+    `;
+    document.head.appendChild(style);
+  };
 
-    addAnimationStyle();
+  addAnimationStyle();
 
-    for (let i = 0; i < 50; i++) {
-      const coord = generateRandomLatLng({ lat: centerCoord[0], lng: centerCoord[1] }, 3000);
-      const profileUrl = `https://picsum.photos/seed/${i}/60/60`;
+  // 테스트용
 
-      const content = document.createElement('div');
-      content.className = 'floating-marker';
-      content.style.cssText = `
-        width: 54px;
-        height: 54px;
-        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; /* 물방울 느낌 */
-        overflow: hidden;
-        border: 3px solid ${getRandomColor()};
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        background: #fff;
-        transform: translate(-50%, -50%);
-        position: absolute;
-      `;
+  // for (let i = 0; i < 50; i++) {
+  //   const coord = generateRandomLatLng({ lat: centerCoord[0], lng: centerCoord[1] }, 3000);
+  //   const profileUrl = `https://picsum.photos/seed/${i}/60/60`;
 
-      const img = document.createElement('img');
-      img.src = profileUrl;
-      img.alt = 'img';
-      img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
-      content.appendChild(img);
+  //   const content = document.createElement('div');
+  //   content.className = 'floating-marker';
+  //   content.style.cssText = `
+  //     width: 54px;
+  //     height: 54px;
+  //     border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; /* 물방울 느낌 */
+  //     overflow: hidden;
+  //     border: 3px solid ${getRandomColor()};
+  //     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  //     background: #fff;
+  //     transform: translate(-50%, -50%);
+  //     position: absolute;
+  //   `;
 
-      new window.kakao.maps.CustomOverlay({
-        map,
-        position: new window.kakao.maps.LatLng(coord.lat, coord.lng),
-        content,
-        yAnchor: 0.5,
-        xAnchor: 0.5,
+  //   const img = document.createElement('img');
+  //   img.src = profileUrl;
+  //   img.alt = 'img';
+  //   img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+  //   content.appendChild(img);
+
+  //   new window.kakao.maps.CustomOverlay({
+  //     map,
+  //     position: new window.kakao.maps.LatLng(coord.lat, coord.lng),
+  //     content,
+  //     yAnchor: 0.5,
+  //     xAnchor: 0.5,
+  //   });
+  // }
+
+  // 여기에서 테스트 용 말고 실제로 만든걸 어떻게 표출할지 
+  // prop으로 검색에 의해서 center가 정해짐 -> 그 center을 기준으로 특정 delta내에 있는 프로필 표출 (프로필 위에 좋아요 숫자도 띄우기)
+  // 해당 글 링크 걸어 놓기
+
+  // 서버에서 프로필 리스트를 받아오는 함수
+  const fetchProfiles = async (baseLat, baseLon) => {
+    const res = await fetch(`http://localhost:8080/profilesForMap/getProfiles?baseLat=${baseLat}&baseLon=${baseLon}`, {
+      method: "GET",
+      credentials: "include"
+    });
+
+    if (!res.ok) throw new Error('프로필 가져오기 실패');
+
+    return await res.json(); // 데이터: [{ lat, lon, nickname, profileUrl, postId }, ...]
+  };
+
+  // 받아온 프로필들을 지도 위에 마커로 표시
+  const displayProfiles = async () => {
+    try {
+      const data = await fetchProfiles(centerCoord[0], centerCoord[1]);
+
+      data.forEach((profile) => {
+        const { lat, lon, profileUrl, nickname, postId } = profile;
+
+        const container = document.createElement('div');
+        container.className = 'floating-marker';
+        container.style.cssText = `
+          width: 54px;
+          height: 54px;
+          border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+          overflow: hidden;
+          border: 3px solid ${getRandomColor()};
+          background: #fff;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          transform: translate(-50%, -50%);
+          position: absolute;
+        `;
+
+        const img = document.createElement('img');
+        img.src = profileUrl || 'https://via.placeholder.com/60'; 
+        img.alt = nickname;
+        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+        container.appendChild(img);
+
+        container.onclick = () => {
+          window.location.href = `/post/${postId}`; // 프로필 클릭 시 해당 글로 이동
+        };
+
+        new window.kakao.maps.CustomOverlay({
+          map,
+          position: new window.kakao.maps.LatLng(lat, lon),
+          content: container,
+          yAnchor: 0.5,
+          xAnchor: 0.5,
+        });
       });
+
+    } catch (error) {
+      console.error("프로필 마커 표시 실패:", error);
     }
   };
+
+  displayProfiles(); // 실행
+};
+
 
   useEffect(() => {
     const script = document.createElement('script');
