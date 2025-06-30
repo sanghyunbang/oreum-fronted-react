@@ -50,13 +50,8 @@ const GoodsDelivery = () => {
         body: JSON.stringify({ order_id: id, reason: cancelReason }),
       })
       if(response.ok){
-        const data = await response.text();
-        if(data==="1"){
           alert("결제내역이 삭제되었습니다.");
           setFormData(prev => prev.filter(o => o.order_id !== id)); //삭제시 화면에 바로 반영
-        }else{
-          alert("취소되었습니다.")
-        }
       }
     } catch {
       alert("결제내역 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주십시오.");
