@@ -323,3 +323,13 @@ CREATE TABLE reviews (
 -- [goods 테이블 수정]
 -- description TEXT -> LONGTEXT 변경
 ALTER TABLE goods MODIFY description LONGTEXT;
+
+-- [0630 posts 테이블 수정 : searchGeo 칼럼 추가]
+
+USE OREUM_TEST;
+
+ALTER TABLE posts
+ADD COLUMN searchGeo VARCHAR(255);
+
+COMMIT;
+
