@@ -133,18 +133,24 @@ const Search = ({onSearchResult}) => {
         </ul>
       )}
 
-      {/* 에러 표시 */}
+      {/* 안내 문구 (초기 상태 or 결과 없음) */}
+      {!mountainWeather && !weatherError && (
+        <p className="text-sm text-gray-500 text-center mt-4">
+          산 이름을 검색하면 산악 예보가 표시됩니다.
+        </p>
+      )}
+
+      {/* 에러 메시지 (진짜 에러일 때만) */}
       {weatherError && (
         <p className="text-red-600 text-sm mb-3">{weatherError}</p>
       )}
 
-      {/* 날씨 결과 */}
-      {mountainWeather && (
+      {mountainWeather && mountainWeather.forecast && (
         <div className="bg-white p-4 rounded-lg shadow text-sm">
           <p className="font-bold mb-3">{mountainWeather.mountain}의 산악예보</p>
 
           {Object.entries(mountainWeather.forecast).map(([date, info]) => {
-            if (!info["0900_temp"]) return null; // 유효하지 않은 날짜 무시
+            if (!info["0900_temp"]) return null;
 
             return (
               <div key={date} className="mb-4 border rounded-md p-3 bg-gray-50">
@@ -175,6 +181,7 @@ const Search = ({onSearchResult}) => {
           })}
         </div>
       )}
+
     </div>
   );
 };

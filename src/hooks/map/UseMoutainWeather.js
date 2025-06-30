@@ -15,7 +15,7 @@ export default function useMountainWeather() {
 
       const response = await fetch(backendUrl, {
         method: "GET",
-        credentials: 'include', // 세션/쿠키 공유 필요 시
+        credentials: 'include',
       });
 
       console.log("✅ 백엔드 응답 상태:", response.status);
@@ -23,6 +23,12 @@ export default function useMountainWeather() {
       if (!response.ok) {
         const text = await response.text();
         console.error("❌ 백엔드 응답 본문:", text);
+        // 예보 없음은 error로 간주하지 않음
+        if (response.status === 404) {
+          console.warn("⚠️ 산악예보 없음");
+          setWeather(null); // 단순히 비우기
+          return;
+        }
         throw new Error("서버에서 날씨 정보를 받아오지 못했습니다.");
       }
 
