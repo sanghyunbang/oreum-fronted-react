@@ -332,7 +332,6 @@ ADD COLUMN merchant_uid VARCHAR(255) NULL;
 
 -- [0701 orders 테이블 수정 : imp_uid , merchant_uid 칼럼 추가]
 
-
 USE OREUM_TEST;
 
 ALTER TABLE posts
@@ -340,3 +339,17 @@ ADD COLUMN searchGeo VARCHAR(255);
 
 COMMIT;
 
+--[0701 feed 테이블 추가]
+
+CREATE TABLE myfeed(
+	id int primary key auto_increment,
+    feedId int not null,
+    userId int not null,
+    boardId int not null
+);
+
+Create table feedname(
+feedId int primary key auto_increment,
+name varchar(255),
+userId int
+);
