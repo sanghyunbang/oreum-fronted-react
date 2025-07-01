@@ -49,6 +49,7 @@ const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
       });
       if (!res.ok) throw new Error("커뮤니티 리스트 불러오기 실패");
       const data = await res.json();
+      setAllCommunities(data);   // 전체 원본 저장
       setCommunities(data);
     } catch (error) {
       console.error(error);
@@ -125,6 +126,66 @@ const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
     }
   };
 
+  // 사이드 검색
+  const [allCommunities, setAllCommunities] = useState([]); // 전체 데이터
+  // const [communities, setCommunities] = useState([]);        // 필터링된 결과
+  const [searchTerm, setSearchTerm] = useState("");          // 검색어
+  
+  // 필터된 커뮤니티 리스트
+  const filteredCommunities = communities.filter((com) =>
+    com.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // 가입한 켜뮤니티 표출
+
+  const [joinedCommunities, setJoinedCommunities] = useState([]);
+
+
+  // 여기에 바깥에서 정의
+  const fetchJoinedCommunities = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/community/mycommunities", {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("가입한 커뮤니티 불러오기 실패");
+  
+      const data = await res.json(); // => ["지리산", "설악산", ...]
+      setJoinedCommunities(data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setJoinedCommunities([]);
+      return;
+    }
+  
+    fetchJoinedCommunities(); //  바깥 함수 호출 가능
+  }, [isLoggedIn]);
+  
+  //  서브 커뮤니티 실시간 반영
+  useEffect(() => {
+    const handleCommunityJoined = () => {
+      if (isLoggedIn) {
+        fetchJoinedCommunities(); //  여기도 정상 호출
+      }
+    };
+  
+    window.addEventListener("community-joined", handleCommunityJoined);
+    return () => {
+      window.removeEventListener("community-joined", handleCommunityJoined);
+    };
+  }, [isLoggedIn]);
+  
+  
+  
+
+
+
+
+
   return (
     <aside className="w-[250px] px-4 py-6 bg-white border-r border-gray-200 text-sm space-y-6 overflow-y-auto h-full">
       <div className="mt-6">
@@ -147,9 +208,9 @@ const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
         >
           <FaMapMarkedAlt /> <span>등산 지도</span>
         </div>
-        <div className="flex items-center gap-2 cursor-pointer hover:text-green-600">
+        {/* <div className="flex items-center gap-2 cursor-pointer hover:text-green-600">
           <FaUsers /> <span>모임/동행</span>
-        </div>
+        </div> */}
       </nav>
 
       <div>
@@ -218,15 +279,29 @@ const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
           </div>
         )}
 
-        <ul className="space-y-2">
-          {communities.length === 0 ? (
-            <li>로딩중...</li>
+
+      <input
+        type="text"
+        placeholder="커뮤니티 검색"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="w-full p-2 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-green-500"
+      />
+
+      {/* 검색 결과만 조건부로 표시 */}
+      {searchTerm && (
+        <ul className="space-y-2 mb-4">
+          {filteredCommunities.length === 0 ? (
+            <li className="text-sm text-gray-400">🔍 일치하는 커뮤니티가 없습니다.</li>
           ) : (
-            communities.map((com) => (
+            filteredCommunities.map((com) => (
               <li
-                key={com.title} 
+                key={com.title}
                 className="flex justify-between items-center cursor-pointer hover:text-green-700"
-                onClick={() => navigate(`/community/${com.title}`)}
+                onClick={() => {
+                  navigate(`/community/${com.title}`);
+                  setSearchTerm(""); // 검색어 초기화
+                }}
               >
                 <span>
                   {com.thumbnailUrl || "🏕️"} {com.title}
@@ -236,6 +311,9 @@ const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
             ))
           )}
         </ul>
+      )}
+
+
       </div>
 
       <div>
@@ -264,19 +342,24 @@ const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
       </div>
 
       <div>
-        <h4 className="text-gray-700 font-semibold mb-2">최근 본 산</h4>
-        <ul className="space-y-1 text-gray-800">
-          {recentMountains.map((mountain) => (
-            <li
-              key={mountain}
-              className="cursor-pointer hover:text-green-700"
-              onClick={() => navigate(`/mountain/${mountain}`)}
-            >
-              {mountain}
-            </li>
-          ))}
-        </ul>
-      </div>
+  <h4 className="text-gray-700 font-semibold mb-2">나의 관심 커뮤니티</h4>
+  <ul className="space-y-1 text-gray-800">
+    {joinedCommunities.length === 0 ? (
+      <li className="text-gray-400">가입한 커뮤니티가 없습니다.</li>
+    ) : (
+      joinedCommunities.map((title) => (
+        <li
+          key={title}
+          className="cursor-pointer hover:text-green-700"
+          onClick={() => navigate(`/community/${title}`)}
+        >
+          {title}
+        </li>
+      ))
+    )}
+  </ul>
+</div>
+
       
     </aside>
   );

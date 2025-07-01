@@ -353,3 +353,11 @@ feedId int primary key auto_increment,
 name varchar(255),
 userId int
 );
+
+
+[0702 my_community 추가]
+CREATE TABLE my_community(
+	id int primary key auto_increment,
+    board_id int,
+    user_id int    
+    );
