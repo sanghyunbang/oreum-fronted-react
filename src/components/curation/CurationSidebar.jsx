@@ -68,9 +68,10 @@ export default function CurationSideBar({ commonData, setCommonData, segments, s
         const data = await res.json();
         setBoards(data);
       } catch (err) {
-        console.error('게시판 불러오기 실패:', err);
+        console.error('가입한 커뮤니티 불러오기 실패:', err);
       }
     };
+
 
     fetchUserInfo();
     fetchBoards();
@@ -130,7 +131,10 @@ export default function CurationSideBar({ commonData, setCommonData, segments, s
     }));
 
     // 저장 이후 초기화
-    setSectionData(segObj);
+    setSectionData((prev) => ({
+      mountainName: prev.mountainName,
+      isUpward: prev.isUpward,
+    }));
     setSegmentContent('');
     setSegmentFiles([]);
     setSelectedFacilities([]);
@@ -182,18 +186,16 @@ export default function CurationSideBar({ commonData, setCommonData, segments, s
 
           <div className="mb-4">
             <label className="block mb-1 font-medium text-gray-700">[공통 정보] 상행/하행</label>
-            <select
-              value={commonData.boardId}
-              onChange={(e) => setSectionData({ ...sectionData, isUpward: e.target.value })}
+              <select
+              value={sectionData.isUpward ?? ''} // 초기 null/undefined 대비
+              onChange={(e) =>
+                setSectionData({ ...sectionData, isUpward: e.target.value === 'true' })
+              }
               className="w-full border border-gray-300 rounded px-3 py-2"
             >
               <option value="">선택하세요</option>
-                <option key={"up"} value={true}>
-                  상행
-                </option>
-                <option key={"down"} value={false}>
-                  하행
-                </option>
+              <option value="true">상행</option>
+              <option value="false">하행</option>
             </select>
           </div>   
 
