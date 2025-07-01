@@ -42,6 +42,7 @@ const Goods = () => {
     { id: 3, img: "/Goods_img/header2.jpeg" },
     { id: 4, img: "/Goods_img/header3.jpeg" },
     { id: 5, img: "/Goods_img/header4.jpeg" },
+    { id: 6, img: "/Goods_img/header5.jpeg" },
   ];
 
   const handleMouseDown = () => {

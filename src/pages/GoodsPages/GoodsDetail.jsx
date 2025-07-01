@@ -9,9 +9,9 @@ import { useSelector } from "react-redux";
 const GoodsDetail = () => {
   const [activeTab, setActiveTab] = useState("details");
   const [selectedOption, setSelectedOption] = useState([]);
-  const [goods, setGoods] = useState("");
-  const [goodsOpt, setGoodsOpt] = useState("");
-  const [reviews, setReviews] = useState("");
+  const [goods, setGoods] = useState({});
+  const [goodsOpt, setGoodsOpt] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
   const userInfo = useSelector((state) => state.user.userInfo);
   const { id } = useParams();
@@ -309,7 +309,7 @@ const GoodsDetail = () => {
             <div className="mt-6 mb-6">
               <div className="flex justify-between items-center border-t pt-2 text-lg font-semibold">
                 <span>총 결제금액</span>
-                <span className="text-emerald-500 text-xl">{Math.floor(totalPrice.toLocaleString())?.toLocaleString()}원</span>
+                <span className="text-emerald-500 text-xl">{Math.floor(totalPrice).toLocaleString()}원</span>
               </div>
             </div>
 
@@ -336,7 +336,7 @@ const GoodsDetail = () => {
                 </>
               )}
 
-              <button onClick={() => { navigator.clipboard.writeText(window.location.href); alert("URL이 복사되었습니다."); }} className="w-10 h-10 bg-white border border-gray-300 rounded-lg flex items-center justify-center">
+              <button onClick={() => {  alert("URL이 복사되었습니다."); }} className="w-10 h-10 bg-white border border-gray-300 rounded-lg flex items-center justify-center">
                 <FaShare />
               </button>
             </div>
