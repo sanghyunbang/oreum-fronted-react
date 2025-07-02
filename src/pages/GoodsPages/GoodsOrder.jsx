@@ -192,7 +192,7 @@ const GoodsOrder = () => {
 
   const doPayment = async () => {
     const res = await fetch(
-      "http://localhost:8080/api/goods/addOrder",
+      `${process.env.REACT_APP_API_URL}/api/goods/addOrder`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -211,7 +211,7 @@ const GoodsOrder = () => {
       }));
 
       const response = await fetch(
-        "http://localhost:8080/api/goods/addOrderItem",
+        `${process.env.REACT_APP_API_URL}/api/goods/addOrderItem`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -222,7 +222,7 @@ const GoodsOrder = () => {
 
       if (response.ok) {
         const delCart = await fetch(
-          "http://localhost:8080/api/goods/deleteCart",
+          `${process.env.REACT_APP_API_URL}/api/goods/deleteCart`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -244,7 +244,7 @@ const GoodsOrder = () => {
     if (scrollDiv) scrollDiv.scrollTo(0, 0);
     const doUser = async () => {
       const res = await fetch(
-        "http://localhost:8080/api/goods/getUserPoints",
+        `${process.env.REACT_APP_API_URL}/api/goods/getUserPoints`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -272,7 +272,7 @@ const GoodsOrder = () => {
       return parsed.length > 0
         ? parsed[0].startsWith("http")
           ? parsed[0]
-          : `http://localhost:8080${parsed[0]}`
+          : `${process.env.REACT_APP_API_URL}${parsed[0]}`
         : "/placeholder.png";
     } catch {
       return "/placeholder.png";

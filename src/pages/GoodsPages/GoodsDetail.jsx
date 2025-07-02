@@ -67,7 +67,7 @@ const GoodsDetail = () => {
   }, 0);
 
   const doLiked = async () => {
-    const res = await fetch("http://localhost:8080/api/goods/liked", {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/liked`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -92,7 +92,7 @@ const GoodsDetail = () => {
       alert("옵션을 선택해주세요.");
       return;
     }
-    const response = await fetch("http://localhost:8080/api/goods/cartAdd", {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/cartAdd`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -118,7 +118,7 @@ const GoodsDetail = () => {
       alert("옵션을 선택해주세요.");
       return;
     }
-    const response = await fetch("http://localhost:8080/api/goods/cartAdd", {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/cartAdd`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -134,7 +134,7 @@ const GoodsDetail = () => {
 
   useEffect(() => {
     const LikeCh = async () => {
-      const response = await fetch("http://localhost:8080/api/goods/like/check", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/like/check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -152,7 +152,7 @@ const GoodsDetail = () => {
 
   useEffect(() => {
     const doList = async () => {
-      const res = await fetch(`http://localhost:8080/api/goods/detailList?id=${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/detailList?id=${id}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -163,7 +163,7 @@ const GoodsDetail = () => {
       if (scrollDiv) scrollDiv.scrollTo(0, 0);
     };
     const doOptionList = async () => {
-      const res = await fetch(`http://localhost:8080/api/goods/detailListOpt?id=${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/detailListOpt?id=${id}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -172,7 +172,7 @@ const GoodsDetail = () => {
       setGoodsOpt(data);
     };
     const doReview = async () => {
-      const res = await fetch(`http://localhost:8080/api/goods/listReview?id=${id}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/listReview?id=${id}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

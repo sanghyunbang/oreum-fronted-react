@@ -62,13 +62,13 @@ const Goods = () => {
     if (scrollDiv) scrollDiv.scrollTo(0, 0);
     const doListAll = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/goods/listAll", {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/listAll`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",
         });
 
-        const res = await fetch("http://localhost:8080/api/goods/itemListAll", {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/itemListAll`, {
           method: "GET",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

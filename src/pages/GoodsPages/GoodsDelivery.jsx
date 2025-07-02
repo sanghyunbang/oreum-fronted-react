@@ -28,7 +28,7 @@ const GoodsDelivery = () => {
       if (!userInfo) { alert("로그인이 필요합니다."); navigate(-1); return; }
       const scrollDiv = document.getElementById('root').scrollTo(0, 0);
       if (scrollDiv) scrollDiv.scrollTo(0, 0);
-      const res = await fetch("http://localhost:8080/api/goods/deliveryList", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/deliveryList`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -45,7 +45,7 @@ const GoodsDelivery = () => {
   const deleteDelivery = async (id) => {
     if (!window.confirm("정말 삭제하시겠습니까?")) return;
     try {
-      const response = await fetch("http://localhost:8080/api/goods/deleteOrder", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/deleteOrder`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -64,7 +64,7 @@ const GoodsDelivery = () => {
     if (!cancelReason) return;
     setSubmitting(true);
     try {
-      const response = await fetch("http://localhost:8080/api/goods/cancelOrder", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/cancelOrder`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

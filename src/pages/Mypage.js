@@ -47,31 +47,31 @@ const fetchTabData = (tab) => {
   const { userId } = formData;
 
   if (tab === 'posts') {
-    axios.get(`http://localhost:8080/posts/user/${userId}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/posts/user/${userId}`)
       .then(res => setUserPosts(res.data))
       .catch(err => console.error("내가 쓴 글 가져오기 실패", err));
   }
 
   if (tab === 'comments') {
-    axios.get(`http://localhost:8080/posts/comments/user/${userId}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/posts/comments/user/${userId}`)
       .then(res => setUserComments(res.data))
       .catch(err => console.error("내가 쓴 덧글 가져오기 실패", err));
   }
 
   if (tab === 'likes') {
-    axios.get(`http://localhost:8080/posts/likes/user/${userId}`)
+    axios.get(`${process.env.REACT_APP_API_URL}/posts/likes/user/${userId}`)
       .then(res => setLikedPosts(res.data))
       .catch(err => console.error("좋아요한 게시물 가져오기 실패", err));
   }
   if (tab === 'bookmarks') {
-  axios.get(`http://localhost:8080/posts/bookmarks/user/${userId}`)
+  axios.get(`${process.env.REACT_APP_API_URL}/posts/bookmarks/user/${userId}`)
     .then(res => setBookmarkedPosts(res.data))
     .catch(err => console.error("북마크한 게시물 가져오기 실패", err));
 }
 };
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/user', { withCredentials: true })
+    axios.get(`${process.env.REACT_APP_API_URL}/api/user`, { withCredentials: true })
       .then((res) => {
         const userId = res.data.userId;
         setUserData(res.data);
@@ -82,7 +82,7 @@ const fetchTabData = (tab) => {
           nickname: res.data.nickname || '',
         }));
 
-        return axios.post('http://localhost:8080/api/user/details', { userId }, { withCredentials: true });
+        return axios.post(`${process.env.REACT_APP_API_URL}/api/user/details`, { userId }, { withCredentials: true });
       })
       .then((res) => {
         setFormData(prev => ({
@@ -117,7 +117,7 @@ const fetchTabData = (tab) => {
     ...formData,
     profileImage: formData.profile_image, // 키 이름 변환
   };
-    axios.put('http://localhost:8080/api/user/details', fixedFormData, { withCredentials: true })
+    axios.put(`${process.env.REACT_APP_API_URL}/api/user/details`, fixedFormData, { withCredentials: true })
       .then((res) => {
         alert('정보가 업데이트 되었습니다!');
         setUserData(res.data);
@@ -132,7 +132,7 @@ const fetchTabData = (tab) => {
 
   const handleCancel = () => {
   // formData에 있는 userId를 기반으로 다시 상세정보 요청
-  axios.post('http://localhost:8080/api/user/details', { userId: formData.userId }, { withCredentials: true })
+  axios.post(`${process.env.REACT_APP_API_URL}/api/user/details`, { userId: formData.userId }, { withCredentials: true })
     .then((res) => {
       setFormData(prev => ({
         ...prev,
@@ -161,7 +161,7 @@ const handleProfileMediaUpload = async (e) => {
   uformData.append("userId", formData.userId);
 
   try {
-    const response = await fetch("http://localhost:8080/api/user/upload/media", {
+    const response = await fetch(`${process.env.REACT_APP_API_URL}/api/user/upload/media`, {
       method: "POST",
       credentials: "include",
       body: uformData

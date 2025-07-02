@@ -59,7 +59,7 @@ const LoginPage = ({ onClose }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/user/login",
+        `${process.env.REACT_APP_API_URL}/api/user/login`,
         {
           email: formData.email,
           password: formData.pw,
@@ -84,7 +84,7 @@ const LoginPage = ({ onClose }) => {
   // 변경 5: localStorage 기반에서 → 쿠키 기반으로 변경
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/user", {
+      .get(`${process.env.REACT_APP_API_URL}/api/user`, {
         withCredentials: true, // 쿠키 기반 인증 정보 전송
       })
       .then((res) => {
@@ -156,7 +156,7 @@ const LoginPage = ({ onClose }) => {
 
               <button
                 type="button"
-                onClick={() => (window.location.href = "http://localhost:8080/oauth2/authorization/naver")}
+                onClick={() => (window.location.href = `${process.env.REACT_APP_API_URL}/oauth2/authorization/naver`)}
                 className="flex items-center justify-center gap-2 w-full max-w-[300px] h-10 my-1.5 px-5 rounded-full border border-[#dadce0] bg-white text-[#3c4043] text-sm font-medium cursor-pointer font-arial shadow-sm"
               >
                 <img src="/naver-login.png" alt="Naver" style={{ width: "20px", height: "20px" }} />
@@ -284,7 +284,7 @@ export default LoginPage;
 //     }
 
 //     try {
-//       const response = await fetch("http://localhost:8080/login", {
+//       const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
 //         method: "POST",
 //         headers: {
 //           "Content-Type": "application/json",
@@ -387,7 +387,7 @@ export default LoginPage;
 
 //                 <button
 //                   type="button"
-//                   onClick={() => (window.location.href = "http://localhost:8080/oauth2/authorization/naver")}
+//                   onClick={() => (window.location.href = `${process.env.REACT_APP_API_URL}/oauth2/authorization/naver`)}
 //                   className="flex items-center justify-center gap-2 w-full max-w-[300px] h-10 my-1.5 px-5 
 //                             rounded-full border border-[#dadce0] bg-white text-[#3c4043] text-sm font-medium 
 //                             cursor-pointer font-arial shadow-sm"

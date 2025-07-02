@@ -7,7 +7,7 @@ const parseImage = (img) => {
   try {
     const parsed = Array.isArray(img) ? img : JSON.parse(img || "[]");
     return parsed.length > 0
-      ? parsed[0].startsWith("http") ? parsed[0] : `http://localhost:8080${parsed[0]}`
+      ? parsed[0].startsWith("http") ? parsed[0] : `${process.env.REACT_APP_API_URL}${parsed[0]}`
       : "/placeholder.png";
   } catch {
     return "/placeholder.png";
@@ -26,7 +26,7 @@ const GoodsCart = () => {
     if (scrollDiv) scrollDiv.scrollTo(0, 0);
         const CartData = async () => {
             if (!userInfo) { alert("로그인이 필요합니다."); navigate(-1); return; }
-            const response = await fetch(`http://localhost:8080/api/goods/cartList`, {
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/cartList`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -60,7 +60,7 @@ const GoodsCart = () => {
 
     const doDelete = async () => {
         if (window.confirm("선택한 상품을 삭제하시겠습니까?")) {
-            const res = await fetch("http://localhost:8080/api/goods/selRemoveCart",{
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/selRemoveCart`,{
                 method:"POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -76,7 +76,7 @@ const GoodsCart = () => {
 
     const removeOption = async (cart) => {
         if (window.confirm("삭제하시겠습니까?")) {
-            const res = await fetch("http://localhost:8080/api/goods/removeCart",{
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/removeCart`,{
                 method:"POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

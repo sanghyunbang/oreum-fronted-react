@@ -48,7 +48,7 @@ const GoodsReview = () => {
   const doSubmit = async () => {
     if (!validate()) return;
     try {
-      const res = await fetch("http://localhost:8080/api/goods/addReview", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/addReview`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
