@@ -37,7 +37,7 @@ const CommunityPage = () => {
       try {
         if (!userId) return;
         const res = await axios.get(
-          `http://localhost:8080/posts/bookmarks/${userId}`,
+          `${process.env.REACT_APP_API_URL}/posts/bookmarks/${userId}`,
           { withCredentials: true }
         );
         setBookmarkedPosts(res.data);
@@ -52,7 +52,7 @@ const CommunityPage = () => {
   const toggleBookmark = async (postId) => {
     try {
       const res = await axios.post(
-        "http://localhost:8080/posts/bookmark",
+        `${process.env.REACT_APP_API_URL}/posts/bookmark`,
         { userId, postId },
         {
           headers: { "Content-Type": "application/json" },
@@ -77,7 +77,7 @@ const CommunityPage = () => {
       try {
         
         const communityRes = await axios.get(
-          `http://localhost:8080/api/community/${communityName}`,
+          `${process.env.REACT_APP_API_URL}/api/community/${communityName}`,
           { withCredentials: true }
         );
         setCommunity(communityRes.data);
@@ -90,7 +90,7 @@ const CommunityPage = () => {
             ? "curation"
             : "all";
   
-        const baseUrl = `http://localhost:8080/posts/board/${boardId}/${mode}`;
+        const baseUrl = `${process.env.REACT_APP_API_URL}/posts/board/${boardId}/${mode}`;
   
         const postsRes = await axios.get(
           query
@@ -106,7 +106,7 @@ const CommunityPage = () => {
   
     const getUserInfo = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/user", {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/user`, {
           withCredentials: true,
         });
         setUserId(res.data.userId);

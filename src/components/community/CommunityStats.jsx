@@ -20,7 +20,7 @@ const CommunityStats = ({ community }) => {
         communityTitle: community.title,
       };
 
-      const res = await fetch("http://localhost:8080/api/community/join", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/community/join`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,7 +49,7 @@ const CommunityStats = ({ community }) => {
         if (!user || !user.userId) return;
 
         try {
-        const res = await fetch("http://localhost:8080/api/community/mycommunities", {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/community/mycommunities`, {
             credentials: "include",
         });
         if (!res.ok) throw new Error("내 커뮤니티 불러오기 실패");
@@ -81,8 +81,8 @@ const CommunityStats = ({ community }) => {
 
     try {
         const url = isJoined
-        ? "http://localhost:8080/api/community/leave"
-        : "http://localhost:8080/api/community/join";
+        ? `${process.env.REACT_APP_API_URL}/api/community/leave`
+        : `${process.env.REACT_APP_API_URL}/api/community/join`;
 
         const res = await fetch(url, {
         method: "POST",

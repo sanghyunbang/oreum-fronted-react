@@ -116,7 +116,7 @@ const GoodsAdd = () => {
 
       formData.append("goods", new Blob([JSON.stringify(Goods)], { type: "application/json" }));
 
-      const res = await fetch("http://localhost:8080/api/goods/insert", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/insert`, {
         method: "POST",
         body: formData,
         credentials: "include",
@@ -125,7 +125,7 @@ const GoodsAdd = () => {
       const result = await res.json();
       if (result.id) {
         const optionData = options.map((opt) => ({ ...opt, goodsId: result.id }));
-        await fetch("http://localhost:8080/api/goods/addGoodsItem", {
+        await fetch(`${process.env.REACT_APP_API_URL}/api/goods/addGoodsItem`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           credentials: "include",

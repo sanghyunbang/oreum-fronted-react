@@ -28,7 +28,7 @@ export default function CurationDetailView({ segments }) {
               // keyId={sectionKey}
               pointerName={pointer?.pointerName || ''}
               section={section}
-              pointer={pointer} // ✅ pointer도 넘겨야 함
+              pointer={pointer} // pointer도 넘겨야 함
 
             />
           );

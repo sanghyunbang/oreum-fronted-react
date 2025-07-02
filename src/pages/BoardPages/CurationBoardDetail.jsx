@@ -27,7 +27,7 @@ export default CurationBoardDetail = () => {
 
     useEffect(() => {
     const getMongoSegments = async () => {
-        const response = await fetch(`http://localhost:8080/mongo/curationSegments/${postId}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/mongo/curationSegments/${postId}`, {
         method: 'GET',
         credentials: 'include',
         });

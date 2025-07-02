@@ -29,7 +29,7 @@ const MyFeedPages = () => {
     const fetchfeedsAndPosts = async () => {
       try {
         const FeedRes = await axios.get(
-          `http://localhost:8080/api/community/feeds/${feedname}`,
+          `${process.env.REACT_APP_API_URL}/api/community/feeds/${feedname}`,
           { withCredentials: true }
         );
         setPosts(FeedRes.data);
@@ -40,7 +40,7 @@ const MyFeedPages = () => {
 
     const getUserInfo = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/user", {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/user`, {
           withCredentials: true,
         });
         setUserId(res.data.userId);
@@ -58,7 +58,7 @@ const MyFeedPages = () => {
       try {
         if (!userId) return;
         const res = await axios.get(
-          `http://localhost:8080/posts/bookmarks/${userId}`,
+          `${process.env.REACT_APP_API_URL}/posts/bookmarks/${userId}`,
           { withCredentials: true }
         );
         setBookmarkedPosts(res.data);
@@ -74,7 +74,7 @@ const MyFeedPages = () => {
   const toggleBookmark = async (postId) => {
     try {
       const res = await axios.post(
-        "http://localhost:8080/posts/bookmark",
+        `${process.env.REACT_APP_API_URL}/posts/bookmark`,
         { userId, postId },
         {
           headers: { "Content-Type": "application/json" },

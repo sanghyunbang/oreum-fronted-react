@@ -35,7 +35,7 @@ function BoardDetailPage() {
     if (post?.type === "curation") {
       const getMongoSegments = async () => {
         try {
-          const response = await fetch(`http://localhost:8080/mongo/curationSegments/${postId}`, {
+          const response = await fetch(`${process.env.REACT_APP_API_URL}/mongo/curationSegments/${postId}`, {
             method: 'GET',
             credentials: 'include',
           });
@@ -45,13 +45,13 @@ function BoardDetailPage() {
           const rawSegments = await response.json();
           const segmentMap = {};
           rawSegments.forEach(seg => {
-            console.log("🚀 개별 seg 내용:", seg); // 여기에서 facility 있는지 확인
+            console.log("개별 seg 내용:", seg); // 여기에서 facility 있는지 확인
             segmentMap[seg.segmentKey] = seg;
           });
 
           setSegments(segmentMap);
         } catch (err) {
-          console.error("🧨 MongoDB segments 가져오기 실패:", err);
+          console.error("MongoDB segments 가져오기 실패:", err);
         }
       };
 

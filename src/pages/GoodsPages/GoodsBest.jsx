@@ -21,7 +21,7 @@ const GoodsBest = ({ product, rank }) => {
     }
   } catch (e) {
     if (typeof product.img === "string" && product.img.startsWith("/img/")) {
-      imgSrc = `http://localhost:8080${product.img}`;
+      imgSrc = `${process.env.REACT_APP_API_URL}${product.img}`;
     }
   }
 

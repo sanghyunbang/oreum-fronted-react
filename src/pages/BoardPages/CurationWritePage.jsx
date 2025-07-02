@@ -143,7 +143,7 @@ export default function CurationWritePage() {
       )
 
       // fetch 전송
-      const sqlRes = await fetch('http://localhost:8080/posts/insert', {
+      const sqlRes = await fetch(`${process.env.REACT_APP_API_URL}/posts/insert`, {
         method: 'POST',
         body: SqlData,
         credentials: 'include',
@@ -181,7 +181,7 @@ export default function CurationWritePage() {
       });
 
       // 2-5 백으로 요청 전송
-      const mongoRes = await fetch('http://localhost:8080/mongo/curationSegments',{
+      const mongoRes = await fetch(`${process.env.REACT_APP_API_URL}/mongo/curationSegments`,{
         method: 'POST',
         body: mongoFormData,
         credentials: 'include',
