@@ -22,7 +22,7 @@ const Layout = () => {
   // 자동 로그인 복구
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/user", { withCredentials: true })
+      .get(`${process.env.REACT_APP_API_URL}/api/user`, { withCredentials: true })
       .then((res) => {
         console.log("자동 로그인 응답:", res.data);
         dispatch(login(res.data));

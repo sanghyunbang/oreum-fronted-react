@@ -56,7 +56,7 @@ function WritePost() {
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/user", {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user`, {
           credentials: "include", // 쿠키 전달
         });
 
@@ -76,7 +76,7 @@ function WritePost() {
 
     const fetchBoards = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/community/list", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/community/list`, {
         credentials: "include",
       });
       if (!res.ok) throw new Error("게시판 목록 불러오기 실패");
@@ -120,7 +120,7 @@ function WritePost() {
       console.log(formData)
       console.log(postdata.boardId)
     try {
-      const res = await fetch("http://localhost:8080/posts/insert", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/insert`, {
         method: "POST",
         body: formData,
         credentials: "include", // 쿠키로 JWT 전달됨

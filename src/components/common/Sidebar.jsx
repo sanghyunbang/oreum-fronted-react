@@ -44,7 +44,7 @@ const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
 
   const fetchCommunities = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/community/list", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/community/list`, {
         credentials: "include",
       });
       if (!res.ok) throw new Error("커뮤니티 리스트 불러오기 실패");
@@ -57,7 +57,7 @@ const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   };
   const fetchFeeds = async () => {
   try {
-    const res = await fetch("http://localhost:8080/api/community/myfeeds", {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/community/myfeeds`, {
       method: "POST",
       credentials: "include",
     });
@@ -102,7 +102,7 @@ const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
         thumbnailUrl,
       };
 
-      const res = await fetch("http://localhost:8080/api/community/insertpost", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/community/insertpost`, {
         method: "POST",
         headers: {
            "Content-Type": "application/json",
@@ -144,7 +144,7 @@ const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
   // 여기에 바깥에서 정의
   const fetchJoinedCommunities = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/community/mycommunities", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/community/mycommunities`, {
         credentials: "include",
       });
       if (!res.ok) throw new Error("가입한 커뮤니티 불러오기 실패");

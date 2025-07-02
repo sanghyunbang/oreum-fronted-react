@@ -13,7 +13,7 @@ function BoardDetail() {
 
   const fetchPostDetail = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/posts/${postId}`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/posts/${postId}`, {
         method: "GET",
         credentials: "include",
       });
@@ -34,7 +34,7 @@ function BoardDetail() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/posts/comments`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/posts/comments`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -74,7 +74,7 @@ function BoardDetail() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/posts/comments`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/posts/comments`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -108,7 +108,7 @@ function BoardDetail() {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:8080/posts/${postId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/${postId}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -125,7 +125,7 @@ function BoardDetail() {
 
   const handleEditComment = async (commentId, newContent) => {
     try {
-      const res = await fetch(`http://localhost:8080/posts/comments/${commentId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/comments/${commentId}`, {
         method: "PUT",
         credentials: "include",
         headers: {
@@ -157,7 +157,7 @@ function BoardDetail() {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:8080/posts/comments/${commentId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/comments/${commentId}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -179,7 +179,7 @@ function BoardDetail() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/user", {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user`, {
           method: "GET",
           credentials: "include",
         });
@@ -188,7 +188,7 @@ function BoardDetail() {
           setUserInfo(data);
 
           const bookmarkRes = await fetch(
-            `http://localhost:8080/posts/${postId}/bookmarked?userId=${data.userId}`,
+            `${process.env.REACT_APP_API_URL}/posts/${postId}/bookmarked?userId=${data.userId}`,
             {
               method: "GET",
               credentials: "include",
@@ -226,7 +226,7 @@ function BoardDetail() {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/posts/bookmark", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/posts/bookmark`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -353,7 +353,7 @@ function BoardDetail() {
     }
 
     try {
-      const response = await fetch("http://localhost:8080/posts/like", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/posts/like`, {
         method: "POST",
         credentials: "include",
         headers: {

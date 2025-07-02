@@ -11,7 +11,7 @@ function MountainDetailPage() {
     setLoading(true);
     setError(false);
 
-    fetch(`http://localhost:8080/api/posts/mountain-info?name=${name}`)
+    fetch(`${process.env.REACT_APP_API_URL}/api/posts/mountain-info?name=${name}`)
       .then((res) => {
         if (!res.ok) throw new Error("정보를 불러올 수 없습니다.");
         return res.json();

@@ -11,7 +11,7 @@ const PostEditPage = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/posts/${postId}`, {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/${postId}`, {
           method: "GET",
           credentials: "include",
         });
@@ -34,7 +34,7 @@ const PostEditPage = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch(`http://localhost:8080/posts/${postId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/${postId}`, {
         method: "PUT",
         credentials: "include",
         headers: {

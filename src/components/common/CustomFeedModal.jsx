@@ -8,7 +8,7 @@ function CustomFeedModal({ onClose, onSuccess }) {
 
   useEffect(() => {
     axios
-      .get('http://localhost:8080/api/community/list', { withCredentials: true })
+      .get('${process.env.REACT_APP_API_URL}/api/community/list', { withCredentials: true })
       .then(res => setCommunities(res.data))
       .catch(err => console.error(err));
   }, []);
@@ -28,7 +28,7 @@ function CustomFeedModal({ onClose, onSuccess }) {
       return;
     }
 
-    axios.post('http://localhost:8080/api/community/createfeed',
+    axios.post('${process.env.REACT_APP_API_URL}/api/community/createfeed',
       {
         feedname: feedName,
         boardIdList: selectedBoards,

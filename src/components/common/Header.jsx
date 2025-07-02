@@ -17,7 +17,7 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://localhost:8080/api/user/logout", {
+      await fetch(`${process.env.REACT_APP_API_URL}/api/user/logout`, {
         method: "POST",
         credentials: "include",
       });
@@ -33,7 +33,7 @@ const Header = () => {
   if (!confirmed) return;
 
   try {
-    await fetch("http://localhost:8080/api/user", {
+    await fetch(`${process.env.REACT_APP_API_URL}/api/user`, {
       method: "DELETE",
       credentials: "include",
     });

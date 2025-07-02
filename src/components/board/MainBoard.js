@@ -13,7 +13,7 @@ function MainBoard() {
 
   const getUserInfo = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/user", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user`, {
         credentials: "include",
       });
       if (!res.ok) throw new Error("사용자 정보 불러오기 실패");
@@ -26,7 +26,7 @@ function MainBoard() {
 
   const loadPost = async () => {
     try {
-      const response = await fetch("http://localhost:8080/posts/list", {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/posts/list`, {
         method: "GET",
         credentials: "include",
       });
@@ -54,7 +54,7 @@ function MainBoard() {
 
   const loadBookmarks = async (uid) => {
     try {
-      const res = await fetch(`http://localhost:8080/posts/bookmarks/${uid}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/bookmarks/${uid}`, {
         credentials: "include",
       });
       if (!res.ok) throw new Error("북마크 불러오기 실패");
@@ -67,7 +67,7 @@ function MainBoard() {
 
   const toggleBookmark = async (postId) => {
     try {
-      const res = await fetch("http://localhost:8080/posts/bookmark", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/bookmark`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -142,7 +142,7 @@ function MainBoard() {
   }
 
   try {
-    const res = await fetch("http://localhost:8080/posts/like", {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/like`, {
       method: "POST",
       credentials: "include",
       headers: {
