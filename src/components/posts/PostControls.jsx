@@ -6,7 +6,7 @@ function PostControls({ post, userInfo, navigate }) {
     if (!confirmDelete) return;
 
     try {
-      const res = await fetch(`http://localhost:8080/posts/${post.postId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/${post.postId}`, {
         method: "DELETE",
         credentials: "include",
       });

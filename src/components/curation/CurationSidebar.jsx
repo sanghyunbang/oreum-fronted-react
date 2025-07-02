@@ -54,7 +54,7 @@ export default function CurationSideBar({ commonData, setCommonData, segments, s
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
-        const res = await fetch('http://localhost:8080/api/user', { credentials: 'include' });
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user`, { credentials: 'include' });
         const data = await res.json();
         setCommonData((prev) => ({ ...prev, userId: data.userId, nickname: data.nickname }));
       } catch (err) {
@@ -64,7 +64,7 @@ export default function CurationSideBar({ commonData, setCommonData, segments, s
 
     const fetchBoards = async () => {
       try {
-        const res = await fetch('http://localhost:8080/api/community/list', { credentials: 'include' });
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/community/list`, { credentials: 'include' });
         const data = await res.json();
         setBoards(data);
       } catch (err) {

@@ -7,7 +7,7 @@ function CommentItem({ comment, depth = 0, userInfo, postId, setPost }) {
   const handleReply = async () => {
     if (!replyText.trim()) return;
     try {
-      const res = await fetch(`http://localhost:8080/posts/comments`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/comments`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -41,7 +41,7 @@ function CommentItem({ comment, depth = 0, userInfo, postId, setPost }) {
     if (!updated || updated.trim() === "") return;
 
     try {
-      const res = await fetch(`http://localhost:8080/posts/comments/${comment.commentId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/comments/${comment.commentId}`, {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -68,7 +68,7 @@ function CommentItem({ comment, depth = 0, userInfo, postId, setPost }) {
     if (!window.confirm("댓글을 삭제하시겠습니까?")) return;
 
     try {
-      const res = await fetch(`http://localhost:8080/posts/comments/${comment.commentId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/comments/${comment.commentId}`, {
         method: "DELETE",
         credentials: "include",
       });

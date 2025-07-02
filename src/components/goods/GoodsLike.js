@@ -7,7 +7,7 @@ const parseImage = (img) => {
     try {
         const parsed = Array.isArray(img) ? img : JSON.parse(img || "[]");
         return parsed.length > 0
-            ? parsed[0].startsWith("http") ? parsed[0] : `http://localhost:8080${parsed[0]}`
+            ? parsed[0].startsWith("http") ? parsed[0] : `${process.env.REACT_APP_API_URL}${parsed[0]}`
             : "/placeholder.png";
     } catch {
         return "/placeholder.png";
@@ -27,7 +27,7 @@ const GoodsLiked = () => {
 
         const fetchData = async () => {
             // 1. 상품목록 불러오기
-            const res = await fetch("http://localhost:8080/api/goods/likedList", {
+            const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/likedList`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -40,7 +40,7 @@ const GoodsLiked = () => {
                 // 2. 각 상품별 좋아요 체크 요청
                 const likeChecks = await Promise.all(
                     data.map(async (item) => {
-                        const res2 = await fetch("http://localhost:8080/api/goods/like/check", {
+                        const res2 = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/like/check`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             credentials: "include",
@@ -67,7 +67,7 @@ const GoodsLiked = () => {
 
 
     const doLiked = async (goodsId) => {
-        const res = await fetch("http://localhost:8080/api/goods/liked", {
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/goods/liked`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             credentials: "include",

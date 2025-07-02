@@ -7,7 +7,7 @@ function CommentInput({ postId, userInfo, setPost }) {
     if (!newComment.trim()) return;
 
     try {
-      const response = await fetch(`http://localhost:8080/posts/comments`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/posts/comments`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

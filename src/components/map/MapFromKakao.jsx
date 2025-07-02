@@ -97,7 +97,7 @@ const initializeProfileCustomOverlays = (map, centerCoord) => {
 
   // 서버에서 프로필 리스트를 받아오는 함수
   const fetchProfiles = async (baseLat, baseLon) => {
-    const res = await fetch(`http://localhost:8080/profilesForMap/getProfiles?baseLat=${baseLat}&baseLon=${baseLon}`, {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/profilesForMap/getProfiles?baseLat=${baseLat}&baseLon=${baseLon}`, {
       method: "GET",
       credentials: "include"
     });

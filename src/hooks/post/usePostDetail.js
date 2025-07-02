@@ -13,7 +13,7 @@ export default function usePostDetail(postId) {
 
   const fetchPostDetail = async () => {
     try {
-      const res = await fetch(`http://localhost:8080/posts/${postId}`, {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/${postId}`, {
         method: "GET",
         credentials: "include",
       });
@@ -27,7 +27,7 @@ export default function usePostDetail(postId) {
 
   const fetchUserInfo = async () => {
     try {
-      const res = await fetch("http://localhost:8080/api/user", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/user`, {
         method: "GET",
         credentials: "include",
       });
@@ -36,7 +36,7 @@ export default function usePostDetail(postId) {
         setUserInfo(data);
 
         const bookmarkRes = await fetch(
-          `http://localhost:8080/posts/${postId}/bookmarked?userId=${data.userId}`,
+          `${process.env.REACT_APP_API_URL}/posts/${postId}/bookmarked?userId=${data.userId}`,
           { method: "GET", credentials: "include" }
         );
         if (bookmarkRes.ok) {
@@ -58,7 +58,7 @@ export default function usePostDetail(postId) {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/posts/bookmark", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/bookmark`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -84,7 +84,7 @@ export default function usePostDetail(postId) {
     }
 
     try {
-      const res = await fetch("http://localhost:8080/posts/like", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/posts/like`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
